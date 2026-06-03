@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -841,21 +840,147 @@
             padding: 12px 14px;
         }
 
-        /* News */
-        .news-scroll::-webkit-scrollbar { display: none; }
-        .news-scroll { scrollbar-width: none; }
-        .news-card {
-            flex: 0 0 75%;
-            background: rgba(255,255,255,0.03);
-            border: 1px solid rgba(255,255,255,0.06);
-            border-radius: 14px;
-            padding: 12px;
+        /* ==================== News Rotator (Pro) ==================== */
+        .news-rotator {
+            position: relative;
+            border-radius: 16px;
+            padding: 14px 14px 12px;
+            background: linear-gradient(135deg, rgba(34,211,238,0.06) 0%, rgba(255,255,255,0.02) 50%, rgba(168,85,247,0.05) 100%);
+            border: 1px solid rgba(255,255,255,0.07);
+            overflow: hidden;
+            min-height: 132px;
+        }
+        .news-rotator::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(600px circle at var(--mx,50%) var(--my,0%), rgba(34,211,238,0.08), transparent 40%);
+            pointer-events: none;
+        }
+        .news-progress-track {
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: rgba(255,255,255,0.05);
+            overflow: hidden;
+        }
+        .news-progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #22d3ee, #a855f7);
+            box-shadow: 0 0 8px rgba(34,211,238,0.6);
+            transition: width linear;
+        }
+        .news-stage {
+            position: relative;
+            min-height: 92px;
+        }
+        .news-slide {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            transform: translateX(20px) scale(0.98);
+            transition: opacity .5s ease, transform .55s cubic-bezier(.22,.61,.36,1);
+            pointer-events: none;
+        }
+        .news-slide.active {
+            opacity: 1;
+            transform: translateX(0) scale(1);
+            pointer-events: auto;
+        }
+        .news-slide.leaving {
+            opacity: 0;
+            transform: translateX(-20px) scale(0.98);
         }
         .news-source {
             font-size: 9px;
             font-weight: 800;
+            padding: 3px 7px;
+            border-radius: 5px;
+            letter-spacing: .3px;
+        }
+        .news-live {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 8.5px;
+            font-weight: 800;
+            color: #f87171;
+            background: rgba(248,113,113,0.1);
             padding: 2px 6px;
             border-radius: 4px;
+            border: 1px solid rgba(248,113,113,0.2);
+        }
+        .news-live::before {
+            content: "";
+            width: 5px; height: 5px;
+            border-radius: 50%;
+            background: #f87171;
+            box-shadow: 0 0 0 0 rgba(248,113,113,0.7);
+            animation: news-pulse 1.6s ease-in-out infinite;
+        }
+        @keyframes news-pulse {
+            0%,100% { box-shadow: 0 0 0 0 rgba(248,113,113,0.6); }
+            50%     { box-shadow: 0 0 0 6px rgba(248,113,113,0); }
+        }
+        .news-impact {
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            font-size: 9.5px;
+            font-weight: 800;
+            padding: 2px 6px;
+            border-radius: 5px;
+        }
+        .news-impact.up   { color: #34d399; background: rgba(52,211,153,0.1); }
+        .news-impact.down { color: #f87171; background: rgba(248,113,113,0.1); }
+        .news-dots {
+            display: flex;
+            justify-content: center;
+            gap: 5px;
+            margin-top: 10px;
+        }
+        .news-dot {
+            width: 5px; height: 5px;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.15);
+            cursor: pointer;
+            transition: all .35s ease;
+        }
+        .news-dot.active {
+            width: 18px;
+            background: linear-gradient(90deg, #22d3ee, #a855f7);
+            box-shadow: 0 0 6px rgba(34,211,238,0.5);
+        }
+        .news-title {
+            font-size: 12px;
+            font-weight: 800;
+            color: #fff;
+            line-height: 1.5;
+            margin-top: 8px;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .news-meta-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+        .news-meta-left {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        .news-time {
+            font-size: 9px;
+            color: #9ca3af;
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
         }
 
     
@@ -992,9 +1117,22 @@
 .lic-verified-tag i{font-size:8px}
 #header-bell-btn .bell-pulse{position:absolute;top:5px;left:5px;width:8px;height:8px;background:#ef4444;border-radius:50%;border:1.5px solid #0b0f19;animation:licDot 1.5s ease-in-out infinite}
 
+
+        /* ==================== Scroll Fix (v6) ==================== */
+        html, body {
+            height: auto;
+            min-height: 100%;
+            overflow-x: hidden;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        main {
+            overflow: visible !important;
+            padding-bottom: calc(110px + env(safe-area-inset-bottom)) !important;
+        }
     </style>
 </head>
-<body class="text-white min-h-screen flex flex-col justify-between overflow-x-hidden">
+<body class="text-white min-h-screen flex flex-col overflow-x-hidden">
 
     <!-- حاوية الإشعارات -->
     <div class="toast-container" id="toastContainer"></div>
@@ -1287,7 +1425,7 @@
 </div>
 </header>
 
-<main class="flex-1 p-4 overflow-y-auto" style="padding-top: 4px;">
+<main class="flex-1 p-4" style="padding-top: 4px;">
 
     <!-- ========== الرئيسية ========== -->
     <section id="sec-home" class="space-y-5 tab-content">
@@ -1584,33 +1722,94 @@
             <div class="flex items-center justify-between px-1">
                 <h3 class="text-xs font-bold text-gray-300 flex items-center gap-1.5">
                     <i class="fa-solid fa-newspaper text-cyan-400 text-[10px]"></i> أخبار السوق
+                    <span class="news-live">LIVE</span>
                 </h3>
-                <span class="text-[10px] text-cyan-400 font-medium">المزيد</span>
+                <span class="text-[10px] text-cyan-400 font-medium cursor-pointer">المزيد</span>
             </div>
-            <div class="flex gap-2.5 overflow-x-auto pb-1 news-scroll">
-                <div class="news-card">
-                    <div class="flex items-center gap-1.5 mb-2">
-                        <span class="news-source bg-orange-500/15 text-orange-400">CoinDesk</span>
-                        <span class="text-[9px] text-gray-500">منذ 15 د</span>
-                    </div>
-                    <p class="text-[11px] font-bold text-white leading-snug">البيتكوين يقترب من 65,000 دولار وسط ترقّب لقرارات الفيدرالي</p>
+
+            <div id="news-rotator" class="news-rotator">
+                <div class="news-progress-track">
+                    <div class="news-progress-bar" id="news-progress-bar"></div>
                 </div>
-                <div class="news-card">
-                    <div class="flex items-center gap-1.5 mb-2">
-                        <span class="news-source bg-blue-500/15 text-blue-400">Reuters</span>
-                        <span class="text-[9px] text-gray-500">منذ 42 د</span>
+
+                <div class="news-stage" id="news-stage">
+                    <!-- خبر 1 -->
+                    <div class="news-slide active">
+                        <div class="news-meta-row">
+                            <div class="news-meta-left">
+                                <span class="news-source bg-orange-500/15 text-orange-400">CoinDesk</span>
+                                <span class="news-time"><i class="fa-regular fa-clock"></i> منذ 15 د</span>
+                            </div>
+                            <span class="news-impact up"><i class="fa-solid fa-arrow-trend-up"></i> +2.4%</span>
+                        </div>
+                        <p class="news-title">البيتكوين يقترب من 65,000 دولار وسط ترقّب لقرارات الفيدرالي الأمريكي</p>
                     </div>
-                    <p class="text-[11px] font-bold text-white leading-snug">إثيريوم يسجّل أعلى حجم تداول أسبوعي منذ مارس</p>
-                </div>
-                <div class="news-card">
-                    <div class="flex items-center gap-1.5 mb-2">
-                        <span class="news-source bg-purple-500/15 text-purple-400">Binance</span>
-                        <span class="text-[9px] text-gray-500">منذ ساعة</span>
+
+                    <!-- خبر 2 -->
+                    <div class="news-slide">
+                        <div class="news-meta-row">
+                            <div class="news-meta-left">
+                                <span class="news-source bg-blue-500/15 text-blue-400">Reuters</span>
+                                <span class="news-time"><i class="fa-regular fa-clock"></i> منذ 42 د</span>
+                            </div>
+                            <span class="news-impact up"><i class="fa-solid fa-arrow-trend-up"></i> +1.8%</span>
+                        </div>
+                        <p class="news-title">إثيريوم يسجّل أعلى حجم تداول أسبوعي منذ مارس مع تدفّق مؤسسي قياسي</p>
                     </div>
-                    <p class="text-[11px] font-bold text-white leading-snug">إدراج 3 عملات جديدة وارتفاع حاد في سيولة سولانا</p>
+
+                    <!-- خبر 3 -->
+                    <div class="news-slide">
+                        <div class="news-meta-row">
+                            <div class="news-meta-left">
+                                <span class="news-source bg-yellow-500/15 text-yellow-400">Binance</span>
+                                <span class="news-time"><i class="fa-regular fa-clock"></i> منذ ساعة</span>
+                            </div>
+                            <span class="news-impact up"><i class="fa-solid fa-arrow-trend-up"></i> +5.1%</span>
+                        </div>
+                        <p class="news-title">إدراج 3 عملات جديدة على بايننس وارتفاع حاد في سيولة شبكة سولانا</p>
+                    </div>
+
+                    <!-- خبر 4 -->
+                    <div class="news-slide">
+                        <div class="news-meta-row">
+                            <div class="news-meta-left">
+                                <span class="news-source bg-purple-500/15 text-purple-400">Bloomberg</span>
+                                <span class="news-time"><i class="fa-regular fa-clock"></i> منذ ساعتين</span>
+                            </div>
+                            <span class="news-impact down"><i class="fa-solid fa-arrow-trend-down"></i> -0.9%</span>
+                        </div>
+                        <p class="news-title">تراجع طفيف في سوق العملات البديلة بعد جني الأرباح وعودة الحذر للمستثمرين</p>
+                    </div>
+
+                    <!-- خبر 5 -->
+                    <div class="news-slide">
+                        <div class="news-meta-row">
+                            <div class="news-meta-left">
+                                <span class="news-source bg-emerald-500/15 text-emerald-400">CNBC</span>
+                                <span class="news-time"><i class="fa-regular fa-clock"></i> منذ 3 ساعات</span>
+                            </div>
+                            <span class="news-impact up"><i class="fa-solid fa-arrow-trend-up"></i> +3.6%</span>
+                        </div>
+                        <p class="news-title">صناديق ETF للبيتكوين تستقطب تدفقات صافية بقيمة 540 مليون دولار خلال يوم واحد</p>
+                    </div>
+
+                    <!-- خبر 6 -->
+                    <div class="news-slide">
+                        <div class="news-meta-row">
+                            <div class="news-meta-left">
+                                <span class="news-source bg-pink-500/15 text-pink-400">CoinTelegraph</span>
+                                <span class="news-time"><i class="fa-regular fa-clock"></i> منذ 5 ساعات</span>
+                            </div>
+                            <span class="news-impact up"><i class="fa-solid fa-arrow-trend-up"></i> +12.7%</span>
+                        </div>
+                        <p class="news-title">قفزة مفاجئة لعملات الذكاء الاصطناعي بعد إعلان شراكات جديدة مع كبرى الشركات</p>
+                    </div>
                 </div>
+
+                <div class="news-dots" id="news-dots"></div>
             </div>
         </div>
+
 
     </section>
 
@@ -4387,5 +4586,83 @@ document.addEventListener('keydown',function(e){if(e.key==='Escape')closeLicense
 document.addEventListener('DOMContentLoaded',function(){var m=document.getElementById('license-modal');if(m)m.addEventListener('click',function(e){if(e.target===m)closeLicenseModal();});});
 </script>
 
+<script>
+/* ============ News Rotator Pro ============ */
+(function () {
+    const rotator = document.getElementById('news-rotator');
+    if (!rotator) return;
+
+    const stage  = document.getElementById('news-stage');
+    const slides = Array.from(stage.querySelectorAll('.news-slide'));
+    const bar    = document.getElementById('news-progress-bar');
+    const dotsEl = document.getElementById('news-dots');
+    const INTERVAL = 5000;
+
+    let idx = 0;
+    let timer = null;
+    let paused = false;
+
+    // build dots
+    slides.forEach((_, i) => {
+        const d = document.createElement('span');
+        d.className = 'news-dot' + (i === 0 ? ' active' : '');
+        d.addEventListener('click', () => { goTo(i); restart(); });
+        dotsEl.appendChild(d);
+    });
+    const dots = Array.from(dotsEl.children);
+
+    function goTo(next) {
+        if (next === idx) return;
+        const cur = slides[idx];
+        cur.classList.remove('active');
+        cur.classList.add('leaving');
+        setTimeout(() => cur.classList.remove('leaving'), 600);
+
+        idx = (next + slides.length) % slides.length;
+        slides[idx].classList.add('active');
+        dots.forEach((d, i) => d.classList.toggle('active', i === idx));
+    }
+
+    function tickProgress() {
+        bar.style.transition = 'none';
+        bar.style.width = '0%';
+        // force reflow
+        void bar.offsetWidth;
+        bar.style.transition = `width ${INTERVAL}ms linear`;
+        bar.style.width = '100%';
+    }
+
+    function start() {
+        tickProgress();
+        timer = setInterval(() => {
+            if (paused) return;
+            goTo(idx + 1);
+            tickProgress();
+        }, INTERVAL);
+    }
+
+    function restart() {
+        clearInterval(timer);
+        start();
+    }
+
+    // pause on hover/touch
+    rotator.addEventListener('mouseenter', () => { paused = true;  bar.style.transition = 'none'; });
+    rotator.addEventListener('mouseleave', () => { paused = false; tickProgress(); });
+    rotator.addEventListener('touchstart', () => { paused = true;  bar.style.transition = 'none'; }, { passive: true });
+    rotator.addEventListener('touchend',   () => { paused = false; tickProgress(); }, { passive: true });
+
+    // subtle parallax glow
+    rotator.addEventListener('mousemove', (e) => {
+        const r = rotator.getBoundingClientRect();
+        rotator.style.setProperty('--mx', ((e.clientX - r.left) / r.width  * 100) + '%');
+        rotator.style.setProperty('--my', ((e.clientY - r.top)  / r.height * 100) + '%');
+    });
+
+    start();
+})();
+</script>
+
 </body>
+
 </html>
