@@ -1,0 +1,2053 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+    <title>BontFoR - منصة التداول الرقمية</title>
+
+    <meta name="application-name" content="BontFoR">
+    <meta name="description" content="BontFoR - منصة تداول رقمية متكاملة - تداول العملات الرقمية بسهولة وأمان">
+    <meta name="theme-color" content="#0b0f19">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="BontFoR">
+    <meta name="msapplication-TileColor" content="#0b0f19">
+    <meta name="msapplication-config" content="none">
+
+    <link rel="manifest" id="manifest-link" href="data:application/json;base64,">
+    <link rel="apple-touch-icon" id="apple-touch-icon" href="data:image/svg+xml;base64,">
+    <link rel="apple-touch-icon-precomposed" id="apple-touch-icon-precomposed" href="data:image/svg+xml;base64,">
+
+    <script src="https://cdn.tailwindcss.com">
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap');
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: #0b0f19;
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .glass-card {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.01) 100%);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        /* ==================== شريط تثبيت PWA الثابت ==================== */
+        #pwa-install-bar {
+            position: fixed;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 448px;
+            z-index: 101;
+            background: linear-gradient(180deg, rgba(15, 20, 30, 0.97) 0%, rgba(18, 24, 36, 0.95) 100%);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(99, 102, 241, 0.25);
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5), 0 1px 0 rgba(99, 102, 241, 0.08) inset;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 14px;
+            gap: 10px;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            min-height: 46px;
+        }
+
+        #pwa-install-bar[data-pwa-state="installable"] {
+            border-bottom-color: rgba(99, 102, 241, 0.4);
+            background: linear-gradient(180deg, rgba(20, 25, 42, 0.98) 0%, rgba(15, 20, 35, 0.96) 100%);
+        }
+
+        #pwa-install-bar[data-pwa-state="installable"] .pwa-bar-icon-wrap {
+            background: linear-gradient(135deg, #6366f1, #3b82f6);
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.45);
+            animation: iconPulse 2.5s ease-in-out infinite;
+        }
+
+        @keyframes iconPulse {
+            0%,
+            100% {
+                box-shadow: 0 4px 15px rgba(99, 102, 241, 0.45);
+            }
+            50% {
+                box-shadow: 0 4px 28px rgba(99, 102, 241, 0.75), 0 0 40px rgba(99, 102, 241, 0.25);
+            }
+        }
+
+        /* عند التثبيت: إخفاء الشريط نهائياً باستخدام display:none */
+        #pwa-install-bar[data-pwa-state="installed"] {
+            display: none !important;
+        }
+
+        .pwa-bar-icon-wrap {
+            width: 32px;
+            height: 32px;
+            min-width: 32px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 15px;
+            color: #fff;
+            flex-shrink: 0;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .pwa-bar-text {
+            flex: 1;
+            font-size: 11px;
+            color: #cbd5e1;
+            font-weight: 500;
+            line-height: 1.4;
+            min-width: 0;
+            transition: color 0.5s ease;
+        }
+
+        .pwa-bar-text strong {
+            color: #fff;
+            font-size: 12px;
+            display: block;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .pwa-bar-action-btn {
+            background: linear-gradient(135deg, #6366f1, #3b82f6);
+            color: #fff;
+            border: none;
+            padding: 7px 14px;
+            border-radius: 20px;
+            font-family: 'Tajawal', sans-serif;
+            font-weight: 700;
+            font-size: 11px;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            white-space: nowrap;
+            letter-spacing: 0.2px;
+            box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35);
+        }
+
+        .pwa-bar-action-btn:active {
+            transform: scale(0.92);
+            box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
+        }
+
+        .pwa-bar-installed-badge {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            background: rgba(52, 211, 153, 0.12);
+            border: 1px solid rgba(52, 211, 153, 0.3);
+            color: #6ee7b7;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-family: 'Tajawal', sans-serif;
+            font-weight: 700;
+            font-size: 10px;
+            flex-shrink: 0;
+            white-space: nowrap;
+            letter-spacing: 0.2px;
+            animation: badgeFadeIn 0.6s ease-out;
+        }
+
+        @keyframes badgeFadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .pwa-bar-installed-badge i {
+            font-size: 12px;
+            color: #34d399;
+        }
+
+        #pwa-install-bar .pwa-installable-only {
+            display: flex;
+        }
+        #pwa-install-bar .pwa-installed-only {
+            display: none;
+        }
+        #pwa-install-bar[data-pwa-state="installed"] .pwa-installable-only {
+            display: none;
+        }
+        #pwa-install-bar[data-pwa-state="installed"] .pwa-installed-only {
+            display: flex;
+        }
+
+        @supports(padding-top: env(safe-area-inset-top)) {
+            #pwa-install-bar {
+                padding-top: calc(8px + env(safe-area-inset-top));
+                min-height: calc(46px + env(safe-area-inset-top));
+            }
+        }
+
+        /* ==================== بطاقة التثبيت في صفحة الحساب ==================== */
+        #install-card-section {
+            transition: all 0.4s ease;
+        }
+
+        #install-card-section.install-hidden {
+            display: none !important;
+        }
+
+        /* ==================== نظام الإشعارات ==================== */
+        .toast-container {
+            position: fixed;
+            top: 56px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 200;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            pointer-events: none;
+            width: 100%;
+            max-width: 420px;
+            padding: 0 10px;
+            box-sizing: border-box;
+        }
+
+        .toast {
+            min-width: 260px;
+            max-width: 100%;
+            padding: 16px 20px;
+            border-radius: 16px;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            background: rgba(20, 25, 35, 0.92);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 14px;
+            color: #fff;
+            transform: translateY(-120%);
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            pointer-events: auto;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .toast i {
+            font-size: 20px;
+        }
+
+        .toast.loading i {
+            color: #60a5fa;
+        }
+
+        .toast.error i {
+            color: #f87171;
+        }
+
+        .toast.success i {
+            color: #34d399;
+        }
+
+        @keyframes scaleUp {
+            from {
+                transform: scale(0.9);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .animate-scaleUp {
+            animation: scaleUp 0.25s ease-out;
+        }
+
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        @supports(padding-bottom: env(safe-area-inset-bottom)) {
+            nav.fixed.bottom-0 {
+                padding-bottom: calc(0.5rem + env(safe-area-inset-bottom));
+            }
+        }
+
+        #pwa-install-bar .pwa-bar-content-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            gap: 10px;
+            transition: all 0.4s ease;
+        }
+
+        /* ==================== رسائل الخطأ في النماذج ==================== */
+        .input-error {
+            border-color: #f87171 !important;
+            box-shadow: 0 0 0 2px rgba(248, 113, 113, 0.2) !important;
+        }
+
+        .input-success {
+            border-color: #34d399 !important;
+            box-shadow: 0 0 0 2px rgba(52, 211, 153, 0.2) !important;
+        }
+
+        .error-message {
+            color: #f87171;
+            font-size: 10px;
+            margin-top: 4px;
+            display: none;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .error-message.visible {
+            display: flex;
+        }
+
+        .error-message i {
+            font-size: 10px;
+        }
+
+        .password-strength-bar {
+            height: 3px;
+            border-radius: 10px;
+            margin-top: 4px;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.08);
+            overflow: hidden;
+        }
+
+        .password-strength-bar .fill {
+            height: 100%;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            width: 0%;
+        }
+
+        .strength-weak .fill {
+            width: 25%;
+            background: #f87171;
+        }
+        .strength-fair .fill {
+            width: 50%;
+            background: #fbbf24;
+        }
+        .strength-good .fill {
+            width: 75%;
+            background: #60a5fa;
+        }
+        .strength-strong .fill {
+            width: 100%;
+            background: #34d399;
+        }
+
+        input[type="checkbox"] {
+            accent-color: #a855f7;
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+
+        @keyframes shake {
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+            10%,
+            30%,
+            50%,
+            70%,
+            90% {
+                transform: translateX(-4px);
+            }
+            20%,
+            40%,
+            60%,
+            80% {
+                transform: translateX(4px);
+            }
+        }
+
+        .shake {
+            animation: shake 0.5s ease-in-out;
+        }
+
+        /* عند التثبيت، الهيدر يلتصق بالأعلى بدون المسافة الخاصة بشريط التثبيت */
+        #main-platform header.sticky {
+            transition: top 0.6s ease-in-out;
+        }
+    </style>
+</head>
+<body class="text-white min-h-screen flex flex-col justify-between overflow-x-hidden">
+
+    <!-- حاوية الإشعارات -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- ==================== شاشة المصادقة ==================== -->
+    <div id="auth-container" class="w-full max-w-md mx-auto my-auto p-6 transition-all duration-300">
+
+        <!-- ========== بطاقة تسجيل الدخول ========== -->
+        <div id="login-card" class="glass-card p-8 rounded-3xl shadow-2xl relative overflow-hidden">
+            <div class="absolute -top-10 -left-10 w-32 h-32 bg-blue-500 rounded-full blur-3xl opacity-20"></div>
+            <div class="absolute -bottom-10 -right-10 w-32 h-32 bg-green-500 rounded-full blur-3xl opacity-20"></div>
+
+            <div class="text-center mb-8">
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-tr from-blue-500 to-indigo-600 mb-4 shadow-lg shadow-blue-500/30">
+                    <i class="fa-solid fa-chart-line text-2xl text-white"></i>
+                </div>
+                <h2 class="text-2xl font-bold tracking-wide">BontFoR</h2>
+                <p class="text-gray-400 text-sm mt-1">مرحباً بك مجدداً - قم بتسجيل الدخول للمتابعة في المنصة</p>
+            </div>
+
+            <div id="login-general-error" class="bg-red-500/10 border border-red-500/30 rounded-xl p-3 mb-4 hidden">
+                <p class="text-red-400 text-xs flex items-center gap-2" id="login-error-text">
+                    <i class="fa-solid fa-circle-exclamation"></i>
+                    <span></span>
+                </p>
+            </div>
+
+            <form id="login-form" onsubmit="handleLogin(event)" class="space-y-5" novalidate>
+                <div>
+                    <label class="block text-xs font-medium text-gray-400 mb-2">البريد الإلكتروني / اسم المستخدم</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 right-0 flex items-center pr-4 text-gray-400">
+                            <i class="fa-regular fa-user"></i>
+                        </span>
+                        <input type="text" id="login-identifier" required autocomplete="username"
+                        class="w-full pl-4 pr-12 py-3.5 bg-white/5 rounded-xl border border-white/10 focus:border-blue-500 focus:bg-white/10 outline-none transition text-sm"
+                        placeholder="أدخل بريدك الإلكتروني أو اسم المستخدم...">
+                    </div>
+                    <div class="error-message" id="login-identifier-error">
+                        <i class="fa-solid fa-circle-exclamation"></i>
+                        <span></span>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-400 mb-2">كلمة المرور</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 right-0 flex items-center pr-4 text-gray-400">
+                            <i class="fa-solid fa-lock"></i>
+                        </span>
+                        <input type="password" id="login-password" required autocomplete="current-password"
+                        class="w-full pl-4 pr-12 py-3.5 bg-white/5 rounded-xl border border-white/10 focus:border-blue-500 focus:bg-white/10 outline-none transition text-sm"
+                        placeholder="••••••••">
+                        <button type="button" onclick="togglePasswordVisibility('login-password', this)"
+                        class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500 hover:text-gray-300 transition">
+                        <i class="fa-regular fa-eye text-xs"></i>
+                    </button>
+                </div>
+                <div class="error-message" id="login-password-error">
+                    <i class="fa-solid fa-circle-exclamation"></i>
+                    <span></span>
+                </div>
+            </div>
+            <button type="submit" id="login-submit-btn"
+            class="w-full py-3.5 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 rounded-xl font-medium shadow-lg shadow-blue-500/20 transition transform active:scale-95 flex items-center justify-center gap-2">
+            <i class="fa-solid fa-right-to-bracket"></i>
+            <span>تسجيل الدخول</span>
+        </button>
+    </form>
+
+    <div class="text-center mt-6 text-sm text-gray-400">
+        ليس لديك حساب؟ <button onclick="toggleAuthCard('register')" class="text-blue-400 font-medium hover:underline">إنشاء
+        حساب جديد</button>
+    </div>
+</div>
+
+<!-- ========== بطاقة إنشاء الحساب ========== -->
+<div id="register-card" class="glass-card p-8 rounded-3xl shadow-2xl relative overflow-hidden hidden">
+    <div class="absolute -top-10 -left-10 w-32 h-32 bg-purple-500 rounded-full blur-3xl opacity-20"></div>
+
+    <div class="text-center mb-8">
+        <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-tr from-purple-500 to-pink-600 mb-4 shadow-lg shadow-purple-500/30">
+            <i class="fa-solid fa-user-plus text-2xl text-white"></i>
+        </div>
+        <h2 class="text-2xl font-bold tracking-wide">BontFoR</h2>
+        <p class="text-gray-400 text-sm mt-1">انضم إلينا وابدأ التداول اليوم</p>
+    </div>
+
+    <div id="register-general-error" class="bg-red-500/10 border border-red-500/30 rounded-xl p-3 mb-4 hidden">
+        <p class="text-red-400 text-xs flex items-center gap-2" id="register-error-text">
+            <i class="fa-solid fa-circle-exclamation"></i>
+            <span></span>
+        </p>
+    </div>
+
+    <form id="register-form" onsubmit="handleRegister(event)" class="space-y-4" novalidate>
+        <div>
+            <label class="block text-xs font-medium text-gray-400 mb-1">اسم المستخدم <span class="text-red-400">*</span></label>
+            <div class="relative">
+                <span class="absolute inset-y-0 right-0 flex items-center pr-4 text-gray-400">
+                    <i class="fa-regular fa-user"></i>
+                </span>
+                <input type="text" id="reg-username" required autocomplete="username" minlength="3" maxlength="30"
+                class="w-full pl-4 pr-12 py-3 bg-white/5 rounded-xl border border-white/10 focus:border-purple-500 focus:bg-white/10 outline-none transition text-sm"
+                placeholder="Ahmad_99">
+            </div>
+            <div class="error-message" id="reg-username-error">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                <span></span>
+            </div>
+            <p class="text-[10px] text-gray-500 mt-1">3-30 حرفاً، أحرف إنجليزية وأرقام وشرطة سفلية فقط</p>
+        </div>
+
+        <div>
+            <label class="block text-xs font-medium text-gray-400 mb-1">البريد الإلكتروني <span class="text-red-400">*</span></label>
+            <div class="relative">
+                <span class="absolute inset-y-0 right-0 flex items-center pr-4 text-gray-400">
+                    <i class="fa-regular fa-envelope"></i>
+                </span>
+                <input type="email" id="reg-email" required autocomplete="email"
+                class="w-full pl-4 pr-12 py-3 bg-white/5 rounded-xl border border-white/10 focus:border-purple-500 focus:bg-white/10 outline-none transition text-sm"
+                placeholder="name@example.com">
+            </div>
+            <div class="error-message" id="reg-email-error">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                <span></span>
+            </div>
+        </div>
+
+        <div>
+            <label class="block text-xs font-medium text-gray-400 mb-1">كلمة المرور <span class="text-red-400">*</span></label>
+            <div class="relative">
+                <span class="absolute inset-y-0 right-0 flex items-center pr-4 text-gray-400">
+                    <i class="fa-solid fa-lock"></i>
+                </span>
+                <input type="password" id="reg-password" required autocomplete="new-password" minlength="8"
+                class="w-full pl-4 pr-12 py-3 bg-white/5 rounded-xl border border-white/10 focus:border-purple-500 focus:bg-white/10 outline-none transition text-sm"
+                placeholder="••••••••">
+                <button type="button" onclick="togglePasswordVisibility('reg-password', this)"
+                class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500 hover:text-gray-300 transition">
+                <i class="fa-regular fa-eye text-xs"></i>
+            </button>
+        </div>
+        <div class="error-message" id="reg-password-error">
+            <i class="fa-solid fa-circle-exclamation"></i>
+            <span></span>
+        </div>
+        <div class="password-strength-bar" id="password-strength-bar">
+            <div class="fill" id="password-strength-fill"></div>
+        </div>
+        <p class="text-[10px] text-gray-500" id="password-strength-text">أدخل كلمة مرور قوية</p>
+        <ul class="text-[10px] text-gray-500 space-y-0.5 list-disc list-inside" id="password-requirements">
+            <li id="req-length">8 أحرف على الأقل</li>
+            <li id="req-uppercase">حرف كبير واحد على الأقل (A-Z)</li>
+            <li id="req-lowercase">حرف صغير واحد على الأقل (a-z)</li>
+            <li id="req-number">رقم واحد على الأقل (0-9)</li>
+        </ul>
+    </div>
+
+    <div>
+        <label class="block text-xs font-medium text-gray-400 mb-1">تأكيد كلمة المرور <span class="text-red-400">*</span></label>
+        <div class="relative">
+            <span class="absolute inset-y-0 right-0 flex items-center pr-4 text-gray-400">
+                <i class="fa-solid fa-lock"></i>
+            </span>
+            <input type="password" id="reg-password-confirm" required autocomplete="new-password"
+            class="w-full pl-4 pr-12 py-3 bg-white/5 rounded-xl border border-white/10 focus:border-purple-500 focus:bg-white/10 outline-none transition text-sm"
+            placeholder="أعد كتابة كلمة المرور">
+        </div>
+        <div class="error-message" id="reg-password-confirm-error">
+            <i class="fa-solid fa-circle-exclamation"></i>
+            <span></span>
+        </div>
+    </div>
+
+    <div class="flex items-center space-x-2 space-x-reverse pt-1">
+        <input type="checkbox" id="terms" required
+        class="rounded bg-white/5 border-white/10 text-purple-600 focus:ring-0">
+        <label for="terms" class="text-xs text-gray-400 select-none cursor-pointer">أوافق على <span class="text-purple-400 hover:underline">الشروط والأحكام</span> وسياسة الخصوصية.</label>
+    </div>
+    <div class="error-message" id="reg-terms-error">
+        <i class="fa-solid fa-circle-exclamation"></i>
+        <span>يجب الموافقة على الشروط والأحكام</span>
+    </div>
+
+    <button type="submit" id="register-submit-btn"
+    class="w-full py-3.5 bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 rounded-xl font-medium shadow-lg shadow-purple-500/20 transition transform active:scale-95 flex items-center justify-center gap-2">
+    <i class="fa-solid fa-user-plus"></i>
+    <span>تسجيل حساب جديد</span>
+</button>
+</form>
+
+<div class="text-center mt-6 text-sm text-gray-400">
+    لديك حساب بالفعل؟ <button onclick="toggleAuthCard('login')" class="text-purple-400 font-medium hover:underline">تسجيل
+    الدخول</button>
+</div>
+</div>
+</div>
+
+<!-- ==================== المنصة الرئيسية ==================== -->
+<div id="main-platform" class="w-full max-w-md mx-auto min-h-screen flex flex-col justify-between hidden">
+
+    <!-- ==================== شريط تثبيت PWA الثابت ==================== -->
+    <div id="pwa-install-bar" data-pwa-state="installable" role="banner" aria-label="شريط تثبيت التطبيق">
+        <div class="pwa-bar-content-wrapper">
+            <div class="pwa-bar-icon-wrap">
+                <i class="fa-solid fa-chart-line"></i>
+            </div>
+            <div class="pwa-bar-text">
+                <span class="pwa-installable-only" style="display:inline;">
+                    <strong>تطبيق BontFoR</strong>
+                    ثبّت للوصول السريع
+                </span>
+                <span class="pwa-installed-only" style="display:none;">
+                    <strong>✓ BontFoR مثبت بالفعل</strong>
+                    وصول فوري من الشاشة الرئيسية
+                </span>
+            </div>
+            <button class="pwa-bar-action-btn pwa-installable-only" onclick="triggerInstall()" style="display:inline-flex;">
+                <i class="fa-solid fa-download" style="margin-left:5px;"></i> تثبيت
+            </button>
+            <div class="pwa-bar-installed-badge pwa-installed-only" style="display:none;">
+                <i class="fa-solid fa-shield-check"></i>
+                <span>مثبّت</span>
+            </div>
+        </div>
+    </div>
+
+    <header class="p-4 flex justify-between items-center glass border-b border-white/5 sticky z-40 shadow-lg" style="top: 46px;">
+        <div class="flex items-center space-x-3 space-x-reverse">
+            <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-blue-500 to-indigo-600 flex items-center justify-center font-bold text-lg text-white shadow-md">
+                B
+            </div>
+            <div>
+                <h1 class="text-sm font-bold" id="user-display-name">BontFoR</h1>
+                <span class="text-[10px] bg-green-500/20 text-green-400 px-2 py-0.5 rounded-full font-medium">الحساب موثق
+                VIP</span>
+            </div>
+        </div>
+        <div class="flex items-center space-x-2 space-x-reverse">
+            <button class="w-9 h-9 rounded-xl bg-white/5 flex items-center justify-center hover:bg-white/10 transition">
+                <i class="fa-regular fa-bell text-sm text-gray-300"></i>
+            </button>
+            <button onclick="logout()"
+            class="w-9 h-9 rounded-xl bg-red-500/10 flex items-center justify-center hover:bg-red-500/20 transition text-red-400">
+            <i class="fa-solid fa-arrow-right-from-bracket text-sm"></i>
+        </button>
+    </div>
+</header>
+
+<main class="flex-1 p-4 overflow-y-auto" style="padding-top: 4px;">
+
+    <section id="sec-home" class="space-y-6 tab-content">
+        <div class="glass-card p-6 rounded-3xl relative overflow-hidden bg-gradient-to-b from-slate-800/40 to-slate-900/40">
+            <div class="absolute top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-blue-500/10 via-transparent to-transparent">
+            </div>
+            <p class="text-xs text-gray-400 flex items-center gap-1.5 mb-2">
+                <i class="fa-solid fa-wallet text-blue-400"></i> إجمالي الرصيد الحسابي
+            </p>
+            <div class="flex items-baseline space-x-2 space-x-reverse">
+                <span class="text-4xl font-bold tracking-tight text-white" id="main-balance">0.00</span>
+                <span class="text-lg font-bold text-blue-400">USDT</span>
+            </div>
+            <div class="text-[11px] text-gray-500 mt-1 flex items-center gap-1">
+                <span>≈ 0.00 USD</span>
+                <i class="fa-solid fa-arrow-trend-up text-green-500 ml-1"></i>
+                <span class="text-green-500">0.00% اليوم</span>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3 mt-6">
+                <button onclick="openModal('deposit')"
+                class="py-3 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 rounded-xl font-medium flex items-center justify-center space-x-2 space-x-reverse shadow-lg shadow-green-500/10 transition transform active:scale-95">
+                <i class="fa-solid fa-circle-arrow-down"></i>
+                <span>إيـــداع</span>
+            </button>
+            <button onclick="openModal('withdraw')"
+            class="py-3 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 rounded-xl font-medium flex items-center justify-center space-x-2 space-x-reverse shadow-lg shadow-blue-500/10 transition transform active:scale-95">
+            <i class="fa-solid fa-circle-arrow-up"></i>
+            <span>سحِــب</span>
+        </button>
+    </div>
+</div>
+
+<div class="grid grid-cols-3 gap-2">
+    <div class="glass p-3 rounded-2xl text-center">
+        <p class="text-[10px] text-gray-400">BTC / USDT</p>
+        <p class="text-xs font-bold text-red-500 mt-1">$64,250.5</p>
+    </div>
+    <div class="glass p-3 rounded-2xl text-center">
+        <p class="text-[10px] text-gray-400">ETH / USDT</p>
+        <p class="text-xs font-bold text-green-400 mt-1">$3,480.2</p>
+    </div>
+    <div class="glass p-3 rounded-2xl text-center">
+        <p class="text-[10px] text-gray-400">SOL / USDT</p>
+        <p class="text-xs font-bold text-green-400 mt-1">$145.15</p>
+    </div>
+</div>
+
+<div class="space-y-3">
+    <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider px-1">سوق الأصول المفضلة</h3>
+    <div class="glass rounded-2xl divide-y divide-white/5">
+        <div class="p-4 flex justify-between items-center">
+            <div class="flex items-center space-x-3 space-x-reverse">
+                <div class="w-8 h-8 rounded-full bg-yellow-500/10 text-yellow-500 flex items-center justify-center font-bold text-xs">
+                    ₿
+                </div>
+                <div>
+                    <p class="text-xs font-bold">Bitcoin</p>
+                    <span class="text-[10px] text-gray-500">BTC</span>
+                </div>
+            </div>
+            <div class="text-left">
+                <p class="text-xs font-bold">-1.24%</p>
+                <span class="text-[10px] text-red-500">هبوط</span>
+            </div>
+        </div>
+        <div class="p-4 flex justify-between items-center">
+            <div class="flex items-center space-x-3 space-x-reverse">
+                <div class="w-8 h-8 rounded-full bg-blue-500/10 text-blue-400 flex items-center justify-center font-bold text-xs">
+                    ♦
+                </div>
+                <div>
+                    <p class="text-xs font-bold">Ethereum</p>
+                    <span class="text-[10px] text-gray-500">ETH</span>
+                </div>
+            </div>
+            <div class="text-left">
+                <p class="text-xs font-bold">+2.41%</p>
+                <span class="text-[10px] text-green-400">صعود</span>
+            </div>
+        </div>
+    </div>
+</div>
+</section>
+
+<section id="sec-sync" class="space-y-4 tab-content hidden">
+    <div class="glass-card p-5 rounded-2xl text-center relative overflow-hidden">
+        <div class="w-12 h-12 rounded-full bg-blue-500/10 text-blue-400 flex items-center justify-center mx-auto mb-3 text-xl">
+            <i class="fa-solid fa-rotate animate-spin"></i>
+        </div>
+        <h3 class="text-base font-bold">نظام مزامنة الصفقات الفوري</h3>
+        <p class="text-xs text-gray-400 mt-1">قم بربط حسابك مع كبار المتداولين لنسخ صفقاتهم بشكل آلي ومتزامن.</p>
+    </div>
+
+    <div class="glass-card p-5 rounded-2xl space-y-3">
+        <h4 class="text-xs font-bold text-gray-300 flex items-center gap-2">
+            <i class="fa-solid fa-key text-purple-400"></i> تفعيل كود المزامنة
+        </h4>
+        <div class="relative">
+            <textarea id="sync-code-input" rows="3" placeholder="الصق كود المزامنة هنا..."
+            class="w-full p-3 bg-slate-900/80 rounded-xl border border-white/10 text-xs outline-none text-white placeholder-gray-500 focus:border-purple-500 transition resize-none"></textarea>
+        </div>
+        <button id="sync-confirm-btn" onclick="confirmSyncCode()"
+        class="w-full py-3 bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 rounded-xl font-medium text-sm shadow-lg shadow-purple-500/20 transition transform active:scale-95 flex items-center justify-center gap-2">
+        <i class="fa-solid fa-check-circle"></i>
+        <span>تأكيد</span>
+    </button>
+</div>
+
+<div class="space-y-3">
+    <h4 class="text-xs font-bold text-gray-400 px-1">قائمة خبراء التداول المتاحين للمزامنة</h4>
+
+    <div class="glass p-4 rounded-2xl flex justify-between items-center">
+        <div class="flex items-center space-x-3 space-x-reverse">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-white font-bold text-sm">
+                CK
+            </div>
+            <div>
+                <p class="text-xs font-bold">Alpha Trader Pro</p>
+                <span class="text-[10px] text-green-400">معدل العائد: +145.2%</span>
+            </div>
+        </div>
+        <button onclick="syncTrader(this)"
+        class="px-3 py-1.5 bg-blue-500 text-[11px] font-bold rounded-lg hover:bg-blue-600 transition flex items-center gap-1.5">
+        <span>مزامنة الآن</span>
+    </button>
+</div>
+
+<div class="glass p-4 rounded-2xl flex justify-between items-center">
+    <div class="flex items-center space-x-3 space-x-reverse">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-white font-bold text-sm">
+            WX
+        </div>
+        <div>
+            <p class="text-xs font-bold">Whale Tracking Bot</p>
+            <span class="text-[10px] text-green-400">معدل العائد: +89.3%</span>
+        </div>
+    </div>
+    <button onclick="syncTrader(this)"
+    class="px-3 py-1.5 bg-blue-500 text-[11px] font-bold rounded-lg hover:bg-blue-600 transition flex items-center gap-1.5">
+    <span>مزامنة الآن</span>
+</button>
+</div>
+</div>
+</section>
+
+<section id="sec-tasks" class="space-y-4 tab-content hidden">
+    <div class="glass-card p-4 rounded-2xl">
+        <h3 class="text-sm font-bold text-blue-400 mb-1">مركز المهام والمكافآت اليومية</h3>
+        <p class="text-[11px] text-gray-400">نفذ المهام الموكلة إليك لتفعيل مكافآت وأرباح إضافية في حسابك.</p>
+    </div>
+
+    <div class="space-y-2.5">
+        <div class="glass p-4 rounded-2xl flex justify-between items-center">
+            <div class="space-y-1">
+                <p class="text-xs font-bold">تأكيد توثيق البريد الإلكتروني</p>
+                <span class="text-[10px] text-amber-400 font-medium">+5.00 USDT مكافأة</span>
+            </div>
+            <span class="text-[11px] bg-green-500/20 text-green-400 px-2 py-1 rounded-lg"><i class="fa-solid fa-check"></i> مكتملة</span>
+        </div>
+
+        <div class="glass p-4 rounded-2xl flex justify-between items-center">
+            <div class="space-y-1">
+                <p class="text-xs font-bold">عمل أول عملية إيداع للمنصة</p>
+                <span class="text-[10px] text-amber-400 font-medium">+10.00 USDT مكافأة</span>
+            </div>
+            <button onclick="openModal('deposit')"
+            class="text-[11px] bg-blue-500 text-white px-3 py-1.5 rounded-lg font-bold hover:bg-blue-600 transition">ابدأ
+        الآن</button>
+    </div>
+
+    <div class="glass p-4 rounded-2xl flex justify-between items-center">
+        <div class="space-y-1">
+            <p class="text-xs font-bold">دعوة 3 أصدقاء للتسجيل عبر رابطك</p>
+            <span class="text-[10px] text-amber-400 font-medium">+15.00 USDT مكافأة</span>
+        </div>
+        <button onclick="copyReferralLink()"
+        class="text-[11px] bg-white/10 text-white px-3 py-1.5 rounded-lg font-bold hover:bg-white/20 transition">نسخ
+    الرابط</button>
+</div>
+</div>
+</section>
+
+<section id="sec-account" class="space-y-4 tab-content hidden">
+    <div class="glass p-4 rounded-2xl flex items-center space-x-4 space-x-reverse">
+        <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-purple-500 to-pink-600 flex items-center justify-center text-xl font-bold">
+            <i class="fa-solid fa-user-gear"></i>
+        </div>
+        <div>
+            <h3 class="text-base font-bold id-username-view">BontFoR</h3>
+            <p class="text-xs text-gray-400" id="account-uid">UID: 82749104</p>
+            <p class="text-[10px] text-gray-500" id="account-email-view"></p>
+        </div>
+    </div>
+
+    <!-- قسم تثبيت التطبيق في الحساب - يخفى بالكامل بعد التثبيت -->
+    <div class="glass-card p-4 rounded-2xl space-y-3" id="install-card-section">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-500 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-blue-500/20"
+            id="install-card-icon">
+            <i class="fa-solid fa-download text-sm"></i>
+        </div>
+        <div>
+            <h4 class="text-xs font-bold text-white" id="install-card-title">تثبيت تطبيق BontFoR على جهازك</h4>
+            <p class="text-[10px] text-gray-400" id="install-card-desc">وصول فوري للتداول بنقرة واحدة من الشاشة الرئيسية</p>
+        </div>
+    </div>
+    <button id="install-btn-account" onclick="triggerInstall()"
+    class="w-full py-2.5 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 rounded-xl font-medium text-sm shadow-lg shadow-blue-500/20 transition transform active:scale-95 flex items-center justify-center gap-2">
+    <i class="fa-solid fa-plus-square"></i>
+    <span>تثبيت تطبيق BontFoR الآن</span>
+</button>
+<div id="already-installed-msg" class="hidden flex-col items-center gap-2 py-2">
+    <div class="flex items-center gap-2 text-green-400">
+        <i class="fa-solid fa-check-circle text-lg"></i>
+        <span class="text-xs font-bold">✓ تطبيق BontFoR مثبت بالفعل على جهازك</span>
+    </div>
+    <span class="text-[10px] text-gray-500">يمكنك الوصول للمنصة من درج التطبيقات بنقرة واحدة</span>
+</div>
+</div>
+
+<div class="glass rounded-2xl divide-y divide-white/5 text-sm">
+    <div class="p-4 flex justify-between items-center">
+        <span class="text-gray-400 text-xs flex items-center gap-2"><i class="fa-solid fa-shield-halved text-blue-400"></i> أمان الحساب</span>
+        <span class="text-xs text-green-400 font-medium">عالي جداً (مفعل)</span>
+    </div>
+    <div class="p-4 flex justify-between items-center">
+        <span class="text-gray-400 text-xs flex items-center gap-2"><i class="fa-solid fa-key text-blue-400"></i> تغيير كلمة المرور</span>
+        <i class="fa-solid fa-chevron-left text-gray-500 text-xs"></i>
+    </div>
+    <div class="p-4 flex justify-between items-center">
+        <span class="text-gray-400 text-xs flex items-center gap-2"><i class="fa-solid fa-headset text-blue-400"></i> الدعم الفني المباشر</span>
+        <span class="text-xs bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded-full">متصل 24/7</span>
+    </div>
+</div>
+
+<button onclick="logout()"
+class="w-full py-3.5 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 rounded-xl text-red-400 font-medium transition flex items-center justify-center gap-2">
+<i class="fa-solid fa-arrow-right-from-bracket"></i>
+<span>تسجيل الخروج من الحساب</span>
+</button>
+</section>
+
+</main>
+
+<!-- شريط التنقل السفلي -->
+<nav class="fixed bottom-0 left-0 right-0 max-w-md mx-auto glass border-t border-white/10 rounded-t-3xl grid grid-cols-4 px-2 py-2 z-40 shadow-xl backdrop-blur-xl">
+    <button onclick="switchTab('home', this)"
+    class="nav-btn flex flex-col items-center justify-center py-2 text-blue-400 transition">
+    <i class="fa-solid fa-house text-lg mb-1"></i>
+    <span class="text-[10px] font-medium">الرئيسية</span>
+</button>
+<button onclick="switchTab('sync', this)"
+class="nav-btn flex flex-col items-center justify-center py-2 text-gray-400 hover:text-white transition">
+<i class="fa-solid fa-arrow-rotate-left text-lg mb-1"></i>
+<span class="text-[10px] font-medium">تزامن بالصفقات</span>
+</button>
+<button onclick="switchTab('tasks', this)"
+class="nav-btn flex flex-col items-center justify-center py-2 text-gray-400 hover:text-white transition">
+<i class="fa-solid fa-list-check text-lg mb-1"></i>
+<span class="text-[10px] font-medium">مهام</span>
+</button>
+<button onclick="switchTab('account', this)"
+class="nav-btn flex flex-col items-center justify-center py-2 text-gray-400 hover:text-white transition">
+<i class="fa-regular fa-user text-lg mb-1"></i>
+<span class="text-[10px] font-medium">حسابي</span>
+</button>
+</nav>
+
+</div>
+
+<!-- ==================== نافذة الإيداع ==================== -->
+<div id="modal-deposit" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="glass-card w-full max-w-sm rounded-3xl p-6 space-y-4 animate-scaleUp">
+        <div class="flex justify-between items-center">
+            <h3 class="text-base font-bold flex items-center gap-2 text-green-400">
+                <i class="fa-solid fa-circle-arrow-down"></i> إيداع عملات رقمية
+            </h3>
+            <button onclick="closeModal('deposit')"
+            class="w-7 h-7 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 text-gray-400 text-sm">✕</button>
+        </div>
+        <div>
+            <label class="block text-xs text-gray-400 mb-1.5">اختر شبكة الإيداع المخصصة</label>
+            <select class="w-full p-3 bg-slate-900 rounded-xl border border-white/10 text-xs outline-none text-white">
+                <option>USDT (TRC20)</option>
+                <option>USDT (BEP20 / BNB Chain)</option>
+                <option>USDT (Polygon)</option>
+            </select>
+        </div>
+        <div class="bg-white/5 p-3 rounded-xl border border-white/5 text-center space-y-2">
+            <p class="text-[10px] text-gray-400">عنوان الإيداع المخصص لحسابك</p>
+            <p class="text-[11px] font-mono select-all text-blue-400 break-all bg-black/30 p-2 rounded-lg border border-white/5">
+                TY7xR9pLmN3BvWqZ4kHs1fJg8dCs2vAx8D</p>
+            <button onclick="navigator.clipboard.writeText('TY7xR9pLmN3BvWqZ4kHs1fJg8dCs2vAx8D').then(()=>showToast('✅ تم نسخ عنوان الإيداع بنجاح!', 'success', 2000))"
+            class="text-[10px] bg-white/10 px-3 py-1 rounded-md text-white font-medium hover:bg-white/20 transition">نسخ
+        العنوان</button>
+    </div>
+    <div class="text-[10px] text-amber-400 bg-amber-500/10 p-2.5 rounded-xl border border-amber-500/10">
+        ⚠️ يرجى إرسال عملة USDT فقط عبر الشبكة المحددة لتفادي فقدان الأصول المعالجة.
+    </div>
+</div>
+</div>
+
+<!-- ==================== نافذة السحب ==================== -->
+<div id="modal-withdraw" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="glass-card w-full max-w-sm rounded-3xl p-6 space-y-4">
+        <div class="flex justify-between items-center">
+            <h3 class="text-base font-bold flex items-center gap-2 text-blue-400">
+                <i class="fa-solid fa-circle-arrow-up"></i> سحب أصول رقمية
+            </h3>
+            <button onclick="closeModal('withdraw')"
+            class="w-7 h-7 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 text-gray-400 text-sm">✕</button>
+        </div>
+        <div>
+            <label class="block text-xs text-gray-400 mb-1.5">عنوان المحفظة المستقبلة</label>
+            <input type="text" placeholder="أدخل عنوان محفظة الـ TRC20/BEP20..."
+            class="w-full p-3 bg-slate-900 rounded-xl border border-white/10 text-xs outline-none text-white">
+        </div>
+        <div>
+            <label class="block text-xs text-gray-400 mb-1.5">الكمية المراد سحبها (USDT)</label>
+            <div class="relative">
+                <input type="number" placeholder="الحد الأدنى 10"
+                class="w-full p-3 bg-slate-900 rounded-xl border border-white/10 text-xs outline-none text-white">
+                <span class="absolute left-3 inset-y-0 flex items-center text-xs font-bold text-gray-500">USDT</span>
+            </div>
+        </div>
+        <div class="flex justify-between text-[11px] text-gray-400 px-1">
+            <span>رصيدك المتاح: <b class="text-white">0.00 USDT</b></span>
+            <span>رسوم الشبكة: <b class="text-white">1.00 USDT</b></span>
+        </div>
+        <button
+        onclick="showToast('❌ فشلت العملية: رصيدك الحالي هو 0.00 USDT وهو أقل من الحد الأدنى للسحب.', 'error', 4000)"
+        class="w-full py-3 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl text-xs font-bold hover:from-blue-600 transition">تأكيد
+    عملية السحب</button>
+</div>
+</div>
+
+
+<script>
+    // ============================================================
+    // ==================== نظام إدارة المستخدمين ====================
+    // ============================================================
+    const USERS_STORAGE_KEY = 'bontfor_users_db';
+    const CURRENT_USER_KEY = 'bontfor_current_user';
+
+    function getAllUsers() {
+        try {
+            const data = localStorage.getItem(USERS_STORAGE_KEY);
+            return data ? JSON.parse(data) : [];
+        } catch (e) {
+            console.error('خطأ في قراءة بيانات المستخدمين:', e);
+            return [];
+        }
+    }
+
+    function saveAllUsers(users) {
+        try {
+            localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
+        } catch (e) {
+            console.error('خطأ في حفظ بيانات المستخدمين:', e);
+        }
+    }
+
+    function findUserByEmail(email) {
+        const users = getAllUsers();
+        return users.find(u => u.email.toLowerCase() === email.toLowerCase()) || null;
+    }
+
+    function findUserByUsername(username) {
+        const users = getAllUsers();
+        return users.find(u => u.username.toLowerCase() === username.toLowerCase()) || null;
+    }
+
+    function findUserByIdentifier(identifier) {
+        const lowerIdentifier = identifier.toLowerCase().trim();
+        const byEmail = findUserByEmail(lowerIdentifier);
+        if (byEmail) return byEmail;
+        return findUserByUsername(lowerIdentifier);
+    }
+
+    function generateUID() {
+        const users = getAllUsers();
+        let uid;
+        do {
+            uid = Math.floor(10000000 + Math.random() * 90000000).toString();
+        } while (users.some(u => u.uid === uid));
+        return uid;
+    }
+
+    function hashPassword(password) {
+        let hash = btoa(password + 'BontFoR_Salt_Key_2024');
+        hash = btoa(hash.split('').reverse().join('') + '_secure');
+        return hash;
+    }
+
+    function verifyPassword(password, hashedPassword) {
+        return hashPassword(password) === hashedPassword;
+    }
+
+    function isValidEmail(email) {
+        if (!email || typeof email !== 'string') return false;
+        const trimmed = email.trim();
+        const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*\.[a-zA-Z]{2,}$/;
+        if (!emailRegex.test(trimmed)) return false;
+        if (trimmed.length > 254) return false;
+        const localPart = trimmed.split('@')[0];
+        if (localPart.length > 64) return false;
+        if (localPart.startsWith('.') || localPart.endsWith('.')) return false;
+        if (localPart.includes('..')) return false;
+        return true;
+    }
+
+    function validatePasswordStrength(password) {
+        const result = {
+            isValid: false,
+            strength: 'weak',
+            errors: [],
+            requirements: {
+                length: false,
+                uppercase: false,
+                lowercase: false,
+                number: false
+            }
+        };
+
+        if (!password || password.length < 8) {
+            result.errors.push('يجب أن تكون كلمة المرور 8 أحرف على الأقل');
+        } else {
+            result.requirements.length = true;
+        }
+
+        if (!/[A-Z]/.test(password)) {
+            result.errors.push('يجب أن تحتوي على حرف كبير واحد على الأقل (A-Z)');
+        } else {
+            result.requirements.uppercase = true;
+        }
+
+        if (!/[a-z]/.test(password)) {
+            result.errors.push('يجب أن تحتوي على حرف صغير واحد على الأقل (a-z)');
+        } else {
+            result.requirements.lowercase = true;
+        }
+
+        if (!/[0-9]/.test(password)) {
+            result.errors.push('يجب أن تحتوي على رقم واحد على الأقل (0-9)');
+        } else {
+            result.requirements.number = true;
+        }
+
+        const metRequirements = Object.values(result.requirements).filter(Boolean).length;
+        const hasSpecialChar = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
+        const isLong = password.length >= 12;
+
+        if (metRequirements === 4) {
+            if (isLong && hasSpecialChar) {
+                result.strength = 'strong';
+            } else if (isLong || hasSpecialChar) {
+                result.strength = 'good';
+            } else {
+                result.strength = 'fair';
+            }
+            result.isValid = true;
+        } else if (metRequirements >= 2) {
+            result.strength = 'fair';
+        } else {
+            result.strength = 'weak';
+        }
+
+        return result;
+    }
+
+    function validateUsername(username) {
+        if (!username || username.trim().length < 3) {
+            return { isValid: false, error: 'يجب أن يكون اسم المستخدم 3 أحرف على الأقل' };
+        }
+        if (username.trim().length > 30) {
+            return { isValid: false, error: 'يجب ألا يتجاوز اسم المستخدم 30 حرفاً' };
+        }
+        const usernameRegex = /^[a-zA-Z0-9_]+$/;
+        if (!usernameRegex.test(username.trim())) {
+            return { isValid: false, error: 'يُسمح فقط بالأحرف الإنجليزية والأرقام والشرطة السفلية (_)' };
+        }
+        return { isValid: true, error: null };
+    }
+
+    function saveCurrentSession(user) {
+        const sessionData = {
+            uid: user.uid,
+            username: user.username,
+            email: user.email,
+            createdAt: user.createdAt,
+            lastLogin: new Date().toISOString()
+        };
+        localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(sessionData));
+    }
+
+    function getCurrentSession() {
+        try {
+            const data = localStorage.getItem(CURRENT_USER_KEY);
+            return data ? JSON.parse(data) : null;
+        } catch (e) {
+            return null;
+        }
+    }
+
+    function clearCurrentSession() {
+        localStorage.removeItem(CURRENT_USER_KEY);
+    }
+
+    // ============================================================
+    // ==================== دوال المصادقة ====================
+    // ============================================================
+
+    function showFieldError(elementId, message) {
+        const errorEl = document.getElementById(elementId);
+        if (errorEl) {
+            errorEl.querySelector('span').textContent = message;
+            errorEl.classList.add('visible');
+        }
+    }
+
+    function hideFieldError(elementId) {
+        const errorEl = document.getElementById(elementId);
+        if (errorEl) {
+            errorEl.classList.remove('visible');
+        }
+    }
+
+    function hideAllFieldErrors(formPrefix) {
+        const errorElements = document.querySelectorAll(`[id^="${formPrefix}-"]`);
+        errorElements.forEach(el => {
+            if (el.classList.contains('error-message')) {
+                el.classList.remove('visible');
+            }
+        });
+        const generalError = document.getElementById(`${formPrefix}-general-error`);
+        if (generalError) generalError.classList.add('hidden');
+        const inputs = document.querySelectorAll(`#${formPrefix}-form input`);
+        inputs.forEach(input => {
+            input.classList.remove('input-error', 'input-success');
+        });
+    }
+
+    function showGeneralError(formPrefix, message) {
+        const generalError = document.getElementById(`${formPrefix}-general-error`);
+        const errorText = document.getElementById(`${formPrefix}-error-text`);
+        if (generalError && errorText) {
+            errorText.querySelector('span').textContent = message;
+            generalError.classList.remove('hidden');
+            generalError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }
+
+    function handleLogin(event) {
+        event.preventDefault();
+        const formPrefix = 'login';
+        hideAllFieldErrors(formPrefix);
+
+        const identifierInput = document.getElementById('login-identifier');
+        const passwordInput = document.getElementById('login-password');
+        const submitBtn = document.getElementById('login-submit-btn');
+
+        const identifier = identifierInput.value.trim();
+        const password = passwordInput.value;
+
+        let hasError = false;
+
+        if (!identifier) {
+            showFieldError('login-identifier-error', 'يرجى إدخال البريد الإلكتروني أو اسم المستخدم');
+            identifierInput.classList.add('input-error');
+            hasError = true;
+        }
+
+        if (!password) {
+            showFieldError('login-password-error', 'يرجى إدخال كلمة المرور');
+            passwordInput.classList.add('input-error');
+            hasError = true;
+        }
+
+        if (hasError) return;
+
+        const user = findUserByIdentifier(identifier);
+
+        if (!user) {
+            showGeneralError(formPrefix, 'البريد الإلكتروني أو اسم المستخدم غير مسجل. يرجى التحقق أو إنشاء حساب جديد.');
+            identifierInput.classList.add('input-error');
+            passwordInput.classList.add('input-error');
+            submitBtn.classList.add('shake');
+            setTimeout(() => submitBtn.classList.remove('shake'), 500);
+            return;
+        }
+
+        if (!verifyPassword(password, user.passwordHash)) {
+            showGeneralError(formPrefix, 'كلمة المرور غير صحيحة. يرجى المحاولة مرة أخرى.');
+            passwordInput.classList.add('input-error');
+            passwordInput.value = '';
+            passwordInput.focus();
+            submitBtn.classList.add('shake');
+            setTimeout(() => submitBtn.classList.remove('shake'), 500);
+            return;
+        }
+
+        const users = getAllUsers();
+        const userIndex = users.findIndex(u => u.uid === user.uid);
+        if (userIndex !== -1) {
+            users[userIndex].lastLogin = new Date().toISOString();
+            saveAllUsers(users);
+        }
+
+        saveCurrentSession(user);
+        enterPlatform(user);
+        showToast('✅ مرحباً بك ' + user.username + '! تم تسجيل الدخول بنجاح.', 'success', 3000);
+    }
+
+    function handleRegister(event) {
+        event.preventDefault();
+        const formPrefix = 'reg';
+        hideAllFieldErrors(formPrefix);
+
+        const usernameInput = document.getElementById('reg-username');
+        const emailInput = document.getElementById('reg-email');
+        const passwordInput = document.getElementById('reg-password');
+        const passwordConfirmInput = document.getElementById('reg-password-confirm');
+        const termsCheckbox = document.getElementById('terms');
+        const submitBtn = document.getElementById('register-submit-btn');
+
+        const username = usernameInput.value.trim();
+        const email = emailInput.value.trim();
+        const password = passwordInput.value;
+        const passwordConfirm = passwordConfirmInput.value;
+
+        let hasError = false;
+
+        const usernameValidation = validateUsername(username);
+        if (!usernameValidation.isValid) {
+            showFieldError('reg-username-error', usernameValidation.error);
+            usernameInput.classList.add('input-error');
+            hasError = true;
+        } else {
+            const existingUsername = findUserByUsername(username);
+            if (existingUsername) {
+                showFieldError('reg-username-error', 'اسم المستخدم هذا مستخدم بالفعل. يرجى اختيار اسم آخر.');
+                usernameInput.classList.add('input-error');
+                hasError = true;
+            } else {
+                usernameInput.classList.add('input-success');
+            }
+        }
+
+        if (!email) {
+            showFieldError('reg-email-error', 'يرجى إدخال البريد الإلكتروني');
+            emailInput.classList.add('input-error');
+            hasError = true;
+        } else if (!isValidEmail(email)) {
+            showFieldError('reg-email-error', 'يرجى إدخال بريد إلكتروني صحيح (مثال: name@example.com)');
+            emailInput.classList.add('input-error');
+            hasError = true;
+        } else {
+            const existingEmail = findUserByEmail(email);
+            if (existingEmail) {
+                showFieldError('reg-email-error', 'هذا البريد الإلكتروني مسجل بالفعل. يرجى تسجيل الدخول أو استخدام بريد آخر.');
+                emailInput.classList.add('input-error');
+                hasError = true;
+            } else {
+                emailInput.classList.add('input-success');
+            }
+        }
+
+        const passwordValidation = validatePasswordStrength(password);
+        if (!passwordValidation.isValid) {
+            showFieldError('reg-password-error', passwordValidation.errors[0] || 'كلمة المرور ضعيفة');
+            passwordInput.classList.add('input-error');
+            hasError = true;
+        } else {
+            passwordInput.classList.add('input-success');
+        }
+
+        if (passwordConfirm !== password) {
+            showFieldError('reg-password-confirm-error', 'كلمتا المرور غير متطابقتين');
+            passwordConfirmInput.classList.add('input-error');
+            hasError = true;
+        } else if (password) {
+            passwordConfirmInput.classList.add('input-success');
+        }
+
+        if (!termsCheckbox.checked) {
+            showFieldError('reg-terms-error', 'يجب الموافقة على الشروط والأحكام');
+            hasError = true;
+        }
+
+        if (hasError) {
+            submitBtn.classList.add('shake');
+            setTimeout(() => submitBtn.classList.remove('shake'), 500);
+            return;
+        }
+
+        const newUser = {
+            uid: generateUID(),
+            username: username,
+            email: email.toLowerCase(),
+            passwordHash: hashPassword(password),
+            createdAt: new Date().toISOString(),
+            lastLogin: new Date().toISOString(),
+            balance: 0,
+            verified: false
+        };
+
+        const users = getAllUsers();
+        users.push(newUser);
+        saveAllUsers(users);
+
+        saveCurrentSession(newUser);
+        enterPlatform(newUser);
+        showToast('🎉 تم إنشاء حسابك بنجاح! مرحباً بك في BontFoR ' + username, 'success', 4000);
+    }
+
+    function enterPlatform(user) {
+        document.getElementById('auth-container').classList.add('hidden');
+        document.getElementById('main-platform').classList.remove('hidden');
+
+        document.getElementById('user-display-name').innerText = user.username;
+        const usernameViews = document.querySelectorAll('.id-username-view');
+        usernameViews.forEach(el => {
+            el.innerText = user.username;
+        });
+
+        const accountUid = document.getElementById('account-uid');
+        if (accountUid) {
+            accountUid.innerText = 'UID: ' + user.uid;
+        }
+
+        const accountEmail = document.getElementById('account-email-view');
+        if (accountEmail) {
+            accountEmail.innerText = '📧 ' + user.email;
+        }
+
+        document.getElementById('login-form').reset();
+        document.getElementById('register-form').reset();
+        hideAllFieldErrors('login');
+        hideAllFieldErrors('reg');
+        document.querySelectorAll('#register-form input').forEach(input => {
+            input.classList.remove('input-success', 'input-error');
+        });
+        document.querySelectorAll('#login-form input').forEach(input => {
+            input.classList.remove('input-success', 'input-error');
+        });
+
+        setTimeout(updateAllPWAUI, 400);
+        adjustHeaderPosition();
+
+        const homeBtn = document.querySelector('.nav-btn');
+        if (homeBtn) switchTab('home', homeBtn);
+
+        console.log('✅ [BontFoR] تم دخول المستخدم:', user.username, '| UID:', user.uid);
+    }
+
+    function logout() {
+        clearCurrentSession();
+        document.getElementById('main-platform').classList.add('hidden');
+        document.getElementById('auth-container').classList.remove('hidden');
+        document.getElementById('login-form').reset();
+        document.getElementById('register-form').reset();
+        hideAllFieldErrors('login');
+        hideAllFieldErrors('reg');
+        document.querySelectorAll('#register-form input, #login-form input').forEach(input => {
+            input.classList.remove('input-success', 'input-error');
+        });
+        toggleAuthCard('login');
+        showToast('👋 تم تسجيل الخروج بنجاح', 'success', 2500);
+        console.log('👋 [BontFoR] تم تسجيل الخروج');
+    }
+
+    function toggleAuthCard(type) {
+        const loginCard = document.getElementById('login-card');
+        const registerCard = document.getElementById('register-card');
+        hideAllFieldErrors('login');
+        hideAllFieldErrors('reg');
+        document.querySelectorAll('#register-form input, #login-form input').forEach(input => {
+            input.classList.remove('input-success', 'input-error');
+        });
+
+        if (type === 'register') {
+            loginCard.classList.add('hidden');
+            registerCard.classList.remove('hidden');
+            document.getElementById('register-form').reset();
+            resetPasswordStrengthUI();
+        } else {
+            registerCard.classList.add('hidden');
+            loginCard.classList.remove('hidden');
+            document.getElementById('login-form').reset();
+        }
+    }
+
+    function togglePasswordVisibility(inputId, button) {
+        const input = document.getElementById(inputId);
+        if (!input) return;
+        const icon = button.querySelector('i');
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+        } else {
+            input.type = 'password';
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+        }
+    }
+
+    function resetPasswordStrengthUI() {
+        const strengthBar = document.getElementById('password-strength-bar');
+        const strengthText = document.getElementById('password-strength-text');
+        const requirements = {
+            'req-length': document.getElementById('req-length'),
+            'req-uppercase': document.getElementById('req-uppercase'),
+            'req-lowercase': document.getElementById('req-lowercase'),
+            'req-number': document.getElementById('req-number')
+        };
+
+        if (strengthBar) strengthBar.className = 'password-strength-bar';
+        if (strengthText) {
+            strengthText.textContent = 'أدخل كلمة مرور قوية';
+            strengthText.className = 'text-[10px] text-gray-500';
+        }
+
+        Object.values(requirements).forEach(el => {
+            if (el) {
+                el.classList.remove('text-green-400', 'text-red-400');
+                el.classList.add('text-gray-500');
+            }
+        });
+    }
+
+    function updatePasswordStrengthUI(password) {
+        const validation = validatePasswordStrength(password);
+        const strengthBar = document.getElementById('password-strength-bar');
+        const strengthText = document.getElementById('password-strength-text');
+        const requirements = {
+            'req-length': document.getElementById('req-length'),
+            'req-uppercase': document.getElementById('req-uppercase'),
+            'req-lowercase': document.getElementById('req-lowercase'),
+            'req-number': document.getElementById('req-number')
+        };
+
+        if (strengthBar) {
+            strengthBar.className = 'password-strength-bar';
+            if (password.length > 0) {
+                strengthBar.classList.add('strength-' + validation.strength);
+            }
+        }
+
+        if (strengthText) {
+            const strengthLabels = {
+                'weak': 'ضعيفة - يرجى تحسين كلمة المرور',
+                'fair': 'متوسطة - يمكن تحسينها',
+                'good': 'جيدة',
+                'strong': 'قوية جداً ✓'
+            };
+            const strengthColors = {
+                'weak': 'text-red-400',
+                'fair': 'text-yellow-400',
+                'good': 'text-blue-400',
+                'strong': 'text-green-400'
+            };
+            strengthText.textContent = strengthLabels[validation.strength] || 'أدخل كلمة مرور قوية';
+            strengthText.className = 'text-[10px] ' + (strengthColors[validation.strength] || 'text-gray-500');
+        }
+
+        if (requirements['req-length']) {
+            requirements['req-length'].className = validation.requirements.length ? 'text-green-400' : 'text-red-400';
+        }
+        if (requirements['req-uppercase']) {
+            requirements['req-uppercase'].className = validation.requirements.uppercase ? 'text-green-400' :
+                'text-red-400';
+        }
+        if (requirements['req-lowercase']) {
+            requirements['req-lowercase'].className = validation.requirements.lowercase ? 'text-green-400' :
+                'text-red-400';
+        }
+        if (requirements['req-number']) {
+            requirements['req-number'].className = validation.requirements.number ? 'text-green-400' : 'text-red-400';
+        }
+    }
+
+    // ============================================================
+    // ==================== مراقبة الأحداث المباشرة ====================
+    // ============================================================
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const passwordInput = document.getElementById('reg-password');
+        const passwordConfirmInput = document.getElementById('reg-password-confirm');
+
+        if (passwordInput) {
+            passwordInput.addEventListener('input', function() {
+                updatePasswordStrengthUI(this.value);
+                if (passwordConfirmInput && passwordConfirmInput.value) {
+                    if (passwordConfirmInput.value === this.value) {
+                        passwordConfirmInput.classList.remove('input-error');
+                        passwordConfirmInput.classList.add('input-success');
+                        hideFieldError('reg-password-confirm-error');
+                    } else {
+                        passwordConfirmInput.classList.remove('input-success');
+                        passwordConfirmInput.classList.add('input-error');
+                    }
+                }
+            });
+        }
+
+        if (passwordConfirmInput) {
+            passwordConfirmInput.addEventListener('input', function() {
+                const password = document.getElementById('reg-password');
+                if (password && password.value) {
+                    if (this.value === password.value) {
+                        this.classList.remove('input-error');
+                        this.classList.add('input-success');
+                        hideFieldError('reg-password-confirm-error');
+                    } else {
+                        this.classList.remove('input-success');
+                        this.classList.add('input-error');
+                    }
+                }
+            });
+        }
+
+        const allInputs = document.querySelectorAll('#login-form input, #register-form input');
+        allInputs.forEach(input => {
+            input.addEventListener('input', function() {
+                this.classList.remove('input-error', 'input-success');
+                const errorEl = document.getElementById(this.id + '-error');
+                if (errorEl) hideFieldError(this.id + '-error');
+                const formPrefix = this.closest('form').id.includes('login') ? 'login' : 'reg';
+                const generalError = document.getElementById(formPrefix + '-general-error');
+                if (generalError) generalError.classList.add('hidden');
+            });
+        });
+
+        autoRestoreSession();
+    });
+
+    function autoRestoreSession() {
+        const session = getCurrentSession();
+        if (session) {
+            const users = getAllUsers();
+            const user = users.find(u => u.uid === session.uid);
+            if (user) {
+                console.log('🔄 [BontFoR] تم استعادة الجلسة السابقة للمستخدم:', user.username);
+                enterPlatform(user);
+            } else {
+                clearCurrentSession();
+                console.log('⚠️ [BontFoR] جلسة غير صالحة - تم مسحها');
+            }
+        }
+    }
+
+    // ============================================================
+    // ==================== وظائف PWA ====================
+    // ============================================================
+
+    let deferredPrompt = null;
+    let isAppInstalled = false;
+
+    function generateAppIcon(size = 512) {
+        const svgContent = `
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="${size}" height="${size}">
+          <defs>
+            <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#1e3a5f"/>
+              <stop offset="50%" style="stop-color:#2563eb"/>
+              <stop offset="100%" style="stop-color:#6366f1"/>
+            </linearGradient>
+            <linearGradient id="accentGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" style="stop-color:#34d399"/>
+              <stop offset="100%" style="stop-color:#10b981"/>
+            </linearGradient>
+            <filter id="glow">
+              <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+              <feMerge>
+                <feMergeNode in="coloredBlur"/>
+                <feMergeNode in="SourceGraphic"/>
+              </feMerge>
+            </filter>
+          </defs>
+          <rect width="512" height="512" rx="120" fill="url(#bgGrad)"/>
+          <rect x="60" y="60" width="392" height="56" rx="14" fill="rgba(255,255,255,0.12)"/>
+          <text x="256" y="100" text-anchor="middle" font-family="Arial, sans-serif" font-weight="bold" font-size="30" fill="white" letter-spacing="4">BontFoR</text>
+          <line x1="60" y1="380" x2="452" y2="380" stroke="rgba(255,255,255,0.08)" stroke-width="2"/>
+          <line x1="60" y1="300" x2="452" y2="300" stroke="rgba(255,255,255,0.06)" stroke-width="1.5"/>
+          <line x1="60" y1="220" x2="452" y2="220" stroke="rgba(255,255,255,0.06)" stroke-width="1.5"/>
+          <line x1="60" y1="140" x2="452" y2="140" stroke="rgba(255,255,255,0.06)" stroke-width="1.5"/>
+          <rect x="110" y="260" width="22" height="90" rx="4" fill="white" opacity="0.85"/>
+          <line x1="121" y1="190" x2="121" y2="260" stroke="white" stroke-width="6" stroke-linecap="round" opacity="0.85"/>
+          <line x1="121" y1="350" x2="121" y2="395" stroke="white" stroke-width="6" stroke-linecap="round" opacity="0.85"/>
+          <rect x="175" y="210" width="22" height="60" rx="4" fill="url(#accentGrad)" opacity="0.9" filter="url(#glow)"/>
+          <line x1="186" y1="160" x2="186" y2="210" stroke="#34d399" stroke-width="6" stroke-linecap="round" opacity="0.9"/>
+          <line x1="186" y1="270" x2="186" y2="310" stroke="#34d399" stroke-width="6" stroke-linecap="round" opacity="0.9"/>
+          <rect x="240" y="170" width="22" height="100" rx="4" fill="url(#accentGrad)" opacity="0.9" filter="url(#glow)"/>
+          <line x1="251" y1="120" x2="251" y2="170" stroke="#34d399" stroke-width="6" stroke-linecap="round" opacity="0.9"/>
+          <line x1="251" y1="270" x2="251" y2="330" stroke="#34d399" stroke-width="6" stroke-linecap="round" opacity="0.9"/>
+          <rect x="305" y="230" width="22" height="70" rx="4" fill="white" opacity="0.85"/>
+          <line x1="316" y1="170" x2="316" y2="230" stroke="white" stroke-width="6" stroke-linecap="round" opacity="0.85"/>
+          <line x1="316" y1="300" x2="316" y2="350" stroke="white" stroke-width="6" stroke-linecap="round" opacity="0.85"/>
+          <rect x="370" y="250" width="22" height="50" rx="4" fill="url(#accentGrad)" opacity="0.8"/>
+          <line x1="381" y1="210" x2="381" y2="250" stroke="#34d399" stroke-width="6" stroke-linecap="round" opacity="0.8"/>
+          <line x1="381" y1="300" x2="381" y2="325" stroke="#34d399" stroke-width="6" stroke-linecap="round" opacity="0.8"/>
+          <polyline points="70,370 200,280 320,210 440,160" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="12,6"/>
+          <circle cx="440" cy="155" r="8" fill="#34d399" opacity="0.9" filter="url(#glow)"/>
+        </svg>`;
+        return svgContent;
+    }
+
+    function svgToBlobUrl(svgString) {
+        const blob = new Blob([svgString], { type: 'image/svg+xml' });
+        return URL.createObjectURL(blob);
+    }
+
+    function svgToBase64(svgString) {
+        const encoded = btoa(unescape(encodeURIComponent(svgString)));
+        return 'data:image/svg+xml;base64,' + encoded;
+    }
+
+    function setupPWAManifest() {
+        const iconSvg = generateAppIcon(512);
+        const iconBase64 = svgToBase64(iconSvg);
+        const iconBlobUrl192 = svgToBlobUrl(generateAppIcon(192));
+        const iconBlobUrl512 = svgToBlobUrl(generateAppIcon(512));
+
+        const manifest = {
+            name: 'BontFoR',
+            short_name: 'BontFoR',
+            description: 'BontFoR - منصة تداول رقمية متكاملة',
+            start_url: '.',
+            display: 'standalone',
+            orientation: 'portrait',
+            background_color: '#0b0f19',
+            theme_color: '#0b0f19',
+            lang: 'ar',
+            dir: 'rtl',
+            categories: ['finance', 'business'],
+            icons: [{
+                src: iconBlobUrl192,
+                sizes: '192x192',
+                type: 'image/svg+xml',
+                purpose: 'any maskable'
+            }, {
+                src: iconBlobUrl512,
+                sizes: '512x512',
+                type: 'image/svg+xml',
+                purpose: 'any maskable'
+            }],
+            shortcuts: [{
+                name: 'إيداع - BontFoR',
+                short_name: 'إيداع',
+                description: 'إيداع عملات رقمية في BontFoR',
+                url: '?action=deposit',
+                icons: [{ src: iconBlobUrl192, sizes: '192x192' }]
+            }, {
+                name: 'مزامنة - BontFoR',
+                short_name: 'مزامنة',
+                description: 'مزامنة الصفقات في BontFoR',
+                url: '?action=sync',
+                icons: [{ src: iconBlobUrl192, sizes: '192x192' }]
+            }]
+        };
+
+        const manifestBlob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
+        const manifestUrl = URL.createObjectURL(manifestBlob);
+        const manifestLink = document.getElementById('manifest-link');
+        manifestLink.href = manifestUrl;
+
+        const appleIconLink = document.getElementById('apple-touch-icon');
+        const appleIconPrecomposed = document.getElementById('apple-touch-icon-precomposed');
+        appleIconLink.href = iconBase64;
+        appleIconPrecomposed.href = iconBase64;
+
+        window._pwaIconBlobUrls = { icon192: iconBlobUrl192, icon512: iconBlobUrl512, manifestUrl: manifestUrl };
+    }
+
+    function registerServiceWorker() {
+        if (!('serviceWorker' in navigator)) return;
+
+        const swCode = `
+        const CACHE_NAME = 'bontfor-trading-v4';
+        const urlsToCache = ['/', '?standalone=1'];
+        self.addEventListener('install', function(event) {
+          event.waitUntil(caches.open(CACHE_NAME).then(function(cache) {
+            return cache.addAll(urlsToCache).catch(function(){});
+          }));
+          self.skipWaiting();
+        });
+        self.addEventListener('activate', function(event) {
+          event.waitUntil(caches.keys().then(function(keys) {
+            return Promise.all(keys.filter(k=>k!==CACHE_NAME).map(k=>caches.delete(k)));
+          }));
+          self.clients.claim();
+        });
+        self.addEventListener('fetch', function(event) {
+          if(event.request.method!=='GET') return;
+          event.respondWith(caches.match(event.request).then(function(r){
+            return r||fetch(event.request).then(function(fr){
+              if(fr&&fr.status===200){var rc=fr.clone();caches.open(CACHE_NAME).then(function(c){c.put(event.request,rc);});}
+              return fr;
+            });
+          }).catch(function(){return caches.match(event.request);}));
+        });`;
+
+        const swBlob = new Blob([swCode], { type: 'application/javascript' });
+        const swUrl = URL.createObjectURL(swBlob);
+        navigator.serviceWorker.register(swUrl, { scope: '/' })
+            .then(reg => { window._swRegistration = reg; })
+            .catch(() => {});
+    }
+
+    /**
+     * تحديث شريط التثبيت العلوي:
+     * - إذا كان التطبيق مثبتاً: إخفاء كامل باستخدام display:none (عن طريق data-pwa-state="installed")
+     * - إذا لم يكن مثبتاً: إظهار الشريط مع خيار التثبيت
+     */
+    function updatePWAInstallBar() {
+        const bar = document.getElementById('pwa-install-bar');
+        if (!bar) return;
+        if (isAppInstalled) {
+            bar.setAttribute('data-pwa-state', 'installed');
+        } else {
+            bar.setAttribute('data-pwa-state', 'installable');
+        }
+        adjustHeaderPosition();
+    }
+
+    /**
+     * تحديث بطاقة التثبيت في صفحة الحساب:
+     * - إذا كان التطبيق مثبتاً: إخفاء البطاقة بالكامل (لا زر تثبيت ولا رسالة "مثبت بالفعل")
+     * - إذا لم يكن مثبتاً: إظهار البطاقة مع زر التثبيت
+     */
+    function updateAccountInstallCard() {
+        const installCardSection = document.getElementById('install-card-section');
+        const installBtnAccount = document.getElementById('install-btn-account');
+        const alreadyInstalledMsg = document.getElementById('already-installed-msg');
+
+        if (isAppInstalled) {
+            // إخفاء كامل للبطاقة - لا شيء يظهر عن التثبيت بعد إتمامه
+            if (installCardSection) {
+                installCardSection.classList.add('install-hidden');
+            }
+            // تأكيد إخفاء الزر ورسالة "مثبت بالفعل" أيضاً
+            if (installBtnAccount) installBtnAccount.classList.add('hidden');
+            if (alreadyInstalledMsg) {
+                alreadyInstalledMsg.classList.add('hidden');
+                alreadyInstalledMsg.classList.remove('flex');
+            }
+        } else {
+            // إظهار البطاقة مع زر التثبيت
+            if (installCardSection) {
+                installCardSection.classList.remove('install-hidden');
+            }
+            if (installBtnAccount) installBtnAccount.classList.remove('hidden');
+            if (alreadyInstalledMsg) {
+                alreadyInstalledMsg.classList.add('hidden');
+                alreadyInstalledMsg.classList.remove('flex');
+            }
+        }
+    }
+
+    /**
+     * تحديث جميع عناصر واجهة PWA دفعة واحدة
+     */
+    function updateAllPWAUI() {
+        updatePWAInstallBar();
+        updateAccountInstallCard();
+    }
+
+    function setupInstallPrompt() {
+        window.addEventListener('beforeinstallprompt', function(event) {
+            event.preventDefault();
+            deferredPrompt = event;
+            updateAllPWAUI();
+        });
+
+        // فحص ما إذا كان التطبيق مثبتاً بالفعل ويعمل في وضع standalone
+        if (window.matchMedia('(display-mode: standalone)').matches) {
+            isAppInstalled = true;
+            updateAllPWAUI();
+        }
+
+        window.matchMedia('(display-mode: standalone)').addEventListener('change', function(evt) {
+            if (evt.matches) {
+                isAppInstalled = true;
+                deferredPrompt = null;
+                updateAllPWAUI();
+            }
+        });
+
+        window.addEventListener('appinstalled', function() {
+            isAppInstalled = true;
+            deferredPrompt = null;
+            updateAllPWAUI();
+            showToast('✅ تم تثبيت تطبيق BontFoR بنجاح!', 'success', 4000);
+        });
+    }
+
+    function triggerInstall() {
+        if (isAppInstalled) {
+            // التطبيق مثبت بالفعل - لا نعرض أي إشعار للمستخدم
+            return;
+        }
+        if (deferredPrompt) {
+            deferredPrompt.prompt();
+            deferredPrompt.userChoice.then(function(choiceResult) {
+                if (choiceResult.outcome === 'accepted') {
+                    isAppInstalled = true;
+                    deferredPrompt = null;
+                    updateAllPWAUI();
+                    showToast('✅ جاري تثبيت تطبيق BontFoR...', 'success', 3000);
+                }
+                deferredPrompt = null;
+            });
+        } else {
+            // لا يوجد حدث تثبيت متاح - قد يكون التطبيق مثبتاً بالفعل أو المتصفح لا يدعم
+            if (window.matchMedia('(display-mode: standalone)').matches) {
+                isAppInstalled = true;
+                updateAllPWAUI();
+            } else {
+                let instructions = 'ابحث عن خيار "تثبيت" أو "إضافة إلى الشاشة الرئيسية" في متصفحك';
+                showToast('📱 ' + instructions, 'loading', 5000);
+            }
+        }
+    }
+
+    function showToast(message, type = 'loading', duration = 3000) {
+        const container = document.getElementById('toastContainer');
+        if (!container) return;
+        const toast = document.createElement('div');
+        let icon = 'fa-info-circle';
+        if (type === 'loading') icon = 'fa-spinner fa-spin';
+        if (type === 'error') icon = 'fa-circle-exclamation';
+        if (type === 'success') icon = 'fa-circle-check';
+        toast.className = `toast ${type}`;
+        toast.innerHTML = `<i class="fa-solid ${icon}"></i><span>${message}</span>`;
+        container.appendChild(toast);
+        requestAnimationFrame(() => toast.classList.add('show'));
+        if (duration > 0) {
+            setTimeout(() => { toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 400); }, duration);
+        }
+        return toast;
+    }
+
+    function confirmSyncCode() {
+        const codeInput = document.getElementById('sync-code-input');
+        const btn = document.getElementById('sync-confirm-btn');
+        const code = codeInput.value.trim();
+        if (!code) { showToast('⚠️ الرجاء لصق كود المزامنة أولاً', 'error', 2500);
+            codeInput.focus(); return; }
+        btn.disabled = true;
+        const orig = btn.innerHTML;
+        btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i><span>جاري التحقق...</span>`;
+        const lt = showToast('🔄 جاري معالجة كود المزامنة...', 'loading', 0);
+        setTimeout(() => { lt.classList.remove('show');
+            setTimeout(() => lt.remove(), 400);
+            showToast('❌ لا يوجد رصيد كافي', 'error', 4000);
+            btn.disabled = false;
+            btn.innerHTML = orig; }, 1500);
+    }
+
+    function syncTrader(btn) {
+        const orig = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin text-xs"></i> <span>جاري المزامنة...</span>`;
+        const lt = showToast('🔄 جاري محاولة المزامنة مع الخبير...', 'loading', 0);
+        setTimeout(() => { lt.classList.remove('show');
+            setTimeout(() => lt.remove(), 400);
+            showToast('❌ لا يوجد رصيد كافي', 'error', 4000);
+            btn.disabled = false;
+            btn.innerHTML = orig; }, 1500);
+    }
+
+    /**
+     * ضبط موضع الهيدر العلوي بناءً على وجود شريط التثبيت
+     * - إذا كان التطبيق مثبتاً: الهيدر في الأعلى (top: 0)
+     * - إذا لم يكن مثبتاً: الهيدر أسفل شريط التثبيت
+     */
+    function adjustHeaderPosition() {
+        const pwaBar = document.getElementById('pwa-install-bar');
+        const header = document.querySelector('#main-platform header.sticky');
+        if (pwaBar && header) {
+            if (isAppInstalled || pwaBar.getAttribute('data-pwa-state') === 'installed') {
+                header.style.top = '0';
+            } else {
+                header.style.top = pwaBar.offsetHeight + 'px';
+            }
+        }
+    }
+
+    function switchTab(tabId, buttonElement) {
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
+        const sec = document.getElementById(`sec-${tabId}`);
+        if (sec) sec.classList.remove('hidden');
+        document.querySelectorAll('.nav-btn').forEach(b => { b.classList.remove('text-blue-400');
+            b.classList.add('text-gray-400', 'hover:text-white'); });
+        buttonElement.classList.add('text-blue-400');
+        buttonElement.classList.remove('text-gray-400', 'hover:text-white');
+        if (tabId === 'account') setTimeout(updateAllPWAUI, 300);
+    }
+
+    function openModal(type) { document.getElementById(`modal-${type}`).classList.remove('hidden'); }
+
+    function closeModal(type) { document.getElementById(`modal-${type}`).classList.add('hidden'); }
+
+    function copyReferralLink() {
+        const session = getCurrentSession();
+        const refCode = session ? session.uid : '82749104';
+        const link = 'https://bontfor.com/ref/' + refCode;
+        navigator.clipboard.writeText(link).then(() => {
+            showToast('✅ تم نسخ رابط الإحالة الخاص بك!', 'success', 2500);
+        }).catch(() => {
+            showToast('📋 رابط الإحالة: ' + link, 'loading', 4000);
+        });
+    }
+
+    document.addEventListener('click', function(event) {
+        if (event.target.id === 'modal-deposit') closeModal('deposit');
+        if (event.target.id === 'modal-withdraw') closeModal('withdraw');
+    });
+
+    function observePWABarResize() {
+        const pwaBar = document.getElementById('pwa-install-bar');
+        if (!pwaBar || !window.ResizeObserver) return;
+        const ro = new ResizeObserver(() => adjustHeaderPosition());
+        ro.observe(pwaBar);
+    }
+
+    function initPWA() {
+        setupPWAManifest();
+        registerServiceWorker();
+        setupInstallPrompt();
+
+        // فحص فوري عند التحميل
+        if (window.matchMedia('(display-mode: standalone)').matches) {
+            isAppInstalled = true;
+        }
+
+        setTimeout(() => {
+            updateAllPWAUI();
+            adjustHeaderPosition();
+            observePWABarResize();
+        }, 600);
+    }
+
+    // ============================================================
+    // ==================== التهيئة النهائية ====================
+    // ============================================================
+    document.addEventListener('DOMContentLoaded', function() {
+        initPWA();
+        setTimeout(updateAllPWAUI, 300);
+
+        const userCount = getAllUsers().length;
+        console.log('🚀 [BontFoR] تم تحميل المنصة بنجاح');
+        console.log('📊 [BontFoR] عدد المستخدمين المسجلين:', userCount);
+        console.log('🔐 [BontFoR] نظام المصادقة: localStorage + تشفير كلمات المرور');
+        console.log('📱 [BontFoR] PWA: مفعل مع شريط تثبيت ثابت');
+    });
+
+    window.addEventListener('load', function() {
+        const params = new URLSearchParams(window.location.search);
+        const action = params.get('action');
+        if (action === 'deposit' && document.getElementById('main-platform') && !document.getElementById(
+                'main-platform').classList.contains('hidden')) {
+            openModal('deposit');
+        } else if (action === 'sync' && document.getElementById('main-platform') && !document.getElementById(
+                'main-platform').classList.contains('hidden')) {
+            const syncBtn = document.querySelector('.nav-btn:nth-child(2)');
+            if (syncBtn) switchTab('sync', syncBtn);
+        }
+        adjustHeaderPosition();
+    });
+
+    // فحص دوري للتأكد من حالة التثبيت (احتياطي)
+    setInterval(function() {
+        const standalone = window.matchMedia('(display-mode: standalone)').matches;
+        if (standalone && !isAppInstalled) {
+            isAppInstalled = true;
+            deferredPrompt = null;
+            updateAllPWAUI();
+            adjustHeaderPosition();
+        }
+    }, 3000);
+
+    console.log('✅ [BontFoR] جاهز - نظام مصادقة حقيقي مع حفظ المستخدمين | PWA مفعل');
+    console.log('📝 [BontFoR] ميزات الأمان: التحقق من تنسيق البريد | قوة كلمة المرور | تشفير كلمات المرور | منع تكرار التسجيل');
+</script>
+</body>
+</html>
