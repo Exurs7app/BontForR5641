@@ -702,6 +702,46 @@
                 box-shadow: 0 0 14px rgba(192, 132, 252, 1), 0 0 20px rgba(168, 85, 247, 0.5);
             }
         }
+
+        /* ==================== تنسيقات حقل رمز الدعوة ==================== */
+        .referral-code-wrapper {
+            position: relative;
+            background: rgba(168, 85, 247, 0.04);
+            border: 1px dashed rgba(168, 85, 247, 0.25);
+            border-radius: 14px;
+            padding: 12px 14px;
+            transition: all 0.35s ease;
+        }
+
+        .referral-code-wrapper:focus-within {
+            border-color: rgba(168, 85, 247, 0.5);
+            background: rgba(168, 85, 247, 0.08);
+            box-shadow: 0 0 16px rgba(168, 85, 247, 0.1);
+        }
+
+        .referral-code-wrapper.has-value {
+            border-color: rgba(52, 211, 153, 0.4);
+            border-style: solid;
+            background: rgba(52, 211, 153, 0.04);
+        }
+
+        .referral-code-wrapper.has-value:focus-within {
+            border-color: rgba(52, 211, 153, 0.6);
+            box-shadow: 0 0 16px rgba(52, 211, 153, 0.1);
+        }
+
+        .referral-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.2), rgba(99, 102, 241, 0.15));
+            color: #c084fc;
+            font-size: 9px;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+        }
     </style>
 </head>
 <body class="text-white min-h-screen flex flex-col justify-between overflow-x-hidden">
@@ -808,7 +848,7 @@
                 </span>
                 <input type="text" id="reg-username" required autocomplete="username" minlength="3" maxlength="30"
                 class="w-full pl-4 pr-12 py-3 bg-white/5 rounded-xl border border-white/10 focus:border-purple-500 focus:bg-white/10 outline-none transition text-sm"
-                placeholder="Ahmad_99">
+                placeholder="اسم المستخدم">
             </div>
             <div class="error-message" id="reg-username-error">
                 <i class="fa-solid fa-circle-exclamation"></i>
@@ -878,6 +918,38 @@
             <span></span>
         </div>
     </div>
+
+    <!-- ========== حقل رمز الدعوة (اختياري) - معدل ========== -->
+    <div class="referral-code-wrapper" id="referral-code-wrapper">
+        <div class="flex items-center justify-between mb-2">
+            <label class="text-xs font-medium text-purple-300 flex items-center gap-1.5">
+                <i class="fa-solid fa-gift text-purple-400"></i>
+                رمز الدعوة
+                <span class="referral-badge">
+                    <i class="fa-solid fa-circle-info text-[8px]"></i>
+                    اختياري
+                </span>
+            </label>
+        </div>
+        <div class="relative">
+            <span class="absolute inset-y-0 right-0 flex items-center pr-3 text-purple-400">
+                <i class="fa-solid fa-ticket text-xs"></i>
+            </span>
+            <input type="text" id="reg-referral-code" inputmode="numeric" pattern="[0-9]{4}"
+            class="w-full pl-4 pr-10 py-3 bg-purple-500/5 rounded-xl border border-purple-500/15 focus:border-purple-500 focus:bg-purple-500/10 outline-none transition text-sm text-purple-200 placeholder-purple-400/40"
+            placeholder="أدخل رمز مكون من 4 أرقام"
+            maxlength="4">
+        </div>
+        <div class="error-message" id="reg-referral-code-error">
+            <i class="fa-solid fa-circle-exclamation"></i>
+            <span></span>
+        </div>
+        <p class="text-[9px] text-purple-400/50 mt-1.5 flex items-center gap-1">
+            <i class="fa-solid fa-circle-check text-[8px]"></i>
+            أدخل رمز الدعوة المكون من 4 أرقام إن وجد
+        </p>
+    </div>
+    <!-- ========== نهاية حقل رمز الدعوة ========== -->
 
     <div class="flex items-center space-x-2 space-x-reverse pt-1">
         <input type="checkbox" id="terms" required
@@ -1616,6 +1688,13 @@ class="w-full py-3.5 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blu
         return users.find(u => u.username.toLowerCase() === username.toLowerCase()) || null;
     }
 
+    function findUserByReferralCode(referralCode) {
+        if (!referralCode || referralCode.trim() === '') return null;
+        const users = getAllUsers();
+        const code = referralCode.trim().toUpperCase();
+        return users.find(u => u.referralCode && u.referralCode.toUpperCase() === code) || null;
+    }
+
     function findUserByIdentifier(identifier) {
         const lowerIdentifier = identifier.toLowerCase().trim();
         const byEmail = findUserByEmail(lowerIdentifier);
@@ -1630,6 +1709,19 @@ class="w-full py-3.5 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blu
             uid = Math.floor(10000000 + Math.random() * 90000000).toString();
         } while (users.some(u => u.uid === uid));
         return uid;
+    }
+
+    function generateReferralCode(username) {
+        const prefix = 'BF';
+        const namePart = username.substring(0, 4).toUpperCase();
+        const randomPart = Math.floor(1000 + Math.random() * 9000).toString();
+        let code = prefix + namePart + randomPart;
+        const users = getAllUsers();
+        while (users.some(u => u.referralCode && u.referralCode.toUpperCase() === code)) {
+            const newRandom = Math.floor(1000 + Math.random() * 9000).toString();
+            code = prefix + namePart + newRandom;
+        }
+        return code;
     }
 
     function hashPassword(password) {
@@ -1728,11 +1820,30 @@ class="w-full py-3.5 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blu
         return { isValid: true, error: null };
     }
 
+    /**
+     * التحقق من صحة رمز الدعوة - يجب أن يكون مكوناً من 4 أرقام بالضبط
+     * @param {string} code - رمز الدعوة المدخل
+     * @returns {{isValid: boolean, error: string|null}}
+     */
+    function validateReferralCode(code) {
+        if (!code || code.trim() === '') {
+            return { isValid: true, error: null }; // اختياري، فارغ = صالح
+        }
+        const trimmed = code.trim();
+        const referralRegex = /^[0-9]{4}$/;
+        if (!referralRegex.test(trimmed)) {
+            return { isValid: false, error: 'رمز الدعوة يجب أن يتكون من 4 أرقام بالضبط (مثال: 1234)' };
+        }
+        return { isValid: true, error: null };
+    }
+
     function saveCurrentSession(user) {
         const sessionData = {
             uid: user.uid,
             username: user.username,
             email: user.email,
+            referralCode: user.referralCode || null,
+            referredBy: user.referredBy || null,
             createdAt: user.createdAt,
             lastLogin: new Date().toISOString()
         };
@@ -1866,6 +1977,7 @@ class="w-full py-3.5 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blu
         const emailInput = document.getElementById('reg-email');
         const passwordInput = document.getElementById('reg-password');
         const passwordConfirmInput = document.getElementById('reg-password-confirm');
+        const referralCodeInput = document.getElementById('reg-referral-code');
         const termsCheckbox = document.getElementById('terms');
         const submitBtn = document.getElementById('register-submit-btn');
 
@@ -1873,9 +1985,11 @@ class="w-full py-3.5 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blu
         const email = emailInput.value.trim();
         const password = passwordInput.value;
         const passwordConfirm = passwordConfirmInput.value;
+        const referralCode = referralCodeInput ? referralCodeInput.value.trim() : '';
 
         let hasError = false;
 
+        // التحقق من اسم المستخدم
         const usernameValidation = validateUsername(username);
         if (!usernameValidation.isValid) {
             showFieldError('reg-username-error', usernameValidation.error);
@@ -1892,6 +2006,7 @@ class="w-full py-3.5 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blu
             }
         }
 
+        // التحقق من البريد الإلكتروني
         if (!email) {
             showFieldError('reg-email-error', 'يرجى إدخال البريد الإلكتروني');
             emailInput.classList.add('input-error');
@@ -1911,6 +2026,7 @@ class="w-full py-3.5 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blu
             }
         }
 
+        // التحقق من كلمة المرور
         const passwordValidation = validatePasswordStrength(password);
         if (!passwordValidation.isValid) {
             showFieldError('reg-password-error', passwordValidation.errors[0] || 'كلمة المرور ضعيفة');
@@ -1920,6 +2036,7 @@ class="w-full py-3.5 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blu
             passwordInput.classList.add('input-success');
         }
 
+        // التحقق من تأكيد كلمة المرور
         if (passwordConfirm !== password) {
             showFieldError('reg-password-confirm-error', 'كلمتا المرور غير متطابقتين');
             passwordConfirmInput.classList.add('input-error');
@@ -1928,6 +2045,49 @@ class="w-full py-3.5 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blu
             passwordConfirmInput.classList.add('input-success');
         }
 
+        // التحقق من رمز الدعوة (اختياري - يجب أن يكون 4 أرقام فقط إذا تم إدخاله)
+        let referredByUser = null;
+        if (referralCode !== '') {
+            const referralValidation = validateReferralCode(referralCode);
+            if (!referralValidation.isValid) {
+                showFieldError('reg-referral-code-error', referralValidation.error);
+                if (referralCodeInput) referralCodeInput.classList.add('input-error');
+                hasError = true;
+            } else {
+                // البحث عن مستخدم لديه رمز دعوة مكون من 4 أرقام مطابق
+                const users = getAllUsers();
+                referredByUser = users.find(u => {
+                    // نبحث عن مستخدمين لديهم referralCode مكون من 4 أرقام يطابق المدخل
+                    if (u.referralCode && /^[0-9]{4}$/.test(u.referralCode)) {
+                        return u.referralCode === referralCode;
+                    }
+                    return false;
+                }) || null;
+
+                if (referredByUser && referredByUser.uid === (getCurrentSession() ? getCurrentSession().uid : null)) {
+                    showFieldError('reg-referral-code-error', 'لا يمكنك استخدام رمز الدعوة الخاص بك.');
+                    if (referralCodeInput) referralCodeInput.classList.add('input-error');
+                    hasError = true;
+                    referredByUser = null;
+                }
+
+                if (!hasError) {
+                    if (referralCodeInput) {
+                        referralCodeInput.classList.remove('input-error');
+                        referralCodeInput.classList.add('input-success');
+                    }
+                    hideFieldError('reg-referral-code-error');
+                }
+            }
+        } else {
+            // إذا كان فارغاً، لا مشكلة - إنه اختياري
+            hideFieldError('reg-referral-code-error');
+            if (referralCodeInput) {
+                referralCodeInput.classList.remove('input-error');
+            }
+        }
+
+        // التحقق من الموافقة على الشروط
         if (!termsCheckbox.checked) {
             showFieldError('reg-terms-error', 'يجب الموافقة على الشروط والأحكام');
             hasError = true;
@@ -1939,24 +2099,48 @@ class="w-full py-3.5 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blu
             return;
         }
 
+        // إنشاء المستخدم الجديد - رمز الدعوة الخاص به سيكون أيضاً 4 أرقام
+        const personalReferralCode = Math.floor(1000 + Math.random() * 9000).toString();
+
         const newUser = {
             uid: generateUID(),
             username: username,
             email: email.toLowerCase(),
             passwordHash: hashPassword(password),
+            referralCode: personalReferralCode,
+            referredBy: referredByUser ? referredByUser.uid : null,
+            referredByUsername: referredByUser ? referredByUser.username : null,
             createdAt: new Date().toISOString(),
             lastLogin: new Date().toISOString(),
             balance: 0,
-            verified: false
+            verified: false,
+            inviteCount: 0,
+            inviteRewards: 0,
+            inviteActive: 0
         };
 
         const users = getAllUsers();
         users.push(newUser);
+
+        // تحديث عداد الدعوات للمستخدم الذي قام بالدعوة
+        if (referredByUser) {
+            const referrerIndex = users.findIndex(u => u.uid === referredByUser.uid);
+            if (referrerIndex !== -1) {
+                if (!users[referrerIndex].inviteCount) users[referrerIndex].inviteCount = 0;
+                users[referrerIndex].inviteCount += 1;
+            }
+        }
+
         saveAllUsers(users);
 
         saveCurrentSession(newUser);
         enterPlatform(newUser);
-        showToast('🎉 تم إنشاء حسابك بنجاح! مرحباً بك في BontFoR ' + username, 'success', 4000);
+
+        if (referredByUser) {
+            showToast('🎉 تم إنشاء حسابك بنجاح! مرحباً بك في BontFoR ' + username + ' | تم استخدام رمز دعوة من: ' + referredByUser.username, 'success', 5000);
+        } else {
+            showToast('🎉 تم إنشاء حسابك بنجاح! مرحباً بك في BontFoR ' + username, 'success', 4000);
+        }
     }
 
     function enterPlatform(user) {
@@ -1982,6 +2166,9 @@ class="w-full py-3.5 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blu
         // تحديث رابط الدعوة في صفحة الدعوة
         updateInviteLinkDisplay(user.uid);
 
+        // تحديث إحصائيات الدعوة
+        updateInviteStats(user);
+
         document.getElementById('login-form').reset();
         document.getElementById('register-form').reset();
         hideAllFieldErrors('login');
@@ -1992,6 +2179,11 @@ class="w-full py-3.5 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blu
         document.querySelectorAll('#login-form input').forEach(input => {
             input.classList.remove('input-success', 'input-error');
         });
+        // إعادة تعيين تنسيق حقل رمز الدعوة
+        const referralWrapper = document.getElementById('referral-code-wrapper');
+        if (referralWrapper) {
+            referralWrapper.classList.remove('has-value');
+        }
 
         setTimeout(updateAllPWAUI, 400);
         adjustHeaderPosition();
@@ -1999,7 +2191,10 @@ class="w-full py-3.5 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blu
         const homeBtn = document.querySelector('.nav-btn[data-tab="home"]');
         if (homeBtn) switchTab('home', homeBtn);
 
-        console.log('✅ [BontFoR] تم دخول المستخدم:', user.username, '| UID:', user.uid);
+        console.log('✅ [BontFoR] تم دخول المستخدم:', user.username, '| UID:', user.uid, '| رمز الدعوة:', user.referralCode || 'لا يوجد');
+        if (user.referredBy) {
+            console.log('👥 [BontFoR] تمت دعوة هذا المستخدم بواسطة:', user.referredByUsername, '| UID:', user.referredBy);
+        }
     }
 
     function updateInviteLinkDisplay(uid) {
@@ -2008,6 +2203,19 @@ class="w-full py-3.5 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blu
         if (inviteLinkText) {
             inviteLinkText.textContent = link;
         }
+    }
+
+    function updateInviteStats(user) {
+        const users = getAllUsers();
+        const currentUser = users.find(u => u.uid === user.uid) || user;
+
+        const inviteCountEl = document.getElementById('invite-count');
+        const inviteRewardsEl = document.getElementById('invite-rewards');
+        const inviteActiveEl = document.getElementById('invite-active');
+
+        if (inviteCountEl) inviteCountEl.textContent = currentUser.inviteCount || 0;
+        if (inviteRewardsEl) inviteRewardsEl.textContent = (currentUser.inviteRewards || 0).toFixed(2);
+        if (inviteActiveEl) inviteActiveEl.textContent = currentUser.inviteActive || 0;
     }
 
     function logout() {
@@ -2021,6 +2229,11 @@ class="w-full py-3.5 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blu
         document.querySelectorAll('#register-form input, #login-form input').forEach(input => {
             input.classList.remove('input-success', 'input-error');
         });
+        // إعادة تعيين تنسيق حقل رمز الدعوة
+        const referralWrapper = document.getElementById('referral-code-wrapper');
+        if (referralWrapper) {
+            referralWrapper.classList.remove('has-value');
+        }
         toggleAuthCard('login');
         // إعادة تعيين زر الدعوة في الهيدر
         const headerInviteBtn = document.getElementById('header-invite-btn');
@@ -2039,6 +2252,11 @@ class="w-full py-3.5 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blu
         document.querySelectorAll('#register-form input, #login-form input').forEach(input => {
             input.classList.remove('input-success', 'input-error');
         });
+        // إعادة تعيين تنسيق حقل رمز الدعوة
+        const referralWrapper = document.getElementById('referral-code-wrapper');
+        if (referralWrapper) {
+            referralWrapper.classList.remove('has-value');
+        }
 
         if (type === 'register') {
             loginCard.classList.add('hidden');
@@ -2139,6 +2357,22 @@ class="w-full py-3.5 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blu
         }
         if (requirements['req-number']) {
             requirements['req-number'].className = validation.requirements.number ? 'text-green-400' : 'text-red-400';
+        }
+    }
+
+    // ============================================================
+    // ==================== مراقب حقل رمز الدعوة ====================
+    // ============================================================
+    function updateReferralCodeWrapperStyle() {
+        const input = document.getElementById('reg-referral-code');
+        const wrapper = document.getElementById('referral-code-wrapper');
+        if (!input || !wrapper) return;
+
+        const value = input.value.trim();
+        if (value.length > 0) {
+            wrapper.classList.add('has-value');
+        } else {
+            wrapper.classList.remove('has-value');
         }
     }
 
@@ -2469,6 +2703,16 @@ class="w-full py-3.5 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blu
                 hideFieldError('withdraw-address-error');
             });
         }
+
+        // مراقبة حقل رمز الدعوة لتحديث التنسيق
+        const referralCodeInput = document.getElementById('reg-referral-code');
+        if (referralCodeInput) {
+            referralCodeInput.addEventListener('input', function() {
+                updateReferralCodeWrapperStyle();
+                this.classList.remove('input-error', 'input-success');
+                hideFieldError('reg-referral-code-error');
+            });
+        }
     });
 
     // ============================================================
@@ -2554,6 +2798,9 @@ class="w-full py-3.5 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blu
                 if (generalError) generalError.classList.add('hidden');
             });
         });
+
+        // تهيئة تنسيق حقل رمز الدعوة
+        updateReferralCodeWrapperStyle();
 
         autoRestoreSession();
     });
@@ -2925,7 +3172,12 @@ class="w-full py-3.5 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blu
         if (tabId === 'account') setTimeout(updateAllPWAUI, 300);
         if (tabId === 'invite') {
             const session = getCurrentSession();
-            if (session) updateInviteLinkDisplay(session.uid);
+            if (session) {
+                updateInviteLinkDisplay(session.uid);
+                const users = getAllUsers();
+                const currentUser = users.find(u => u.uid === session.uid);
+                if (currentUser) updateInviteStats(currentUser);
+            }
         }
     }
 
@@ -3003,6 +3255,7 @@ class="w-full py-3.5 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blu
         console.log('💱 [BontFoR] نظام الإيداع والسحب: دعم شبكات TRC20 + BEP20 مع تبديل ديناميكي احترافي');
         console.log('🎁 [BontFoR] قسم الدعوة: مفعل في الهيدر مع نظام مكافآت متدرج');
         console.log('🔔 [BontFoR] زر الدعوة: منقول إلى القائمة العلوية بجانب أيقونة الجرس');
+        console.log('🎫 [BontFoR] حقل رمز الدعوة: 4 أرقام فقط (اختياري) مع نظام إحالة كامل');
     });
 
     window.addEventListener('load', function() {
@@ -3029,7 +3282,7 @@ class="w-full py-3.5 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blu
         }
     }, 3000);
 
-    console.log('✅ [BontFoR] جاهز - نظام مصادقة حقيقي مع حفظ المستخدمين | PWA مفعل | إيداع وسحب متعددي الشبكات | قسم دعوة في الهيدر');
+    console.log('✅ [BontFoR] جاهز - نظام مصادقة حقيقي مع حفظ المستخدمين | PWA مفعل | إيداع وسحب متعددي الشبكات | قسم دعوة في الهيدر | حقل رمز دعوة (4 أرقام) في التسجيل');
     console.log('📝 [BontFoR] ميزات الأمان: التحقق من تنسيق البريد | قوة كلمة المرور | تشفير كلمات المرور | منع تكرار التسجيل | تحقق من عناوين السحب');
 </script>
 </body>
