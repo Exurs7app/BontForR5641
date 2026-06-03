@@ -407,6 +407,96 @@
         #main-platform header.sticky {
             transition: top 0.6s ease-in-out;
         }
+
+        /* ==================== أزرار تبديل الشبكة في السحب ==================== */
+        .network-toggle-btn {
+            position: relative;
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            border: 2px solid transparent;
+            overflow: hidden;
+        }
+
+        .network-toggle-btn.active {
+            border-color: #6366f1;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.2) 0%, rgba(59, 130, 246, 0.15) 100%);
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.25), inset 0 0 20px rgba(99, 102, 241, 0.05);
+            transform: scale(1.03);
+        }
+
+        .network-toggle-btn.active::after {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            border-radius: inherit;
+            background: linear-gradient(135deg, #6366f1, #3b82f6, #6366f1);
+            z-index: -1;
+            opacity: 0.6;
+            animation: borderGlow 2s ease-in-out infinite;
+        }
+
+        @keyframes borderGlow {
+            0%,
+            100% {
+                opacity: 0.4;
+            }
+            50% {
+                opacity: 0.8;
+            }
+        }
+
+        .network-toggle-btn:not(.active):hover {
+            border-color: rgba(255, 255, 255, 0.15);
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .network-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            transition: all 0.35s ease;
+        }
+
+        .network-dot.trc {
+            background: #f59e0b;
+            box-shadow: 0 0 8px rgba(245, 158, 11, 0.6);
+        }
+        .network-dot.bnb {
+            background: #f0b90b;
+            box-shadow: 0 0 8px rgba(240, 185, 11, 0.6);
+        }
+
+        .network-toggle-btn.active .network-dot {
+            box-shadow: 0 0 16px currentColor;
+            animation: dotPulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes dotPulse {
+            0%,
+            100% {
+                box-shadow: 0 0 8px currentColor;
+            }
+            50% {
+                box-shadow: 0 0 20px currentColor, 0 0 30px currentColor;
+            }
+        }
+
+        .withdraw-info-banner {
+            background: rgba(99, 102, 241, 0.06);
+            border: 1px solid rgba(99, 102, 241, 0.15);
+            border-radius: 12px;
+            padding: 10px 14px;
+            transition: all 0.35s ease;
+        }
+
+        .withdraw-info-banner.bnb-mode {
+            background: rgba(240, 185, 11, 0.06);
+            border-color: rgba(240, 185, 11, 0.2);
+        }
     </style>
 </head>
 <body class="text-white min-h-screen flex flex-col justify-between overflow-x-hidden">
@@ -966,9 +1056,9 @@ class="nav-btn flex flex-col items-center justify-center py-2 text-gray-400 hove
 </div>
 </div>
 
-<!-- ==================== نافذة السحب ==================== -->
+<!-- ==================== نافذة السحب (محسّنة مع تبديل الشبكات) ==================== -->
 <div id="modal-withdraw" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-    <div class="glass-card w-full max-w-sm rounded-3xl p-6 space-y-4">
+    <div class="glass-card w-full max-w-sm rounded-3xl p-6 space-y-4 animate-scaleUp max-h-[90vh] overflow-y-auto">
         <div class="flex justify-between items-center">
             <h3 class="text-base font-bold flex items-center gap-2 text-blue-400">
                 <i class="fa-solid fa-circle-arrow-up"></i> سحب أصول رقمية
@@ -976,27 +1066,107 @@ class="nav-btn flex flex-col items-center justify-center py-2 text-gray-400 hove
             <button onclick="closeModal('withdraw')"
             class="w-7 h-7 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 text-gray-400 text-sm">✕</button>
         </div>
+
+        <!-- ========== محدد الشبكة - تصميم احترافي ========== -->
         <div>
-            <label class="block text-xs text-gray-400 mb-1.5">عنوان المحفظة المستقبلة</label>
-            <input type="text" placeholder="أدخل عنوان محفظة الـ TRC20/BEP20..."
-            class="w-full p-3 bg-slate-900 rounded-xl border border-white/10 text-xs outline-none text-white">
-        </div>
-        <div>
-            <label class="block text-xs text-gray-400 mb-1.5">الكمية المراد سحبها (USDT)</label>
-            <div class="relative">
-                <input type="number" placeholder="الحد الأدنى 10"
-                class="w-full p-3 bg-slate-900 rounded-xl border border-white/10 text-xs outline-none text-white">
-                <span class="absolute left-3 inset-y-0 flex items-center text-xs font-bold text-gray-500">USDT</span>
+            <label class="block text-xs font-medium text-gray-400 mb-2">اختر شبكة السحب</label>
+            <div class="grid grid-cols-2 gap-2">
+                <!-- زر TRC20 -->
+                <button type="button" onclick="switchWithdrawNetwork('trc20')" id="withdraw-network-trc20"
+                class="network-toggle-btn active flex items-center gap-2 p-3 rounded-xl bg-white/5 text-white transition">
+                <span class="network-dot trc"></span>
+                <div class="text-right">
+                    <span class="text-xs font-bold block">TRC20</span>
+                    <span class="text-[9px] text-gray-400">Tron Network</span>
+                </div>
+                <i class="fa-solid fa-check-circle text-indigo-400 text-xs mr-auto hidden" id="check-trc20"></i>
+            </button>
+            <!-- زر BEP20 -->
+            <button type="button" onclick="switchWithdrawNetwork('bep20')" id="withdraw-network-bep20"
+            class="network-toggle-btn flex items-center gap-2 p-3 rounded-xl bg-white/5 text-white transition">
+            <span class="network-dot bnb"></span>
+            <div class="text-right">
+                <span class="text-xs font-bold block">BEP20</span>
+                <span class="text-[9px] text-gray-400">BNB Smart Chain</span>
             </div>
-        </div>
-        <div class="flex justify-between text-[11px] text-gray-400 px-1">
-            <span>رصيدك المتاح: <b class="text-white">0.00 USDT</b></span>
-            <span>رسوم الشبكة: <b class="text-white">1.00 USDT</b></span>
-        </div>
-        <button
-        onclick="showToast('❌ فشلت العملية: رصيدك الحالي هو 0.00 USDT وهو أقل من الحد الأدنى للسحب.', 'error', 4000)"
-        class="w-full py-3 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl text-xs font-bold hover:from-blue-600 transition">تأكيد
-    عملية السحب</button>
+            <i class="fa-solid fa-check-circle text-amber-400 text-xs mr-auto hidden" id="check-bep20"></i>
+        </button>
+    </div>
+    <input type="hidden" id="withdraw-active-network" value="trc20">
+</div>
+
+<!-- ========== عنوان المحفظة ========== -->
+<div>
+    <label class="block text-xs text-gray-400 mb-1.5">
+        عنوان المحفظة المستقبلة
+        <span id="withdraw-address-label-network" class="text-indigo-400 text-[10px]">(TRC20)</span>
+    </label>
+    <div class="relative">
+        <span class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400">
+            <i class="fa-solid fa-wallet text-xs"></i>
+        </span>
+        <input type="text" id="withdraw-address-input"
+        class="w-full pl-10 pr-4 py-3 bg-slate-900 rounded-xl border border-white/10 text-xs outline-none text-white placeholder-gray-500 focus:border-blue-500 transition"
+        placeholder="أدخل عنوان محفظة TRC20...">
+    </div>
+    <p class="text-[9px] text-gray-500 mt-1" id="withdraw-address-hint">
+        يجب أن يبدأ العنوان بـ T ويتكون من 34 حرفاً
+    </p>
+    <div class="error-message" id="withdraw-address-error">
+        <i class="fa-solid fa-circle-exclamation"></i>
+        <span></span>
+    </div>
+</div>
+
+<!-- ========== الكمية ========== -->
+<div>
+    <label class="block text-xs text-gray-400 mb-1.5">الكمية المراد سحبها (USDT)</label>
+    <div class="relative">
+        <input type="number" id="withdraw-amount-input" placeholder="الحد الأدنى للسحب"
+        class="w-full pl-16 pr-4 py-3 bg-slate-900 rounded-xl border border-white/10 text-xs outline-none text-white focus:border-blue-500 transition"
+        step="any" min="0">
+        <span class="absolute left-3 inset-y-0 flex items-center text-xs font-bold text-indigo-400">USDT</span>
+    </div>
+    <p class="text-[9px] text-gray-500 mt-1" id="withdraw-min-hint">الحد الأدنى: 10 USDT</p>
+    <div class="error-message" id="withdraw-amount-error">
+        <i class="fa-solid fa-circle-exclamation"></i>
+        <span></span>
+    </div>
+</div>
+
+<!-- ========== ملخص السحب ========== -->
+<div class="withdraw-info-banner" id="withdraw-info-banner">
+    <div class="flex justify-between text-[11px] text-gray-300 mb-1.5">
+        <span>رصيدك المتاح:</span>
+        <b class="text-white">0.00 USDT</b>
+    </div>
+    <div class="flex justify-between text-[11px] text-gray-300 mb-1.5">
+        <span>رسوم الشبكة:</span>
+        <b class="text-white" id="withdraw-fee-display">1.00 USDT</b>
+    </div>
+    <div class="flex justify-between text-[11px] text-gray-300 mb-1.5 hidden" id="withdraw-receive-row">
+        <span>ستستلم:</span>
+        <b class="text-green-400" id="withdraw-receive-amount">0.00 USDT</b>
+    </div>
+    <div class="border-t border-white/5 my-1.5"></div>
+    <div class="flex items-start gap-1.5 text-[9px] text-gray-400" id="withdraw-network-instructions">
+        <i class="fa-solid fa-info-circle text-indigo-400 mt-0.5 flex-shrink-0"></i>
+        <span>تأكد من اختيار شبكة TRC20 الصحيحة. الحد الأدنى للسحب 10 USDT ورسوم الشبكة 1 USDT.</span>
+    </div>
+</div>
+
+<!-- ========== تنبيه أمان ========== -->
+<div class="text-[10px] text-amber-400 bg-amber-500/10 p-2.5 rounded-xl border border-amber-500/10 flex items-start gap-2">
+    <i class="fa-solid fa-triangle-exclamation mt-0.5 flex-shrink-0"></i>
+    <span id="withdraw-warning-text">⚠️ تأكد من صحة عنوان المحفظة واختيار الشبكة المناسبة. عمليات السحب لا يمكن التراجع عنها.</span>
+</div>
+
+<!-- ========== زر التأكيد ========== -->
+<button onclick="handleWithdrawSubmit()" id="withdraw-submit-btn"
+class="w-full py-3.5 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 rounded-xl text-sm font-bold transition transform active:scale-95 flex items-center justify-center gap-2 shadow-lg shadow-blue-500/20">
+<i class="fa-solid fa-paper-plane"></i>
+<span>تأكيد عملية السحب</span>
+</button>
 </div>
 </div>
 
@@ -1580,6 +1750,243 @@ class="nav-btn flex flex-col items-center justify-center py-2 text-gray-400 hove
     }
 
     // ============================================================
+    // ==================== نظام السحب الديناميكي ====================
+    // ============================================================
+
+    // بيانات الشبكات المدعومة للسحب
+    const withdrawNetworkData = {
+        trc20: {
+            name: 'TRC20',
+            fullName: 'Tron Network (TRC20)',
+            icon: 'trc',
+            color: '#f59e0b',
+            colorClass: 'indigo',
+            placeholder: 'أدخل عنوان محفظة TRC20...',
+            hint: 'يجب أن يبدأ العنوان بـ T ويتكون من 34 حرفاً',
+            addressPrefix: 'T',
+            addressLength: 34,
+            minWithdraw: 10,
+            fee: 1.00,
+            feeDisplay: '1.00 USDT',
+            instructions: 'تأكد من اختيار شبكة TRC20 الصحيحة. الحد الأدنى للسحب 10 USDT ورسوم الشبكة 1 USDT. عناوين TRC20 تبدأ بحرف T.',
+            warning: '⚠️ تأكد من أن العنوان يبدأ بـ T وأنك تتعامل مع شبكة TRC20 (Tron). أي خطأ في الشبكة سيؤدي لفقدان الأصول.',
+            labelNetwork: '(TRC20)',
+            validateAddress: function(address) {
+                if (!address || address.trim().length === 0) return { valid: false, error: 'يرجى إدخال عنوان المحفظة' };
+                const addr = address.trim();
+                if (!addr.startsWith('T')) return { valid: false,
+                    error: 'عنوان TRC20 يجب أن يبدأ بحرف T' };
+                if (addr.length !== 34) return { valid: false,
+                    error: 'عنوان TRC20 يجب أن يتكون من 34 حرفاً بالضبط' };
+                if (!/^[a-zA-Z0-9]+$/.test(addr)) return { valid: false,
+                    error: 'يحتوي العنوان على أحرف غير صالحة' };
+                return { valid: true, error: null };
+            }
+        },
+        bep20: {
+            name: 'BEP20',
+            fullName: 'BNB Smart Chain (BEP20)',
+            icon: 'bnb',
+            color: '#f0b90b',
+            colorClass: 'amber',
+            placeholder: 'أدخل عنوان محفظة BEP20...',
+            hint: 'يجب أن يبدأ العنوان بـ 0x ويتكون من 42 حرفاً',
+            addressPrefix: '0x',
+            addressLength: 42,
+            minWithdraw: 5,
+            fee: 0.50,
+            feeDisplay: '0.50 USDT',
+            instructions: 'تأكد من اختيار شبكة BEP20 (BNB Smart Chain) الصحيحة. الحد الأدنى للسحب 5 USDT ورسوم الشبكة 0.50 USDT. عناوين BEP20 تبدأ بـ 0x.',
+            warning: '⚠️ تأكد من أن العنوان يبدأ بـ 0x وأنك تتعامل مع شبكة BNB Smart Chain (BEP20). أي خطأ في الشبكة سيؤدي لفقدان الأصول.',
+            labelNetwork: '(BEP20)',
+            validateAddress: function(address) {
+                if (!address || address.trim().length === 0) return { valid: false, error: 'يرجى إدخال عنوان المحفظة' };
+                const addr = address.trim();
+                if (!addr.startsWith('0x')) return { valid: false,
+                    error: 'عنوان BEP20 يجب أن يبدأ بـ 0x' };
+                if (addr.length !== 42) return { valid: false,
+                    error: 'عنوان BEP20 يجب أن يتكون من 42 حرفاً بالضبط' };
+                if (!/^0x[a-fA-F0-9]{40}$/.test(addr)) return { valid: false,
+                    error: 'تنسيق عنوان BEP20 غير صالح (يجب أن يكون بصيغة hex بعد 0x)' };
+                return { valid: true, error: null };
+            }
+        }
+    };
+
+    function switchWithdrawNetwork(network) {
+        // تحديث الحقل المخفي
+        document.getElementById('withdraw-active-network').value = network;
+
+        const data = withdrawNetworkData[network];
+        const trc20Btn = document.getElementById('withdraw-network-trc20');
+        const bep20Btn = document.getElementById('withdraw-network-bep20');
+        const checkTrc = document.getElementById('check-trc20');
+        const checkBep = document.getElementById('check-bep20');
+
+        // إعادة تعيين الأزرار
+        [trc20Btn, bep20Btn].forEach(btn => btn.classList.remove('active'));
+        [checkTrc, checkBep].forEach(chk => chk.classList.add('hidden'));
+
+        // تفعيل الزر المناسب
+        if (network === 'trc20') {
+            trc20Btn.classList.add('active');
+            checkTrc.classList.remove('hidden');
+        } else {
+            bep20Btn.classList.add('active');
+            checkBep.classList.remove('hidden');
+        }
+
+        // تحديث عنوان المحفظة
+        const addressInput = document.getElementById('withdraw-address-input');
+        if (addressInput) {
+            addressInput.placeholder = data.placeholder;
+            addressInput.value = '';
+            addressInput.classList.remove('input-error', 'input-success');
+        }
+
+        // تحديث التلميحات
+        const addressHint = document.getElementById('withdraw-address-hint');
+        if (addressHint) addressHint.textContent = data.hint;
+
+        const addressLabelNetwork = document.getElementById('withdraw-address-label-network');
+        if (addressLabelNetwork) addressLabelNetwork.textContent = data.labelNetwork;
+
+        // تحديث الكمية
+        const amountInput = document.getElementById('withdraw-amount-input');
+        if (amountInput) {
+            amountInput.value = '';
+            amountInput.classList.remove('input-error', 'input-success');
+        }
+
+        const minHint = document.getElementById('withdraw-min-hint');
+        if (minHint) minHint.textContent = 'الحد الأدنى: ' + data.minWithdraw + ' USDT';
+
+        // تحديث ملخص السحب
+        const feeDisplay = document.getElementById('withdraw-fee-display');
+        if (feeDisplay) feeDisplay.textContent = data.feeDisplay;
+
+        const instructions = document.getElementById('withdraw-network-instructions');
+        if (instructions) {
+            instructions.querySelector('span').textContent = data.instructions;
+            const iconEl = instructions.querySelector('i');
+            if (iconEl) {
+                iconEl.className = 'fa-solid fa-info-circle mt-0.5 flex-shrink-0';
+                iconEl.classList.add(network === 'trc20' ? 'text-indigo-400' : 'text-amber-400');
+            }
+        }
+
+        const warningText = document.getElementById('withdraw-warning-text');
+        if (warningText) warningText.textContent = data.warning;
+
+        // تحديث البانر
+        const infoBanner = document.getElementById('withdraw-info-banner');
+        if (infoBanner) {
+            infoBanner.classList.remove('bnb-mode');
+            if (network === 'bep20') {
+                infoBanner.classList.add('bnb-mode');
+            }
+        }
+
+        // إخفاء صف "ستستلم" وإعادة حسابه
+        const receiveRow = document.getElementById('withdraw-receive-row');
+        if (receiveRow) receiveRow.classList.add('hidden');
+        const receiveAmount = document.getElementById('withdraw-receive-amount');
+        if (receiveAmount) receiveAmount.textContent = '0.00 USDT';
+
+        // إخفاء رسائل الخطأ
+        hideFieldError('withdraw-address-error');
+        hideFieldError('withdraw-amount-error');
+
+        console.log('🔄 [BontFoR] تم تبديل شبكة السحب إلى:', network, data.fullName);
+    }
+
+    function handleWithdrawSubmit() {
+        const activeNetwork = document.getElementById('withdraw-active-network').value;
+        const data = withdrawNetworkData[activeNetwork];
+        const addressInput = document.getElementById('withdraw-address-input');
+        const amountInput = document.getElementById('withdraw-amount-input');
+        const submitBtn = document.getElementById('withdraw-submit-btn');
+
+        const address = addressInput ? addressInput.value : '';
+        const amountStr = amountInput ? amountInput.value : '';
+        const amount = parseFloat(amountStr);
+
+        let hasError = false;
+
+        // إخفاء جميع الأخطاء أولاً
+        hideFieldError('withdraw-address-error');
+        hideFieldError('withdraw-amount-error');
+        if (addressInput) addressInput.classList.remove('input-error', 'input-success');
+        if (amountInput) amountInput.classList.remove('input-error', 'input-success');
+
+        // التحقق من العنوان
+        const addressValidation = data.validateAddress(address);
+        if (!addressValidation.valid) {
+            showFieldError('withdraw-address-error', addressValidation.error);
+            if (addressInput) addressInput.classList.add('input-error');
+            hasError = true;
+        } else {
+            if (addressInput) addressInput.classList.add('input-success');
+        }
+
+        // التحقق من الكمية
+        if (isNaN(amount) || amount <= 0) {
+            showFieldError('withdraw-amount-error', 'يرجى إدخال كمية صالحة للسحب');
+            if (amountInput) amountInput.classList.add('input-error');
+            hasError = true;
+        } else if (amount < data.minWithdraw) {
+            showFieldError('withdraw-amount-error', 'الحد الأدنى للسحب عبر ' + data.name + ' هو ' + data.minWithdraw +
+                ' USDT');
+            if (amountInput) amountInput.classList.add('input-error');
+            hasError = true;
+        } else if (amount > 0) {
+            // في الواقع هنا نتحقق من الرصيد، لكن الرصيد حالياً 0
+            if (amountInput) amountInput.classList.add('input-success');
+        }
+
+        if (hasError) {
+            submitBtn.classList.add('shake');
+            setTimeout(() => submitBtn.classList.remove('shake'), 500);
+            return;
+        }
+
+        // بما أن الرصيد 0، سنظهر رسالة مناسبة
+        showToast('❌ فشلت العملية: رصيدك الحالي هو 0.00 USDT وهو أقل من الحد الأدنى للسحب (' + data.minWithdraw +
+            ' USDT عبر ' + data.name + ').', 'error', 5000);
+    }
+
+    // مستمع لتحديث الكمية بشكل مباشر
+    document.addEventListener('DOMContentLoaded', function() {
+        const amountInput = document.getElementById('withdraw-amount-input');
+        if (amountInput) {
+            amountInput.addEventListener('input', function() {
+                const activeNetwork = document.getElementById('withdraw-active-network')?.value || 'trc20';
+                const data = withdrawNetworkData[activeNetwork];
+                const amount = parseFloat(this.value);
+                const receiveRow = document.getElementById('withdraw-receive-row');
+                const receiveAmount = document.getElementById('withdraw-receive-amount');
+
+                if (!isNaN(amount) && amount > 0) {
+                    const receive = Math.max(0, amount - data.fee);
+                    if (receiveRow) receiveRow.classList.remove('hidden');
+                    if (receiveAmount) receiveAmount.textContent = receive.toFixed(2) + ' USDT';
+                } else {
+                    if (receiveRow) receiveRow.classList.add('hidden');
+                    if (receiveAmount) receiveAmount.textContent = '0.00 USDT';
+                }
+            });
+        }
+
+        const addressInput = document.getElementById('withdraw-address-input');
+        if (addressInput) {
+            addressInput.addEventListener('input', function() {
+                this.classList.remove('input-error', 'input-success');
+                hideFieldError('withdraw-address-error');
+            });
+        }
+    });
+
+    // ============================================================
     // ==================== مراقبة الأحداث المباشرة ====================
     // ============================================================
 
@@ -1983,6 +2390,20 @@ class="nav-btn flex flex-col items-center justify-center py-2 text-gray-400 hove
                 updateDepositNetwork();
             }
         }
+        if (type === 'withdraw') {
+            // تهيئة حالة السحب الافتراضية
+            switchWithdrawNetwork('trc20');
+            const addressInput = document.getElementById('withdraw-address-input');
+            const amountInput = document.getElementById('withdraw-amount-input');
+            if (addressInput) { addressInput.value = '';
+                addressInput.classList.remove('input-error', 'input-success'); }
+            if (amountInput) { amountInput.value = '';
+                amountInput.classList.remove('input-error', 'input-success'); }
+            hideFieldError('withdraw-address-error');
+            hideFieldError('withdraw-amount-error');
+            const receiveRow = document.getElementById('withdraw-receive-row');
+            if (receiveRow) receiveRow.classList.add('hidden');
+        }
     }
 
     function closeModal(type) { document.getElementById(`modal-${type}`).classList.add('hidden'); }
@@ -2038,6 +2459,7 @@ class="nav-btn flex flex-col items-center justify-center py-2 text-gray-400 hove
         console.log('📊 [BontFoR] عدد المستخدمين المسجلين:', userCount);
         console.log('🔐 [BontFoR] نظام المصادقة: localStorage + تشفير كلمات المرور');
         console.log('📱 [BontFoR] PWA: مفعل مع شريط تثبيت ثابت');
+        console.log('💱 [BontFoR] نظام السحب: دعم شبكات TRC20 + BEP20 مع تحقق ديناميكي');
     });
 
     window.addEventListener('load', function() {
@@ -2064,8 +2486,8 @@ class="nav-btn flex flex-col items-center justify-center py-2 text-gray-400 hove
         }
     }, 3000);
 
-    console.log('✅ [BontFoR] جاهز - نظام مصادقة حقيقي مع حفظ المستخدمين | PWA مفعل');
-    console.log('📝 [BontFoR] ميزات الأمان: التحقق من تنسيق البريد | قوة كلمة المرور | تشفير كلمات المرور | منع تكرار التسجيل');
+    console.log('✅ [BontFoR] جاهز - نظام مصادقة حقيقي مع حفظ المستخدمين | PWA مفعل | سحب متعدد الشبكات');
+    console.log('📝 [BontFoR] ميزات الأمان: التحقق من تنسيق البريد | قوة كلمة المرور | تشفير كلمات المرور | منع تكرار التسجيل | تحقق من عناوين السحب');
 </script>
 </body>
 </html>
