@@ -408,7 +408,7 @@
             transition: top 0.6s ease-in-out;
         }
 
-        /* ==================== أزرار تبديل الشبكة في السحب ==================== */
+        /* ==================== أزرار تبديل الشبكة في السحب والإيداع ==================== */
         .network-toggle-btn {
             position: relative;
             transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
@@ -496,6 +496,24 @@
         .withdraw-info-banner.bnb-mode {
             background: rgba(240, 185, 11, 0.06);
             border-color: rgba(240, 185, 11, 0.2);
+        }
+
+        /* ==================== تنسيقات نافذة الإيداع المحسّنة ==================== */
+        .deposit-info-banner {
+            background: rgba(99, 102, 241, 0.06);
+            border: 1px solid rgba(99, 102, 241, 0.15);
+            border-radius: 12px;
+            padding: 10px 14px;
+            transition: all 0.35s ease;
+        }
+
+        .deposit-info-banner.bnb-mode {
+            background: rgba(240, 185, 11, 0.06);
+            border-color: rgba(240, 185, 11, 0.2);
+        }
+
+        .deposit-instructions {
+            transition: all 0.35s ease;
         }
     </style>
 </head>
@@ -1019,9 +1037,9 @@ class="nav-btn flex flex-col items-center justify-center py-2 text-gray-400 hove
 
 </div>
 
-<!-- ==================== نافذة الإيداع ==================== -->
+<!-- ==================== نافذة الإيداع (محسّنة مع تبديل الشبكات الديناميكي) ==================== -->
 <div id="modal-deposit" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-    <div class="glass-card w-full max-w-sm rounded-3xl p-6 space-y-4 animate-scaleUp">
+    <div class="glass-card w-full max-w-sm rounded-3xl p-6 space-y-4 animate-scaleUp max-h-[90vh] overflow-y-auto">
         <div class="flex justify-between items-center">
             <h3 class="text-base font-bold flex items-center gap-2 text-green-400">
                 <i class="fa-solid fa-circle-arrow-down"></i> إيداع عملات رقمية
@@ -1029,30 +1047,74 @@ class="nav-btn flex flex-col items-center justify-center py-2 text-gray-400 hove
             <button onclick="closeModal('deposit')"
             class="w-7 h-7 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 text-gray-400 text-sm">✕</button>
         </div>
+
+        <!-- ========== محدد الشبكة للإيداع - تصميم احترافي ========== -->
         <div>
-            <label class="block text-xs text-gray-400 mb-1.5">اختر شبكة الإيداع المخصصة</label>
-            <select id="deposit-network-select" onchange="updateDepositNetwork()" class="w-full p-3 bg-slate-900 rounded-xl border border-white/10 text-xs outline-none text-white">
-                <option value="trc20">USDT (TRC20)</option>
-                <option value="bep20">USDT (BEP20 / BNB Chain)</option>
-            </select>
-        </div>
-        <div class="bg-white/5 p-3 rounded-xl border border-white/5 text-center space-y-2">
-            <p class="text-[10px] text-gray-400">عنوان الإيداع المخصص لحسابك</p>
-            <p id="deposit-address-display" class="text-[11px] font-mono select-all text-blue-400 break-all bg-black/30 p-2 rounded-lg border border-white/5">
-                TUS4f9PchpPML6QzijdqgVx7qkdjzbq1iW</p>
-            <div class="flex justify-center my-2">
-                <img id="deposit-qr-image" src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=TUS4f9PchpPML6QzijdqgVx7qkdjzbq1iW&bgcolor=0b0f19&color=3b82f6&margin=10" 
-                     alt="QR Code" 
-                     class="w-40 h-40 rounded-xl bg-white p-2 shadow-lg"
-                     onerror="this.onerror=null; this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxODAiIGhlaWdodD0iMTgwIiB2aWV3Qm94PSIwIDAgMTgwIDE4MCI+PHJlY3Qgd2lkdGg9IjE4MCIgaGVpZ2h0PSIxODAiIGZpbGw9IiMwYjBmMTkiLz48dGV4dCB4PSI5MCIgeT0iOTAiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxMiIgZmlsbD0iIzNiODJmNiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPlFSIENvZGU8L3RleHQ+PC9zdmc+';">
+            <label class="block text-xs font-medium text-gray-400 mb-2">اختر شبكة الإيداع</label>
+            <div class="grid grid-cols-2 gap-2">
+                <!-- زر TRC20 للإيداع -->
+                <button type="button" onclick="switchDepositNetwork('trc20')" id="deposit-network-trc20"
+                class="network-toggle-btn active flex items-center gap-2 p-3 rounded-xl bg-white/5 text-white transition">
+                <span class="network-dot trc"></span>
+                <div class="text-right">
+                    <span class="text-xs font-bold block">TRC20</span>
+                    <span class="text-[9px] text-gray-400">Tron Network</span>
+                </div>
+                <i class="fa-solid fa-check-circle text-indigo-400 text-xs mr-auto" id="check-deposit-trc20"></i>
+            </button>
+            <!-- زر BEP20 للإيداع -->
+            <button type="button" onclick="switchDepositNetwork('bep20')" id="deposit-network-bep20"
+            class="network-toggle-btn flex items-center gap-2 p-3 rounded-xl bg-white/5 text-white transition">
+            <span class="network-dot bnb"></span>
+            <div class="text-right">
+                <span class="text-xs font-bold block">BEP20</span>
+                <span class="text-[9px] text-gray-400">BNB Smart Chain</span>
             </div>
-            <button id="deposit-copy-btn" onclick="copyDepositAddress()"
-            class="text-[10px] bg-white/10 px-3 py-1 rounded-md text-white font-medium hover:bg-white/20 transition">نسخ
-        العنوان</button>
+            <i class="fa-solid fa-check-circle text-amber-400 text-xs mr-auto hidden" id="check-deposit-bep20"></i>
+        </button>
     </div>
-    <div class="text-[10px] text-amber-400 bg-amber-500/10 p-2.5 rounded-xl border border-amber-500/10">
-        ⚠️ يرجى إرسال عملة USDT فقط عبر الشبكة المحددة لتفادي فقدان الأصول المعالجة.
+    <input type="hidden" id="deposit-active-network" value="trc20">
+</div>
+
+<!-- ========== عنوان الإيداع ========== -->
+<div class="bg-white/5 p-4 rounded-xl border border-white/5 text-center space-y-3">
+    <p class="text-[10px] text-gray-400">عنوان الإيداع المخصص لحسابك على شبكة <span id="deposit-network-label-display" class="text-indigo-400 font-bold">TRC20</span></p>
+    <p id="deposit-address-display" class="text-[11px] font-mono select-all text-blue-400 break-all bg-black/30 p-2 rounded-lg border border-white/5">
+        TUS4f9PchpPML6QzijdqgVx7qkdjzbq1iW</p>
+    <div class="flex justify-center my-2">
+        <img id="deposit-qr-image" src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=TUS4f9PchpPML6QzijdqgVx7qkdjzbq1iW&bgcolor=0b0f19&color=3b82f6&margin=10" 
+             alt="QR Code" 
+             class="w-40 h-40 rounded-xl bg-white p-2 shadow-lg"
+             onerror="this.onerror=null; this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxODAiIGhlaWdodD0iMTgwIiB2aWV3Qm94PSIwIDAgMTgwIDE4MCI+PHJlY3Qgd2lkdGg9IjE4MCIgaGVpZ2h0PSIxODAiIGZpbGw9IiMwYjBmMTkiLz48dGV4dCB4PSI5MCIgeT0iOTAiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxMiIgZmlsbD0iIzNiODJmNiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPlFSIENvZGU8L3RleHQ+PC9zdmc+';">
     </div>
+    <button id="deposit-copy-btn" onclick="copyDepositAddress()"
+    class="text-[11px] bg-white/10 px-4 py-2 rounded-lg text-white font-medium hover:bg-white/20 transition flex items-center justify-center gap-2 mx-auto">
+    <i class="fa-regular fa-copy"></i> نسخ العنوان
+</button>
+</div>
+
+<!-- ========== ملخص الإيداع ========== -->
+<div class="deposit-info-banner" id="deposit-info-banner">
+    <div class="flex justify-between text-[11px] text-gray-300 mb-1.5">
+        <span>الحد الأدنى للإيداع:</span>
+        <b class="text-white" id="deposit-min-display">10 USDT</b>
+    </div>
+    <div class="flex justify-between text-[11px] text-gray-300 mb-1.5">
+        <span>وقت التأكيد التقريبي:</span>
+        <b class="text-white" id="deposit-time-display">1-3 دقائق</b>
+    </div>
+    <div class="border-t border-white/5 my-1.5"></div>
+    <div class="flex items-start gap-1.5 text-[9px] text-gray-400 deposit-instructions" id="deposit-network-instructions">
+        <i class="fa-solid fa-info-circle text-indigo-400 mt-0.5 flex-shrink-0"></i>
+        <span>أرسل USDT فقط عبر شبكة TRC20. سيتم إضافة الرصيد تلقائياً بعد تأكيد الشبكة.</span>
+    </div>
+</div>
+
+<!-- ========== تنبيه أمان ========== -->
+<div class="text-[10px] text-amber-400 bg-amber-500/10 p-2.5 rounded-xl border border-amber-500/10 flex items-start gap-2">
+    <i class="fa-solid fa-triangle-exclamation mt-0.5 flex-shrink-0"></i>
+    <span id="deposit-warning-text">⚠️ يرجى إرسال عملة USDT فقط عبر شبكة TRC20. أي عملة أو شبكة أخرى ستؤدي إلى فقدان الأصول بشكل دائم.</span>
+</div>
 </div>
 </div>
 
@@ -1717,43 +1779,40 @@ class="w-full py-3.5 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blu
     }
 
     // ============================================================
-    // ==================== عناوين الإيداع ====================
+    // ==================== بيانات الشبكات للإيداع والسحب ====================
     // ============================================================
+
+    // عناوين الإيداع الثابتة لكل شبكة
     const depositAddresses = {
         trc20: 'TUS4f9PchpPML6QzijdqgVx7qkdjzbq1iW',
         bep20: '0xe94CFa883b3a7A31bFFe3E48dD66334B67d1B35F'
     };
 
-    function updateDepositNetwork() {
-        const select = document.getElementById('deposit-network-select');
-        const network = select ? select.value : 'trc20';
-        const address = depositAddresses[network] || depositAddresses['trc20'];
-        const addressDisplay = document.getElementById('deposit-address-display');
-        const qrImage = document.getElementById('deposit-qr-image');
-
-        if (addressDisplay) addressDisplay.textContent = address;
-        if (qrImage) {
-            qrImage.src = 'https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=' +
-                encodeURIComponent(address) + '&bgcolor=0b0f19&color=3b82f6&margin=10';
+    // بيانات الشبكات للإيداع (باستخدام نفس هيكل السحب تقريباً)
+    const depositNetworkData = {
+        trc20: {
+            name: 'TRC20',
+            fullName: 'Tron Network (TRC20)',
+            colorClass: 'indigo',
+            minDeposit: '10 USDT',
+            confirmTime: '1-3 دقائق',
+            instructions: 'أرسل USDT فقط عبر شبكة TRC20. سيتم إضافة الرصيد تلقائياً بعد تأكيد الشبكة.',
+            warning: '⚠️ يرجى إرسال عملة USDT فقط عبر شبكة TRC20. أي عملة أو شبكة أخرى ستؤدي إلى فقدان الأصول بشكل دائم.',
+            labelDisplay: 'TRC20'
+        },
+        bep20: {
+            name: 'BEP20',
+            fullName: 'BNB Smart Chain (BEP20)',
+            colorClass: 'amber',
+            minDeposit: '5 USDT',
+            confirmTime: '3-5 دقائق',
+            instructions: 'أرسل USDT فقط عبر شبكة BEP20 (BNB Smart Chain). تأكد من أن المحفظة المرسلة تدعم BEP20.',
+            warning: '⚠️ يرجى إرسال عملة USDT فقط عبر شبكة BEP20 (BNB Smart Chain). أي عملة أو شبكة أخرى ستؤدي إلى فقدان الأصول بشكل دائم.',
+            labelDisplay: 'BEP20'
         }
-    }
+    };
 
-    function copyDepositAddress() {
-        const select = document.getElementById('deposit-network-select');
-        const network = select ? select.value : 'trc20';
-        const address = depositAddresses[network] || depositAddresses['trc20'];
-        navigator.clipboard.writeText(address).then(() => {
-            showToast('✅ تم نسخ عنوان الإيداع بنجاح!', 'success', 2000);
-        }).catch(() => {
-            showToast('⚠️ تعذر النسخ التلقائي. يرجى تحديد العنوان ونسخه يدوياً.', 'error', 3000);
-        });
-    }
-
-    // ============================================================
-    // ==================== نظام السحب الديناميكي ====================
-    // ============================================================
-
-    // بيانات الشبكات المدعومة للسحب
+    // بيانات الشبكات للسحب
     const withdrawNetworkData = {
         trc20: {
             name: 'TRC20',
@@ -1812,6 +1871,101 @@ class="w-full py-3.5 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blu
             }
         }
     };
+
+    // ============================================================
+    // ==================== وظائف الإيداع الديناميكية ====================
+    // ============================================================
+
+    function switchDepositNetwork(network) {
+        // تحديث الحقل المخفي
+        document.getElementById('deposit-active-network').value = network;
+
+        const data = depositNetworkData[network];
+        const address = depositAddresses[network] || depositAddresses['trc20'];
+
+        const trc20Btn = document.getElementById('deposit-network-trc20');
+        const bep20Btn = document.getElementById('deposit-network-bep20');
+        const checkTrc = document.getElementById('check-deposit-trc20');
+        const checkBep = document.getElementById('check-deposit-bep20');
+
+        // إعادة تعيين الأزرار
+        [trc20Btn, bep20Btn].forEach(btn => btn.classList.remove('active'));
+        [checkTrc, checkBep].forEach(chk => chk.classList.add('hidden'));
+
+        // تفعيل الزر المناسب
+        if (network === 'trc20') {
+            trc20Btn.classList.add('active');
+            checkTrc.classList.remove('hidden');
+        } else {
+            bep20Btn.classList.add('active');
+            checkBep.classList.remove('hidden');
+        }
+
+        // تحديث عنوان الإيداع
+        const addressDisplay = document.getElementById('deposit-address-display');
+        if (addressDisplay) addressDisplay.textContent = address;
+
+        // تحديث QR Code
+        const qrImage = document.getElementById('deposit-qr-image');
+        if (qrImage) {
+            qrImage.src = 'https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=' +
+                encodeURIComponent(address) + '&bgcolor=0b0f19&color=3b82f6&margin=10';
+        }
+
+        // تحديث اسم الشبكة المعروض
+        const networkLabel = document.getElementById('deposit-network-label-display');
+        if (networkLabel) {
+            networkLabel.textContent = data.labelDisplay;
+            networkLabel.className = network === 'trc20' ? 'text-indigo-400 font-bold' : 'text-amber-400 font-bold';
+        }
+
+        // تحديث ملخص الإيداع
+        const minDisplay = document.getElementById('deposit-min-display');
+        if (minDisplay) minDisplay.textContent = data.minDeposit;
+
+        const timeDisplay = document.getElementById('deposit-time-display');
+        if (timeDisplay) timeDisplay.textContent = data.confirmTime;
+
+        // تحديث التعليمات
+        const instructions = document.getElementById('deposit-network-instructions');
+        if (instructions) {
+            instructions.querySelector('span').textContent = data.instructions;
+            const iconEl = instructions.querySelector('i');
+            if (iconEl) {
+                iconEl.className = 'fa-solid fa-info-circle mt-0.5 flex-shrink-0';
+                iconEl.classList.add(network === 'trc20' ? 'text-indigo-400' : 'text-amber-400');
+            }
+        }
+
+        // تحديث تحذير الأمان
+        const warningText = document.getElementById('deposit-warning-text');
+        if (warningText) warningText.textContent = data.warning;
+
+        // تحديث لون البانر
+        const infoBanner = document.getElementById('deposit-info-banner');
+        if (infoBanner) {
+            infoBanner.classList.remove('bnb-mode');
+            if (network === 'bep20') {
+                infoBanner.classList.add('bnb-mode');
+            }
+        }
+
+        console.log('🔄 [BontFoR] تم تبديل شبكة الإيداع إلى:', network, data.fullName);
+    }
+
+    function copyDepositAddress() {
+        const activeNetwork = document.getElementById('deposit-active-network')?.value || 'trc20';
+        const address = depositAddresses[activeNetwork] || depositAddresses['trc20'];
+        navigator.clipboard.writeText(address).then(() => {
+            showToast('✅ تم نسخ عنوان الإيداع (' + activeNetwork.toUpperCase() + ') بنجاح!', 'success', 2000);
+        }).catch(() => {
+            showToast('⚠️ تعذر النسخ التلقائي. يرجى تحديد العنوان ونسخه يدوياً.', 'error', 3000);
+        });
+    }
+
+    // ============================================================
+    // ==================== وظائف السحب الديناميكية ====================
+    // ============================================================
 
     function switchWithdrawNetwork(network) {
         // تحديث الحقل المخفي
@@ -1955,7 +2109,7 @@ class="w-full py-3.5 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blu
             ' USDT عبر ' + data.name + ').', 'error', 5000);
     }
 
-    // مستمع لتحديث الكمية بشكل مباشر
+    // مستمع لتحديث الكمية بشكل مباشر (للسحب)
     document.addEventListener('DOMContentLoaded', function() {
         const amountInput = document.getElementById('withdraw-amount-input');
         if (amountInput) {
@@ -2384,11 +2538,8 @@ class="w-full py-3.5 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blu
     function openModal(type) {
         document.getElementById(`modal-${type}`).classList.remove('hidden');
         if (type === 'deposit') {
-            const select = document.getElementById('deposit-network-select');
-            if (select) {
-                select.value = 'trc20';
-                updateDepositNetwork();
-            }
+            // تهيئة حالة الإيداع الافتراضية
+            switchDepositNetwork('trc20');
         }
         if (type === 'withdraw') {
             // تهيئة حالة السحب الافتراضية
@@ -2459,7 +2610,7 @@ class="w-full py-3.5 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blu
         console.log('📊 [BontFoR] عدد المستخدمين المسجلين:', userCount);
         console.log('🔐 [BontFoR] نظام المصادقة: localStorage + تشفير كلمات المرور');
         console.log('📱 [BontFoR] PWA: مفعل مع شريط تثبيت ثابت');
-        console.log('💱 [BontFoR] نظام السحب: دعم شبكات TRC20 + BEP20 مع تحقق ديناميكي');
+        console.log('💱 [BontFoR] نظام الإيداع والسحب: دعم شبكات TRC20 + BEP20 مع تبديل ديناميكي احترافي');
     });
 
     window.addEventListener('load', function() {
@@ -2486,7 +2637,7 @@ class="w-full py-3.5 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blu
         }
     }, 3000);
 
-    console.log('✅ [BontFoR] جاهز - نظام مصادقة حقيقي مع حفظ المستخدمين | PWA مفعل | سحب متعدد الشبكات');
+    console.log('✅ [BontFoR] جاهز - نظام مصادقة حقيقي مع حفظ المستخدمين | PWA مفعل | إيداع وسحب متعددي الشبكات');
     console.log('📝 [BontFoR] ميزات الأمان: التحقق من تنسيق البريد | قوة كلمة المرور | تشفير كلمات المرور | منع تكرار التسجيل | تحقق من عناوين السحب');
 </script>
 </body>
