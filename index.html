@@ -2112,7 +2112,7 @@
         <span class="text-gray-400 text-xs flex items-center gap-2"><i class="fa-solid fa-shield-halved text-blue-400"></i> أمان الحساب</span>
         <span class="text-xs text-green-400 font-medium">عالي جداً (مفعل)</span>
     </div>
-    <div class="p-4 flex justify-between items-center">
+    <div class="p-4 flex justify-between items-center cursor-pointer hover:bg-white/5 transition" onclick="openChangePasswordModal()">
         <span class="text-gray-400 text-xs flex items-center gap-2"><i class="fa-solid fa-key text-blue-400"></i> تغيير كلمة المرور</span>
         <i class="fa-solid fa-chevron-left text-gray-500 text-xs"></i>
     </div>
@@ -2128,6 +2128,92 @@ class="w-full py-3.5 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 
 <span>تسجيل الخروج من الحساب</span>
 </button>
 </section>
+
+
+<!-- ==================== نافذة تغيير كلمة المرور ==================== -->
+<div id="change-password-modal" class="hidden fixed inset-0 z-[200] items-center justify-center px-4" style="background: rgba(0,0,0,0.75); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);">
+    <div class="glass-card rounded-2xl w-full max-w-sm p-5 relative" style="max-height: 90vh; overflow-y: auto;">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-white font-bold text-base flex items-center gap-2">
+                <i class="fa-solid fa-key text-blue-400"></i>
+                تغيير كلمة المرور
+            </h3>
+            <button type="button" onclick="closeChangePasswordModal()" class="text-gray-400 hover:text-white text-lg w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10 transition">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <form id="change-password-form" onsubmit="event.preventDefault(); submitChangePassword();" class="space-y-3">
+            <!-- كلمة المرور الحالية -->
+            <div>
+                <label class="block text-xs font-medium text-gray-400 mb-1">كلمة المرور الحالية <span class="text-red-400">*</span></label>
+                <div class="relative">
+                    <i class="fa-solid fa-lock absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 text-xs"></i>
+                    <input type="password" id="cp-current" required autocomplete="current-password"
+                        class="w-full bg-white/5 border border-white/10 rounded-lg pr-9 pl-9 py-2.5 text-white text-sm focus:outline-none focus:border-blue-400"
+                        placeholder="أدخل كلمة المرور الحالية">
+                    <button type="button" onclick="togglePasswordVisibility('cp-current', this)" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white text-xs">
+                        <i class="fa-regular fa-eye"></i>
+                    </button>
+                </div>
+                <div class="error-message text-red-400 text-[11px] mt-1 hidden" id="cp-current-error"></div>
+            </div>
+
+            <!-- كلمة المرور الجديدة -->
+            <div>
+                <label class="block text-xs font-medium text-gray-400 mb-1">كلمة المرور الجديدة <span class="text-red-400">*</span></label>
+                <div class="relative">
+                    <i class="fa-solid fa-shield-halved absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 text-xs"></i>
+                    <input type="password" id="cp-new" required autocomplete="new-password" minlength="8"
+                        class="w-full bg-white/5 border border-white/10 rounded-lg pr-9 pl-9 py-2.5 text-white text-sm focus:outline-none focus:border-blue-400"
+                        placeholder="8 أحرف على الأقل، حروف وأرقام">
+                    <button type="button" onclick="togglePasswordVisibility('cp-new', this)" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white text-xs">
+                        <i class="fa-regular fa-eye"></i>
+                    </button>
+                </div>
+                <div class="error-message text-red-400 text-[11px] mt-1 hidden" id="cp-new-error"></div>
+                <div class="password-strength-bar mt-2" id="cp-strength-bar">
+                    <div class="fill" id="cp-strength-fill"></div>
+                </div>
+                <p class="text-[10px] text-gray-500 mt-1" id="cp-strength-text">أدخل كلمة مرور قوية</p>
+            </div>
+
+            <!-- تأكيد كلمة المرور الجديدة -->
+            <div>
+                <label class="block text-xs font-medium text-gray-400 mb-1">تأكيد كلمة المرور الجديدة <span class="text-red-400">*</span></label>
+                <div class="relative">
+                    <i class="fa-solid fa-check-double absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 text-xs"></i>
+                    <input type="password" id="cp-confirm" required autocomplete="new-password"
+                        class="w-full bg-white/5 border border-white/10 rounded-lg pr-9 pl-9 py-2.5 text-white text-sm focus:outline-none focus:border-blue-400"
+                        placeholder="أعد كتابة كلمة المرور الجديدة">
+                    <button type="button" onclick="togglePasswordVisibility('cp-confirm', this)" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white text-xs">
+                        <i class="fa-regular fa-eye"></i>
+                    </button>
+                </div>
+                <div class="error-message text-red-400 text-[11px] mt-1 hidden" id="cp-confirm-error"></div>
+            </div>
+
+            <!-- رسائل عامة -->
+            <div id="cp-general-error" class="hidden bg-red-500/10 border border-red-500/30 text-red-400 text-xs rounded-lg p-2.5 text-center"></div>
+            <div id="cp-success" class="hidden bg-green-500/10 border border-green-500/30 text-green-400 text-xs rounded-lg p-2.5 text-center">
+                <i class="fa-solid fa-circle-check"></i> تم تغيير كلمة المرور بنجاح
+            </div>
+
+            <!-- الأزرار -->
+            <div class="flex gap-2 pt-2">
+                <button type="button" onclick="closeChangePasswordModal()"
+                    class="flex-1 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-gray-300 text-xs font-medium transition">
+                    إلغاء
+                </button>
+                <button type="submit" id="cp-submit-btn"
+                    class="flex-1 py-2.5 bg-blue-500 hover:bg-blue-600 rounded-lg text-white text-xs font-bold transition flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-save"></i>
+                    حفظ
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
 
 </main>
 
@@ -4660,6 +4746,200 @@ document.addEventListener('DOMContentLoaded',function(){var m=document.getElemen
     });
 
     start();
+})();
+</script>
+
+<!-- ==================== سكربت تغيير كلمة المرور ==================== -->
+<script>
+(function () {
+    function showCPError(id, msg) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.textContent = msg;
+        el.classList.remove('hidden');
+    }
+    function hideCPError(id) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.textContent = '';
+        el.classList.add('hidden');
+    }
+    function hideAllCPErrors() {
+        ['cp-current-error','cp-new-error','cp-confirm-error','cp-general-error'].forEach(hideCPError);
+        const s = document.getElementById('cp-success');
+        if (s) s.classList.add('hidden');
+    }
+
+    window.openChangePasswordModal = function () {
+        const session = (typeof getCurrentSession === 'function') ? getCurrentSession() : null;
+        if (!session || !session.uid) {
+            alert('يرجى تسجيل الدخول أولاً لتغيير كلمة المرور.');
+            return;
+        }
+        const modal = document.getElementById('change-password-modal');
+        if (!modal) return;
+        ['cp-current','cp-new','cp-confirm'].forEach(id => {
+            const i = document.getElementById(id);
+            if (i) { i.value = ''; i.classList.remove('input-error','input-success'); }
+        });
+        hideAllCPErrors();
+        const bar = document.getElementById('cp-strength-bar');
+        const fill = document.getElementById('cp-strength-fill');
+        const txt = document.getElementById('cp-strength-text');
+        if (bar) bar.className = 'password-strength-bar';
+        if (fill) fill.style.width = '0%';
+        if (txt) { txt.textContent = 'أدخل كلمة مرور قوية'; txt.className = 'text-[10px] text-gray-500 mt-1'; }
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        document.body.style.overflow = 'hidden';
+        setTimeout(() => { const f = document.getElementById('cp-current'); if (f) f.focus(); }, 50);
+    };
+
+    window.closeChangePasswordModal = function () {
+        const modal = document.getElementById('change-password-modal');
+        if (!modal) return;
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+        document.body.style.overflow = '';
+    };
+
+    // شريط قوة كلمة المرور الجديدة
+    document.addEventListener('input', function (e) {
+        if (!e.target || e.target.id !== 'cp-new') return;
+        const pw = e.target.value;
+        const bar = document.getElementById('cp-strength-bar');
+        const fill = document.getElementById('cp-strength-fill');
+        const txt = document.getElementById('cp-strength-text');
+        if (!bar || !fill || !txt) return;
+        if (typeof validatePasswordStrength !== 'function') return;
+        const v = validatePasswordStrength(pw);
+        bar.className = 'password-strength-bar';
+        if (!pw) {
+            fill.style.width = '0%';
+            txt.textContent = 'أدخل كلمة مرور قوية';
+            txt.className = 'text-[10px] text-gray-500 mt-1';
+            return;
+        }
+        bar.classList.add(v.strength);
+        const map = {
+            'weak':   { w:'25%',  t:'ضعيفة - يرجى تحسين كلمة المرور', c:'text-red-400' },
+            'medium': { w:'50%',  t:'متوسطة - يمكن تحسينها',           c:'text-yellow-400' },
+            'strong': { w:'75%',  t:'قوية',                             c:'text-blue-400' },
+            'very-strong': { w:'100%', t:'قوية جداً - ممتاز!',          c:'text-green-400' }
+        };
+        const m = map[v.strength] || map.weak;
+        fill.style.width = m.w;
+        txt.textContent = m.t;
+        txt.className = 'text-[10px] mt-1 ' + m.c;
+    });
+
+    window.submitChangePassword = function () {
+        hideAllCPErrors();
+
+        const currentInput = document.getElementById('cp-current');
+        const newInput     = document.getElementById('cp-new');
+        const confirmInput = document.getElementById('cp-confirm');
+        if (!currentInput || !newInput || !confirmInput) return;
+
+        const current = currentInput.value;
+        const next    = newInput.value;
+        const confirm = confirmInput.value;
+
+        let hasErr = false;
+        if (!current) { showCPError('cp-current-error', 'يرجى إدخال كلمة المرور الحالية'); currentInput.classList.add('input-error'); hasErr = true; }
+        if (!next)    { showCPError('cp-new-error', 'يرجى إدخال كلمة المرور الجديدة'); newInput.classList.add('input-error'); hasErr = true; }
+        if (!confirm) { showCPError('cp-confirm-error', 'يرجى تأكيد كلمة المرور الجديدة'); confirmInput.classList.add('input-error'); hasErr = true; }
+        if (hasErr) return;
+
+        // الجلسة الحالية
+        if (typeof getCurrentSession !== 'function' || typeof getAllUsers !== 'function' ||
+            typeof saveAllUsers !== 'function' || typeof verifyPassword !== 'function' ||
+            typeof hashPassword !== 'function' || typeof validatePasswordStrength !== 'function') {
+            showCPError('cp-general-error', 'خطأ في النظام. يرجى إعادة تحميل الصفحة.');
+            return;
+        }
+
+        const session = getCurrentSession();
+        if (!session || !session.uid) {
+            showCPError('cp-general-error', 'انتهت الجلسة. يرجى تسجيل الدخول مرة أخرى.');
+            return;
+        }
+
+        const users = getAllUsers();
+        const idx = users.findIndex(u => u.uid === session.uid);
+        if (idx === -1) {
+            showCPError('cp-general-error', 'لم يتم العثور على بيانات الحساب.');
+            return;
+        }
+        const user = users[idx];
+
+        // تحقق من كلمة المرور الحالية
+        if (!verifyPassword(current, user.passwordHash)) {
+            showCPError('cp-current-error', 'كلمة المرور الحالية غير صحيحة');
+            currentInput.classList.add('input-error');
+            currentInput.focus();
+            return;
+        }
+
+        // قوة كلمة المرور الجديدة
+        const v = validatePasswordStrength(next);
+        if (!v.isValid) {
+            showCPError('cp-new-error', v.errors[0] || 'كلمة المرور الجديدة ضعيفة');
+            newInput.classList.add('input-error');
+            newInput.focus();
+            return;
+        }
+
+        // منع استخدام نفس كلمة المرور الحالية
+        if (next === current) {
+            showCPError('cp-new-error', 'كلمة المرور الجديدة يجب أن تكون مختلفة عن الحالية');
+            newInput.classList.add('input-error');
+            newInput.focus();
+            return;
+        }
+
+        // تطابق التأكيد
+        if (confirm !== next) {
+            showCPError('cp-confirm-error', 'كلمتا المرور غير متطابقتين');
+            confirmInput.classList.add('input-error');
+            confirmInput.focus();
+            return;
+        }
+
+        // الحفظ
+        try {
+            users[idx].passwordHash = hashPassword(next);
+            users[idx].passwordChangedAt = new Date().toISOString();
+            saveAllUsers(users);
+        } catch (err) {
+            console.error('خطأ في حفظ كلمة المرور:', err);
+            showCPError('cp-general-error', 'حدث خطأ أثناء حفظ كلمة المرور. حاول مرة أخرى.');
+            return;
+        }
+
+        // نجاح
+        const success = document.getElementById('cp-success');
+        if (success) success.classList.remove('hidden');
+        const btn = document.getElementById('cp-submit-btn');
+        if (btn) { btn.disabled = true; btn.classList.add('opacity-60','cursor-not-allowed'); }
+
+        setTimeout(() => {
+            if (btn) { btn.disabled = false; btn.classList.remove('opacity-60','cursor-not-allowed'); }
+            closeChangePasswordModal();
+        }, 1800);
+    };
+
+    // إغلاق عند الضغط على الخلفية أو زر Escape
+    document.addEventListener('click', function (e) {
+        const modal = document.getElementById('change-password-modal');
+        if (modal && e.target === modal) closeChangePasswordModal();
+    });
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') {
+            const modal = document.getElementById('change-password-modal');
+            if (modal && !modal.classList.contains('hidden')) closeChangePasswordModal();
+        }
+    });
 })();
 </script>
 
