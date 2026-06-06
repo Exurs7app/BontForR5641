@@ -1452,7 +1452,7 @@
                     </div>
                 </div>
                 <div class="flex items-center gap-1.5">
-                    <button onclick="this.querySelector('i').classList.toggle('fa-eye'); this.querySelector('i').classList.toggle('fa-eye-slash');"
+                    <button id="balance-visibility-btn" onclick="toggleBalanceVisibility()"
                         class="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-gray-300 text-xs transition">
                         <i class="fa-solid fa-eye"></i>
                     </button>
@@ -1470,11 +1470,11 @@
             </p>
             <div class="relative z-10 flex items-baseline gap-2">
                 <span class="text-4xl font-extrabold tracking-tight text-white" id="main-balance">0.00</span>
-                <span class="text-base font-bold text-blue-400">USDT</span>
+                <span class="text-base font-bold text-blue-400" id="main-balance-currency">USDT</span>
             </div>
             <div class="relative z-10 flex items-center gap-2 mt-1.5 text-[11px]">
-                <span class="text-gray-500">≈ $0.00</span>
-                <span class="inline-flex items-center gap-1 text-green-400 bg-green-500/10 px-1.5 py-0.5 rounded-md font-bold">
+                <span class="text-gray-500" id="main-balance-usd">≈ $0.00</span>
+                <span class="inline-flex items-center gap-1 text-green-400 bg-green-500/10 px-1.5 py-0.5 rounded-md font-bold" id="main-balance-change">
                     <i class="fa-solid fa-arrow-trend-up text-[9px]"></i> +0.00%
                 </span>
                 <span class="text-gray-500">آخر 24 ساعة</span>
@@ -3235,6 +3235,72 @@ class="w-full py-3.5 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blu
             document.getElementById('login-form').reset();
         }
     }
+
+    function toggleBalanceVisibility(forceState) {
+        const btn = document.getElementById('balance-visibility-btn');
+        const icon = btn ? btn.querySelector('i') : null;
+        const targets = [
+            { el: document.getElementById('main-balance'), mask: '••••••' },
+            { el: document.getElementById('main-balance-currency'), mask: '•••' },
+            { el: document.getElementById('main-balance-usd'), mask: '≈ $••••' }
+        ];
+        const changeEl = document.getElementById('main-balance-change');
+        const stored = localStorage.getItem('balanceHidden') === '1';
+        const shouldHide = (typeof forceState === 'boolean') ? forceState : !stored;
+
+        targets.forEach(t => {
+            if (!t.el) return;
+            if (shouldHide) {
+                if (t.el.getAttribute('data-original') === null) {
+                    t.el.setAttribute('data-original', t.el.textContent);
+                }
+                t.el.textContent = t.mask;
+            } else {
+                const orig = t.el.getAttribute('data-original');
+                if (orig !== null) {
+                    t.el.textContent = orig;
+                    t.el.removeAttribute('data-original');
+                }
+            }
+        });
+
+        if (changeEl) {
+            if (shouldHide) {
+                if (changeEl.getAttribute('data-original') === null) {
+                    changeEl.setAttribute('data-original', changeEl.innerHTML);
+                }
+                changeEl.innerHTML = '<i class="fa-solid fa-eye-slash text-[9px]"></i> •••';
+            } else {
+                const orig = changeEl.getAttribute('data-original');
+                if (orig !== null) {
+                    changeEl.innerHTML = orig;
+                    changeEl.removeAttribute('data-original');
+                }
+            }
+        }
+
+        if (icon) {
+            icon.classList.toggle('fa-eye', !shouldHide);
+            icon.classList.toggle('fa-eye-slash', shouldHide);
+        }
+        localStorage.setItem('balanceHidden', shouldHide ? '1' : '0');
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        if (localStorage.getItem('balanceHidden') === '1') {
+            toggleBalanceVisibility(true);
+        }
+    });
+
+    window.refreshBalanceMask = function () {
+        if (localStorage.getItem('balanceHidden') === '1') {
+            ['main-balance','main-balance-usd','main-balance-currency','main-balance-change'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.removeAttribute('data-original');
+            });
+            toggleBalanceVisibility(true);
+        }
+    };
 
     function togglePasswordVisibility(inputId, button) {
         const input = document.getElementById(inputId);
