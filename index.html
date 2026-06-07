@@ -2283,8 +2283,8 @@ class="nav-btn flex flex-col items-center justify-center py-2 text-gray-400 hove
 <!-- ========== عنوان الإيداع ========== -->
 <div class="bg-white/5 p-4 rounded-xl border border-white/5 text-center space-y-3">
     <p class="text-[10px] text-gray-400">عنوان الإيداع المخصص لحسابك على شبكة <span id="deposit-network-label-display" class="text-indigo-400 font-bold">TRC20</span></p>
-    <p id="deposit-address-display" class="text-[11px] font-mono select-all text-blue-400 break-all bg-black/30 p-2 rounded-lg border border-white/5">
-        TUS4f9PchpPML6QzijdqgVx7qkdjzbq1iW</p>
+    <p id="deposit-address-display" class="text-[11px] font-mono text-blue-400 break-all bg-black/30 p-2 rounded-lg border border-white/5" title="TUS4f9PchpPML6QzijdqgVx7qkdjzbq1iW" data-full-address="TUS4f9PchpPML6QzijdqgVx7qkdjzbq1iW" style="user-select: none; -webkit-user-select: none;">
+        TUS4f9...zbq1iW</p>
     <div class="flex justify-center my-2">
         <img id="deposit-qr-image" src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=TUS4f9PchpPML6QzijdqgVx7qkdjzbq1iW&bgcolor=FFFFFF&color=000000&margin=15"
         alt="QR Code"
@@ -3527,7 +3527,16 @@ class="w-full py-3.5 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blu
         }
 
         const addressDisplay = document.getElementById('deposit-address-display');
-        if (addressDisplay) addressDisplay.textContent = address;
+        if (addressDisplay) {
+            const masked = address.length > 14
+                ? address.slice(0, 6) + '...' + address.slice(-6)
+                : address;
+            addressDisplay.textContent = masked;
+            addressDisplay.setAttribute('title', address);
+            addressDisplay.dataset.fullAddress = address;
+            addressDisplay.style.userSelect = 'none';
+            addressDisplay.style.webkitUserSelect = 'none';
+        }
 
         const qrImage = document.getElementById('deposit-qr-image');
         if (qrImage) {
