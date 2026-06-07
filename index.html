@@ -1131,6 +1131,99 @@
             padding-bottom: calc(110px + env(safe-area-inset-bottom)) !important;
         }
     </style>
+
+<style>
+/* ==================== News Modal ==================== */
+#news-modal {
+    position: fixed; inset: 0; z-index: 9999;
+    background: rgba(5, 8, 15, 0.75);
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    display: none; align-items: flex-end; justify-content: center;
+    padding: 0;
+}
+#news-modal.open { display: flex; animation: nm-fade .25s ease; }
+@keyframes nm-fade { from { opacity: 0; } to { opacity: 1; } }
+.news-modal-panel {
+    width: 100%; max-width: 448px; max-height: 90vh;
+    background: linear-gradient(180deg, #0f1420 0%, #0b0f19 100%);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 20px 20px 0 0;
+    display: flex; flex-direction: column;
+    animation: nm-slide .35s cubic-bezier(.2,.8,.2,1);
+    box-shadow: 0 -20px 60px rgba(0,0,0,0.5);
+}
+@keyframes nm-slide { from { transform: translateY(40px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+.news-modal-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 16px 12px; border-bottom: 1px solid rgba(255,255,255,0.06);
+    position: sticky; top: 0; background: inherit; border-radius: 20px 20px 0 0;
+    z-index: 2;
+}
+.news-modal-head .nm-title {
+    display: flex; align-items: center; gap: 8px;
+    color: #e5e7eb; font-weight: 700; font-size: 14px;
+}
+.news-modal-head .nm-title i { color: #22d3ee; }
+.news-modal-head .nm-count {
+    font-size: 10px; color: #94a3b8; margin-right: 8px;
+}
+#news-modal-close {
+    width: 32px; height: 32px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    color: #cbd5e1; background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.06);
+    cursor: pointer; transition: all .15s;
+}
+#news-modal-close:hover { background: rgba(255,255,255,0.1); color: #fff; }
+#news-modal-list {
+    overflow-y: auto; padding: 12px 14px 4px;
+    flex: 1; -webkit-overflow-scrolling: touch;
+}
+.news-card-link { display: block; text-decoration: none; color: inherit; }
+.news-modal-card {
+    background: linear-gradient(135deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01));
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 14px; padding: 12px 13px; margin-bottom: 10px;
+    transition: all .2s ease; cursor: pointer;
+}
+.news-modal-card:hover {
+    border-color: rgba(34,211,238,0.35);
+    background: linear-gradient(135deg, rgba(34,211,238,0.06), rgba(255,255,255,0.02));
+    transform: translateY(-1px);
+}
+.news-modal-card .news-title {
+    font-size: 12.5px; line-height: 1.6; color: #e5e7eb; font-weight: 600;
+}
+.news-card-foot {
+    margin-top: 10px; padding-top: 8px;
+    border-top: 1px dashed rgba(255,255,255,0.06);
+    font-size: 10px; color: #67e8f9; display: flex; align-items: center; gap: 6px;
+}
+.news-card-foot i { font-size: 9px; }
+.news-modal-foot {
+    padding: 12px 14px 16px;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    background: rgba(11,15,25,0.6);
+    border-radius: 0 0 0 0;
+}
+#news-load-more {
+    width: 100%; padding: 12px;
+    background: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%);
+    color: #fff; font-weight: 700; font-size: 12.5px;
+    border: 0; border-radius: 12px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    box-shadow: 0 6px 20px rgba(6,182,212,0.25);
+    transition: transform .15s, box-shadow .15s;
+}
+#news-load-more:hover { transform: translateY(-1px); box-shadow: 0 10px 24px rgba(6,182,212,0.35); }
+#news-load-more:active { transform: translateY(0); }
+@media (min-width: 640px) {
+    #news-modal { align-items: center; padding: 16px; }
+    .news-modal-panel { border-radius: 20px; max-height: 85vh; }
+    .news-modal-head { border-radius: 20px 20px 0 0; }
+}
+</style>
+
 </head>
 <body class="text-white min-h-screen flex flex-col overflow-x-hidden">
 
@@ -1724,7 +1817,7 @@
                     <i class="fa-solid fa-newspaper text-cyan-400 text-[10px]"></i> أخبار السوق
                     <span class="news-live">LIVE</span>
                 </h3>
-                <span class="text-[10px] text-cyan-400 font-medium cursor-pointer">المزيد</span>
+                <button type="button" id="news-more-btn" class="text-[10px] text-cyan-400 font-medium cursor-pointer bg-transparent border-0 p-0 hover:text-cyan-300 transition-colors">المزيد <i class="fa-solid fa-chevron-left text-[8px]"></i></button>
             </div>
 
             <div id="news-rotator" class="news-rotator">
@@ -2077,7 +2170,14 @@
         </div>
         <div>
             <h3 class="text-base font-bold id-username-view">BontFoR</h3>
-            <p class="text-xs text-gray-400" id="account-uid">UID: 82749104</p>
+            <div class="flex items-center gap-2">
+                <p class="text-xs text-gray-400" id="account-uid">UID: 82749104</p>
+                <button type="button" onclick="copyUID(this)"
+                    class="text-blue-400 hover:text-blue-300 active:scale-90 transition text-[11px] flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-blue-500/10 hover:bg-blue-500/20"
+                    title="نسخ UID" aria-label="نسخ UID">
+                    <i class="fa-regular fa-copy"></i>
+                </button>
+            </div>
             <p class="text-[10px] text-gray-500" id="account-email-view"></p>
         </div>
     </div>
@@ -2663,6 +2763,52 @@ class="w-full py-3.5 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blu
         const byEmail = findUserByEmail(lowerIdentifier);
         if (byEmail) return byEmail;
         return findUserByUsername(lowerIdentifier);
+    }
+
+    function copyUID(btn) {
+        try {
+            const el = document.getElementById('account-uid');
+            if (!el) return;
+            const uid = (el.innerText || '').replace(/^UID:\s*/i, '').trim();
+            if (!uid) {
+                if (typeof showToast === 'function') showToast('⚠️ لا يوجد UID للنسخ', 'error', 2000);
+                return;
+            }
+            const done = () => {
+                if (typeof showToast === 'function') showToast('✅ تم نسخ UID: ' + uid, 'success', 2000);
+                if (btn) {
+                    const icon = btn.querySelector('i');
+                    if (icon) {
+                        const old = icon.className;
+                        icon.className = 'fa-solid fa-check';
+                        setTimeout(() => { icon.className = old; }, 1200);
+                    }
+                }
+            };
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(uid).then(done).catch(() => fallbackCopy(uid, done));
+            } else {
+                fallbackCopy(uid, done);
+            }
+        } catch (e) {
+            console.error('copyUID error', e);
+        }
+    }
+
+    function fallbackCopy(text, cb) {
+        try {
+            const ta = document.createElement('textarea');
+            ta.value = text;
+            ta.style.position = 'fixed';
+            ta.style.left = '-9999px';
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand('copy');
+            document.body.removeChild(ta);
+            if (cb) cb();
+        } catch (e) {
+            if (typeof showToast === 'function') showToast('⚠️ تعذّر النسخ', 'error', 2000);
+        }
     }
 
     function generateUID() {
@@ -4748,51 +4894,173 @@ document.addEventListener('DOMContentLoaded',function(){var m=document.getElemen
 </script>
 
 <script>
-/* ============ News Rotator Pro ============ */
+/* ============ News Rotator Pro + Modal ============ */
 (function () {
+    /* ===== News Pool (real-style market news, ~40 items) ===== */
+    const SOURCES = {
+        CoinDesk:      { cls: 'bg-orange-500/15 text-orange-400',   url: 'https://www.coindesk.com/' },
+        Reuters:       { cls: 'bg-blue-500/15 text-blue-400',       url: 'https://www.reuters.com/markets/cryptocurrency/' },
+        Binance:       { cls: 'bg-yellow-500/15 text-yellow-400',   url: 'https://www.binance.com/en/news' },
+        Bloomberg:     { cls: 'bg-purple-500/15 text-purple-400',   url: 'https://www.bloomberg.com/crypto' },
+        CNBC:          { cls: 'bg-emerald-500/15 text-emerald-400', url: 'https://www.cnbc.com/cryptocurrency/' },
+        CoinTelegraph: { cls: 'bg-pink-500/15 text-pink-400',       url: 'https://cointelegraph.com/' },
+        TheBlock:      { cls: 'bg-indigo-500/15 text-indigo-400',   url: 'https://www.theblock.co/' },
+        Decrypt:       { cls: 'bg-rose-500/15 text-rose-400',       url: 'https://decrypt.co/' },
+        Forbes:        { cls: 'bg-amber-500/15 text-amber-400',     url: 'https://www.forbes.com/digital-assets/' },
+        WSJ:           { cls: 'bg-sky-500/15 text-sky-400',         url: 'https://www.wsj.com/news/markets/cryptocurrency' },
+        Kraken:        { cls: 'bg-violet-500/15 text-violet-400',   url: 'https://blog.kraken.com/' },
+        Coinbase:      { cls: 'bg-blue-600/15 text-blue-300',       url: 'https://www.coinbase.com/blog' },
+        FT:            { cls: 'bg-pink-600/15 text-pink-300',       url: 'https://www.ft.com/cryptocurrencies' }
+    };
+
+    const NEWS_POOL = [
+        { src:'CoinDesk',      t:'البيتكوين يقترب من 65,000 دولار وسط ترقّب لقرارات الفيدرالي الأمريكي', i:+2.4, time:'منذ 15 د' },
+        { src:'Reuters',       t:'إثيريوم يسجّل أعلى حجم تداول أسبوعي منذ مارس مع تدفّق مؤسسي قياسي', i:+1.8, time:'منذ 42 د' },
+        { src:'Binance',       t:'إدراج 3 عملات جديدة على بايننس وارتفاع حاد في سيولة شبكة سولانا', i:+5.1, time:'منذ ساعة' },
+        { src:'Bloomberg',     t:'تراجع طفيف في سوق العملات البديلة بعد جني الأرباح وعودة الحذر للمستثمرين', i:-0.9, time:'منذ ساعتين' },
+        { src:'CNBC',          t:'صناديق ETF للبيتكوين تستقطب تدفقات صافية بقيمة 540 مليون دولار خلال يوم واحد', i:+3.6, time:'منذ 3 ساعات' },
+        { src:'CoinTelegraph', t:'قفزة مفاجئة لعملات الذكاء الاصطناعي بعد إعلان شراكات جديدة مع كبرى الشركات', i:+12.7, time:'منذ 5 ساعات' },
+        { src:'TheBlock',      t:'BlackRock تضيف 12 ألف بيتكوين إلى صندوق IBIT في صفقة واحدة', i:+2.1, time:'منذ 20 د' },
+        { src:'Decrypt',       t:'سولانا تتجاوز 200 دولار للمرة الأولى منذ شهرين مع تزايد نشاط الـ Memecoins', i:+8.4, time:'منذ 35 د' },
+        { src:'Forbes',        t:'تقرير: المحافظ المؤسسية تستحوذ على 14% من المعروض الكلي للبيتكوين', i:+1.2, time:'منذ ساعة' },
+        { src:'WSJ',           t:'هيئة SEC تؤجّل قرارها بشأن صندوق ETF فوري لعملة Solana إلى يناير', i:-1.5, time:'منذ ساعتين' },
+        { src:'Reuters',       t:'الفيدرالي يلمّح إلى خفض جديد لأسعار الفائدة وسط ارتفاع شهية المخاطرة في الأسواق', i:+2.9, time:'منذ 3 ساعات' },
+        { src:'CoinDesk',      t:'XRP يقفز 18% بعد تسوية قضائية جديدة لصالح Ripple أمام لجنة الأوراق المالية', i:+18.0, time:'منذ 4 ساعات' },
+        { src:'Binance',       t:'إطلاق منصة Launchpool جديدة بمكافآت إجمالية تتجاوز 25 مليون دولار', i:+0.0, time:'منذ 6 ساعات' },
+        { src:'Bloomberg',     t:'MicroStrategy تضيف 5,400 بيتكوين إلى ميزانيتها بمتوسط سعر 67,400 دولار', i:+1.7, time:'منذ 8 ساعات' },
+        { src:'CoinTelegraph', t:'حجم تداول مشتقات الإثيريوم على CME يسجّل قمة تاريخية جديدة', i:+4.3, time:'منذ 12 ساعة' },
+        { src:'Decrypt',       t:'هاكر يستهدف بروتوكول DeFi ويستولي على 22 مليون دولار قبل استرداد جزئي', i:-6.8, time:'منذ يوم' },
+        { src:'CNBC',          t:'PayPal توسّع خدمة العملات الرقمية لتشمل 10 دول أوروبية جديدة', i:+0.8, time:'منذ يوم' },
+        { src:'Kraken',        t:'منصة Kraken تطلق خدمة Staking للإثيريوم 2.0 للمستخدمين الأمريكيين', i:+1.4, time:'منذ يوم' },
+        { src:'Coinbase',      t:'Coinbase تعلن عن أرباح فصلية قياسية بدعم من ارتفاع رسوم التداول', i:+9.2, time:'منذ يومين' },
+        { src:'FT',            t:'بنك إنجلترا يعلن المرحلة الثانية من اختبارات الإسترليني الرقمي CBDC', i:+0.3, time:'منذ يومين' },
+        { src:'Reuters',       t:'بنوك أوروبية كبرى تختبر تسوية المعاملات على شبكة Ethereum Layer 2', i:+1.1, time:'منذ يومين' },
+        { src:'CoinDesk',      t:'سعر الـ DOGE يقفز 22% بعد تغريدة من Elon Musk حول مدفوعات X', i:+22.0, time:'منذ 30 د' },
+        { src:'Bloomberg',     t:'الذهب والبيتكوين يسجّلان قمم متزامنة وسط مخاوف التضخم العالمية', i:+2.6, time:'منذ ساعة' },
+        { src:'TheBlock',      t:'Polygon تكشف عن ترقية AggLayer لربط سيولة سلاسل Layer 2', i:+3.0, time:'منذ ساعتين' },
+        { src:'Decrypt',       t:'مشروع جديد على Avalanche يجمع 80 مليون دولار في جولة تمويل', i:+5.5, time:'منذ 3 ساعات' },
+        { src:'Forbes',        t:'تقرير: 65% من الشركات الناشئة في Web3 تتجه نحو نموذج Token Restaking', i:+0.0, time:'منذ 4 ساعات' },
+        { src:'CoinTelegraph', t:'Chainlink تطلق خدمة CCIP الجديدة بدعم 19 شبكة بلوكتشين', i:+6.4, time:'منذ 5 ساعات' },
+        { src:'CNBC',          t:'Tether تعلن عن احتياطيات إضافية بقيمة 5.2 مليار دولار في سندات الخزانة', i:+0.5, time:'منذ 7 ساعات' },
+        { src:'Binance',       t:'برنامج Launchpad الجديد يطرح عملة AI ناشئة بنسبة اكتتاب 320 ضعف', i:+45.0, time:'منذ 9 ساعات' },
+        { src:'WSJ',           t:'الكونغرس الأمريكي يقترب من تمرير قانون شامل لتنظيم العملات المستقرة', i:+1.9, time:'منذ 10 ساعات' },
+        { src:'Reuters',       t:'هونغ كونغ توافق على أول صندوقَي ETF فوريَّين للإثيريوم في آسيا', i:+4.7, time:'منذ 11 ساعة' },
+        { src:'CoinDesk',      t:'مؤشر الخوف والطمع للعملات الرقمية يصل إلى مستوى "طمع شديد" عند 82', i:+0.0, time:'منذ 14 ساعة' },
+        { src:'Bloomberg',     t:'JPMorgan: ارتفاع البيتكوين إلى 80,000 دولار قبل نهاية العام أصبح "سيناريو أساسي"', i:+3.4, time:'منذ يوم' },
+        { src:'Decrypt',       t:'شبكة Bitcoin Lightning تتجاوز 6,000 بيتكوين في القنوات النشطة لأول مرة', i:+1.1, time:'منذ يوم' },
+        { src:'CoinTelegraph', t:'تراجع TVL في بروتوكولات DeFi بنسبة 4% بعد عمليات تصفية مكثفة', i:-4.0, time:'منذ يوم' },
+        { src:'Kraken',        t:'تقرير Kraken: 38% من المستخدمين الجدد تحت سن الثلاثين يفضّلون Solana', i:+0.0, time:'منذ يومين' },
+        { src:'Coinbase',      t:'Coinbase تطلق Base App لتسهيل تجربة المستخدم على شبكة Base Layer 2', i:+2.2, time:'منذ يومين' },
+        { src:'FT',            t:'Goldman Sachs تطلق صندوقاً جديداً للمستثمرين المؤسسيين على البيتكوين', i:+1.6, time:'منذ يومين' },
+        { src:'TheBlock',      t:'Optimism تعلن عن airdrop رابع لمستخدمي شبكتها بقيمة 30 مليون OP', i:+7.8, time:'منذ 3 أيام' },
+        { src:'Forbes',        t:'ارتفاع رسوم شبكة Ethereum إلى أعلى مستوى منذ 6 أشهر مع نشاط الـ NFTs', i:+0.0, time:'منذ 3 أيام' },
+        { src:'Binance',       t:'CZ يعود إلى المشهد بعد فترة عقوبة ويعلن استثماراً جديداً في Web3', i:+1.3, time:'منذ 3 أيام' },
+        { src:'Reuters',       t:'الإمارات تطلق إطاراً تنظيمياً شاملاً للأصول الرقمية المرمّزة', i:+0.7, time:'منذ 4 أيام' }
+    ];
+
+    /* ===== Shuffle helper (Fisher-Yates) ===== */
+    function shuffle(arr) {
+        const a = arr.slice();
+        for (let i = a.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [a[i], a[j]] = [a[j], a[i]];
+        }
+        return a;
+    }
+
+    /* ===== Builders ===== */
+    function sourceMeta(name) {
+        return SOURCES[name] || { cls: 'bg-gray-500/15 text-gray-300', url: '#' };
+    }
+    function impactHTML(i) {
+        if (i > 0)   return `<span class="news-impact up"><i class="fa-solid fa-arrow-trend-up"></i> +${i.toFixed(1)}%</span>`;
+        if (i < 0)  return `<span class="news-impact down"><i class="fa-solid fa-arrow-trend-down"></i> ${i.toFixed(1)}%</span>`;
+        return `<span class="news-impact" style="color:#9ca3af;background:rgba(156,163,175,.1)"><i class="fa-solid fa-minus"></i> 0.0%</span>`;
+    }
+    function slideHTML(n, active) {
+        const meta = sourceMeta(n.src);
+        return `
+            <div class="news-slide${active ? ' active' : ''}" data-url="${meta.url}">
+                <div class="news-meta-row">
+                    <div class="news-meta-left">
+                        <span class="news-source ${meta.cls}">${n.src}</span>
+                        <span class="news-time"><i class="fa-regular fa-clock"></i> ${n.time}</span>
+                    </div>
+                    ${impactHTML(n.i)}
+                </div>
+                <p class="news-title">${n.t}</p>
+            </div>`;
+    }
+
+    /* ===== Rotator ===== */
     const rotator = document.getElementById('news-rotator');
     if (!rotator) return;
 
     const stage  = document.getElementById('news-stage');
-    const slides = Array.from(stage.querySelectorAll('.news-slide'));
     const bar    = document.getElementById('news-progress-bar');
     const dotsEl = document.getElementById('news-dots');
     const INTERVAL = 5000;
+    const ROTATOR_SIZE = 8;
 
+    let currentPool = shuffle(NEWS_POOL);
+    let rotatorBatch = currentPool.slice(0, ROTATOR_SIZE);
+    let poolCursor = ROTATOR_SIZE;
+    let slides = [];
+    let dots = [];
     let idx = 0;
     let timer = null;
     let paused = false;
 
-    // build dots
-    slides.forEach((_, i) => {
-        const d = document.createElement('span');
-        d.className = 'news-dot' + (i === 0 ? ' active' : '');
-        d.addEventListener('click', () => { goTo(i); restart(); });
-        dotsEl.appendChild(d);
-    });
-    const dots = Array.from(dotsEl.children);
+    function renderRotator() {
+        stage.innerHTML = rotatorBatch.map((n, i) => slideHTML(n, i === 0)).join('');
+        dotsEl.innerHTML = rotatorBatch.map((_, i) =>
+            `<span class="news-dot${i === 0 ? ' active' : ''}" data-i="${i}"></span>`
+        ).join('');
+        slides = Array.from(stage.querySelectorAll('.news-slide'));
+        dots   = Array.from(dotsEl.querySelectorAll('.news-dot'));
+        idx = 0;
+        dots.forEach(d => d.addEventListener('click', () => { goTo(+d.dataset.i); restart(); }));
+        slides.forEach(s => s.addEventListener('click', () => {
+            const u = s.dataset.url; if (u && u !== '#') window.open(u, '_blank', 'noopener');
+        }));
+    }
+
+    function refreshBatch() {
+        // Take next ROTATOR_SIZE items; reshuffle pool when exhausted
+        if (poolCursor + ROTATOR_SIZE > currentPool.length) {
+            currentPool = shuffle(NEWS_POOL);
+            poolCursor = 0;
+        }
+        rotatorBatch = currentPool.slice(poolCursor, poolCursor + ROTATOR_SIZE);
+        poolCursor += ROTATOR_SIZE;
+        renderRotator();
+    }
 
     function goTo(next) {
+        if (!slides.length) return;
+        next = (next + slides.length) % slides.length;
         if (next === idx) return;
         const cur = slides[idx];
         cur.classList.remove('active');
         cur.classList.add('leaving');
         setTimeout(() => cur.classList.remove('leaving'), 600);
-
-        idx = (next + slides.length) % slides.length;
+        idx = next;
         slides[idx].classList.add('active');
         dots.forEach((d, i) => d.classList.toggle('active', i === idx));
+
+        // When we wrap around, refresh batch with new news
+        if (idx === 0) {
+            setTimeout(refreshBatch, 600);
+        }
     }
 
     function tickProgress() {
         bar.style.transition = 'none';
         bar.style.width = '0%';
-        // force reflow
         void bar.offsetWidth;
         bar.style.transition = `width ${INTERVAL}ms linear`;
         bar.style.width = '100%';
     }
-
     function start() {
         tickProgress();
         timer = setInterval(() => {
@@ -4801,26 +5069,175 @@ document.addEventListener('DOMContentLoaded',function(){var m=document.getElemen
             tickProgress();
         }, INTERVAL);
     }
+    function restart() { clearInterval(timer); start(); }
 
-    function restart() {
-        clearInterval(timer);
-        start();
-    }
-
-    // pause on hover/touch
     rotator.addEventListener('mouseenter', () => { paused = true;  bar.style.transition = 'none'; });
     rotator.addEventListener('mouseleave', () => { paused = false; tickProgress(); });
     rotator.addEventListener('touchstart', () => { paused = true;  bar.style.transition = 'none'; }, { passive: true });
     rotator.addEventListener('touchend',   () => { paused = false; tickProgress(); }, { passive: true });
-
-    // subtle parallax glow
     rotator.addEventListener('mousemove', (e) => {
         const r = rotator.getBoundingClientRect();
         rotator.style.setProperty('--mx', ((e.clientX - r.left) / r.width  * 100) + '%');
         rotator.style.setProperty('--my', ((e.clientY - r.top)  / r.height * 100) + '%');
     });
 
+    renderRotator();
     start();
+
+    /* ===== Modal: News List ===== */
+    const PAGE_SIZE = 6;
+    let modalPool = shuffle(NEWS_POOL);
+    let modalCursor = 0;
+    let modalShown = 0;
+
+    const modal      = document.getElementById('news-modal');
+    const modalList  = document.getElementById('news-modal-list');
+    const modalCount = document.getElementById('news-modal-count');
+    const moreBtn    = document.getElementById('news-more-btn');
+    const loadBtn    = document.getElementById('news-load-more');
+    const closeBtn   = document.getElementById('news-modal-close');
+
+    function cardHTML(n) {
+        const meta = sourceMeta(n.src);
+        const href = n.url || meta.url || '#';
+        const img  = n.img ? `<img src="${n.img}" alt="" loading="lazy" onerror="this.style.display='none'" style="width:100%;max-height:140px;object-fit:cover;border-radius:10px;margin-top:10px;border:1px solid rgba(255,255,255,0.06)">` : '';
+        const impact = (typeof n.i === 'number') ? impactHTML(n.i) : '';
+        return `
+            <a href="${href}" target="_blank" rel="noopener" class="news-card-link">
+              <div class="news-modal-card">
+                <div class="news-meta-row">
+                  <div class="news-meta-left">
+                    <span class="news-source ${meta.cls}">${n.src}</span>
+                    <span class="news-time"><i class="fa-regular fa-clock"></i> ${n.time}</span>
+                  </div>
+                  ${impact}
+                </div>
+                <p class="news-title" style="margin-top:8px">${n.t}</p>
+                ${img}
+                <div class="news-card-foot">
+                  <span><i class="fa-solid fa-up-right-from-square"></i> اقرأ المصدر</span>
+                </div>
+              </div>
+            </a>`;
+    }
+
+    /* ===== Live News (CryptoCompare - no key, CORS enabled) ===== */
+    const LIVE_NEWS_API = 'https://min-api.cryptocompare.com/data/v2/news/?lang=EN';
+    let liveNewsCache = [];
+    let liveLoadedAt = 0;
+    const LIVE_TTL_MS = 5 * 60 * 1000; // 5 دقائق
+
+    function relTimeArabic(ts) {
+        const diff = Math.max(0, Date.now() - ts) / 1000;
+        if (diff < 60)        return 'الآن';
+        if (diff < 3600)      return 'منذ ' + Math.floor(diff/60) + ' د';
+        if (diff < 86400)     { const h = Math.floor(diff/3600); return h === 1 ? 'منذ ساعة' : (h === 2 ? 'منذ ساعتين' : 'منذ ' + h + ' ساعات'); }
+        const d = Math.floor(diff/86400);
+        return d === 1 ? 'منذ يوم' : (d === 2 ? 'منذ يومين' : 'منذ ' + d + ' أيام');
+    }
+
+    async function fetchLiveNews(force) {
+        if (!force && liveNewsCache.length && (Date.now() - liveLoadedAt) < LIVE_TTL_MS) {
+            return liveNewsCache;
+        }
+        const res = await fetch(LIVE_NEWS_API, { cache: 'no-store' });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const json = await res.json();
+        const items = (json && json.Data) ? json.Data : [];
+        liveNewsCache = items.map(n => ({
+            t:    n.title || '',
+            src:  (n.source_info && n.source_info.name) || n.source || 'Crypto',
+            time: relTimeArabic((n.published_on || 0) * 1000),
+            url:  n.url || n.guid || '#',
+            img:  n.imageurl || '',
+            i:    null  // CryptoCompare لا يوفّر تأثير سعري، نخفي الشارة
+        })).filter(n => n.t && n.url);
+        liveLoadedAt = Date.now();
+        return liveNewsCache;
+    }
+
+    function setModalMessage(html) {
+        modalList.innerHTML = `<div style="padding:30px 16px;text-align:center;color:#9ca3af;font-size:13px">${html}</div>`;
+    }
+
+    function appendBatch() {
+        // Render next PAGE_SIZE items from the (already loaded) live cache
+        if (!liveNewsCache.length) return;
+        const batch = [];
+        for (let k = 0; k < PAGE_SIZE; k++) {
+            if (modalCursor >= liveNewsCache.length) break; // وصلنا للنهاية
+            batch.push(liveNewsCache[modalCursor++]);
+        }
+        if (!batch.length) {
+            // لا مزيد من الأخبار - حاول جلب تحديث جديد
+            loadBtn.disabled = true;
+            loadBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جلب تحديث جديد...';
+            fetchLiveNews(true).then(items => {
+                modalCursor = 0;
+                if (items.length) appendBatch();
+                loadBtn.disabled = false;
+                loadBtn.innerHTML = '<i class="fa-solid fa-rotate"></i> تحميل المزيد';
+            }).catch(() => {
+                loadBtn.disabled = false;
+                loadBtn.innerHTML = '<i class="fa-solid fa-rotate"></i> تحميل المزيد';
+            });
+            return;
+        }
+        modalShown += batch.length;
+        modalList.insertAdjacentHTML('beforeend', batch.map(cardHTML).join(''));
+        modalCount.textContent = `تم عرض ${modalShown} خبر`;
+        const newCards = modalList.querySelectorAll('.news-card-link');
+        if (newCards.length) {
+            const target = newCards[Math.max(0, newCards.length - batch.length)];
+            setTimeout(() => target.scrollIntoView({ behavior:'smooth', block:'start' }), 50);
+        }
+    }
+
+    function fallbackToPool() {
+        // في حال فشل الشبكة، نعرض الأخبار الاحتياطية حتى لا تكون النافذة فارغة
+        liveNewsCache = shuffle(NEWS_POOL);
+        liveLoadedAt = Date.now();
+        modalCursor = 0;
+        modalShown = 0;
+        modalList.innerHTML = '';
+        appendBatch();
+    }
+
+    async function openModal() {
+        modalList.innerHTML = '';
+        modalShown = 0;
+        modalCursor = 0;
+        modalCount.textContent = 'جاري التحميل...';
+        modal.classList.add('open');
+        document.body.style.overflow = 'hidden';
+        setModalMessage('<i class="fa-solid fa-spinner fa-spin" style="font-size:22px;color:#22d3ee"></i><div style="margin-top:10px">جاري جلب آخر الأخبار...</div>');
+        try {
+            const items = await fetchLiveNews(false);
+            if (!items.length) {
+                setModalMessage('<i class="fa-solid fa-circle-exclamation" style="color:#f59e0b"></i> لا توجد أخبار متاحة حالياً');
+                fallbackToPool();
+                return;
+            }
+            modalList.innerHTML = '';
+            appendBatch();
+        } catch (err) {
+            console.warn('Live news fetch failed:', err);
+            setModalMessage('<i class="fa-solid fa-wifi" style="color:#f87171"></i> تعذّر الاتصال بمصدر الأخبار، عرض النسخة الاحتياطية');
+            setTimeout(fallbackToPool, 800);
+        }
+    }
+    function closeModal() {
+        modal.classList.remove('open');
+        document.body.style.overflow = '';
+    }
+
+    if (moreBtn)  moreBtn.addEventListener('click', openModal);
+    if (loadBtn)  loadBtn.addEventListener('click', appendBatch);
+    if (closeBtn) closeBtn.addEventListener('click', closeModal);
+    if (modal) modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal && modal.classList.contains('open')) closeModal();
+    });
 })();
 </script>
 
@@ -5017,6 +5434,30 @@ document.addEventListener('DOMContentLoaded',function(){var m=document.getElemen
     });
 })();
 </script>
+
+
+<!-- ==================== News Modal ==================== -->
+<div id="news-modal" role="dialog" aria-modal="true" aria-labelledby="news-modal-title">
+    <div class="news-modal-panel">
+        <div class="news-modal-head">
+            <div class="nm-title" id="news-modal-title">
+                <i class="fa-solid fa-newspaper"></i>
+                <span>أخبار السوق</span>
+                <span class="nm-count" id="news-modal-count">تم عرض 0 خبر</span>
+            </div>
+            <button type="button" id="news-modal-close" aria-label="إغلاق">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        <div id="news-modal-list"></div>
+        <div class="news-modal-foot">
+            <button type="button" id="news-load-more">
+                <i class="fa-solid fa-arrows-rotate"></i>
+                <span>تحميل المزيد من الأخبار</span>
+            </button>
+        </div>
+    </div>
+</div>
 
 </body>
 
