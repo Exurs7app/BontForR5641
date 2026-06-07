@@ -1658,7 +1658,7 @@
                 <h3 class="text-xs font-bold text-gray-300 flex items-center gap-1.5">
                     <i class="fa-solid fa-star text-amber-400 text-[10px]"></i> الأصول المفضلة
                 </h3>
-                <span class="text-[10px] text-blue-400 font-medium">عرض الكل <i class="fa-solid fa-chevron-left text-[8px] ms-1"></i></span>
+                <button id="view-all-favorites-btn" type="button" onclick="openFavoritesModal()" class="text-[10px] text-blue-400 font-medium cursor-pointer hover:text-blue-300 active:scale-95 transition flex items-center">عرض الكل <i class="fa-solid fa-chevron-left text-[8px] ms-1"></i></button>
             </div>
             <div class="glass rounded-2xl divide-y divide-white/5">
 
@@ -5458,6 +5458,171 @@ document.addEventListener('DOMContentLoaded',function(){var m=document.getElemen
         </div>
     </div>
 </div>
+
+
+<!-- ==================== شاشة كل الأصول المفضلة ==================== -->
+<style>
+  #favorites-modal{position:fixed;inset:0;z-index:9999;background:#0b0f19;display:none;flex-direction:column;max-width:448px;margin:0 auto;left:0;right:0;}
+  #favorites-modal.open{display:flex;animation:favSlideIn .25s ease-out;}
+  @keyframes favSlideIn{from{transform:translateX(-100%);opacity:.5}to{transform:translateX(0);opacity:1}}
+  #favorites-modal .fav-header{position:sticky;top:0;background:linear-gradient(180deg,#0f141e 0%,#0b0f19 100%);border-bottom:1px solid rgba(255,255,255,.06);padding:14px 14px 10px;z-index:5}
+  #favorites-modal .fav-list{flex:1;overflow-y:auto;padding:10px 12px 80px;}
+  #favorites-modal .fav-row{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 12px;border-radius:14px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05);margin-bottom:8px;cursor:pointer;transition:background .15s}
+  #favorites-modal .fav-row:hover{background:rgba(255,255,255,.06)}
+  #favorites-modal .fav-row .sparkline{width:60px;height:24px;flex-shrink:0}
+  #favorites-modal .fav-chip{padding:5px 12px;border-radius:999px;font-size:11px;font-weight:600;background:rgba(255,255,255,.05);color:#cbd5e1;border:1px solid rgba(255,255,255,.06);white-space:nowrap;cursor:pointer;transition:all .15s}
+  #favorites-modal .fav-chip.active{background:#3b82f6;color:#fff;border-color:#3b82f6}
+  #favorites-modal input.fav-search{width:100%;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);color:#fff;border-radius:12px;padding:10px 36px 10px 12px;font-size:13px;outline:none}
+  #favorites-modal input.fav-search:focus{border-color:#3b82f6}
+  #favorites-modal .fav-empty{text-align:center;color:#64748b;padding:60px 20px;font-size:13px}
+  #favorites-modal .star-btn{background:transparent;border:0;color:#fbbf24;font-size:16px;padding:6px;cursor:pointer}
+  #favorites-modal .star-btn.off{color:#475569}
+</style>
+<div id="favorites-modal" dir="rtl" aria-hidden="true">
+  <div class="fav-header">
+    <div class="flex items-center justify-between mb-3">
+      <button type="button" onclick="closeFavoritesModal()" class="w-9 h-9 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-white">
+        <i class="fa-solid fa-arrow-right"></i>
+      </button>
+      <div class="text-center">
+        <h2 class="text-sm font-bold text-white flex items-center gap-1.5"><i class="fa-solid fa-star text-amber-400 text-xs"></i> الأصول المفضلة</h2>
+        <p class="text-[10px] text-gray-500"><span id="fav-count">0</span> أصل</p>
+      </div>
+      <button type="button" onclick="toggleShowAllAssets()" id="fav-toggle-all" class="text-[11px] text-blue-400 font-medium px-2 py-1 rounded-lg bg-blue-500/10">كل الأصول</button>
+    </div>
+    <div class="relative mb-2.5">
+      <i class="fa-solid fa-search absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 text-xs"></i>
+      <input class="fav-search" id="fav-search" type="text" placeholder="ابحث بالاسم أو الرمز..." />
+    </div>
+    <div class="flex items-center gap-1.5 mb-2 overflow-x-auto pb-1" id="fav-filter-chips">
+      <button class="fav-chip active" data-filter="all">الكل</button>
+      <button class="fav-chip" data-filter="up"><i class="fa-solid fa-arrow-trend-up text-[9px]"></i> صاعد</button>
+      <button class="fav-chip" data-filter="down"><i class="fa-solid fa-arrow-trend-down text-[9px]"></i> هابط</button>
+    </div>
+    <div class="flex items-center gap-1.5 overflow-x-auto" id="fav-sort-chips">
+      <span class="text-[10px] text-gray-500 ms-1">ترتيب:</span>
+      <button class="fav-chip active" data-sort="change">التغيّر</button>
+      <button class="fav-chip" data-sort="price">السعر</button>
+      <button class="fav-chip" data-sort="volume">الحجم</button>
+      <button class="fav-chip" data-sort="name">الاسم</button>
+      <button class="fav-chip" id="fav-sort-dir" data-dir="desc"><i class="fa-solid fa-arrow-down-wide-short"></i></button>
+    </div>
+  </div>
+  <div class="fav-list" id="fav-list"></div>
+</div>
+<script>
+(function(){
+  const STORAGE_KEY='bontfor_favorites';
+  const ASSETS=[
+    {sym:'BTC',name:'Bitcoin',icon:'\u20bf',color:'yellow',price:64250.50,change:-1.24,volume:'28.4B'},
+    {sym:'ETH',name:'Ethereum',icon:'\u2666',color:'blue',price:3480.20,change:2.41,volume:'14.2B'},
+    {sym:'SOL',name:'Solana',icon:'S',color:'purple',price:145.15,change:3.85,volume:'4.8B'},
+    {sym:'BNB',name:'BNB',icon:'B',color:'yellow',price:612.30,change:0.92,volume:'1.6B'},
+    {sym:'XRP',name:'XRP',icon:'X',color:'slate',price:0.524,change:-0.71,volume:'1.1B'},
+    {sym:'AVAX',name:'Avalanche',icon:'A',color:'red',price:28.42,change:4.21,volume:'820M'},
+    {sym:'ADA',name:'Cardano',icon:'\u20b3',color:'sky',price:0.385,change:1.13,volume:'480M'},
+    {sym:'DOGE',name:'Dogecoin',icon:'\u00d0',color:'amber',price:0.124,change:-2.05,volume:'920M'},
+    {sym:'LINK',name:'Chainlink',icon:'L',color:'blue',price:14.85,change:1.68,volume:'410M'},
+    {sym:'DOT',name:'Polkadot',icon:'\u2022',color:'pink',price:6.92,change:-0.42,volume:'220M'},
+    {sym:'MATIC',name:'Polygon',icon:'M',color:'violet',price:0.712,change:2.84,volume:'380M'},
+    {sym:'LTC',name:'Litecoin',icon:'\u0141',color:'slate',price:84.20,change:-0.95,volume:'310M'},
+    {sym:'TRX',name:'TRON',icon:'T',color:'red',price:0.125,change:0.54,volume:'290M'},
+    {sym:'UNI',name:'Uniswap',icon:'U',color:'pink',price:7.45,change:3.12,volume:'180M'},
+    {sym:'ATOM',name:'Cosmos',icon:'\u269b',color:'indigo',price:8.21,change:-1.42,volume:'140M'},
+    {sym:'NEAR',name:'NEAR',icon:'N',color:'emerald',price:5.62,change:5.21,volume:'260M'},
+    {sym:'FIL',name:'Filecoin',icon:'F',color:'cyan',price:4.82,change:-2.18,volume:'150M'},
+    {sym:'ICP',name:'Internet Comp.',icon:'\u221e',color:'fuchsia',price:11.50,change:1.92,volume:'90M'},
+    {sym:'ARB',name:'Arbitrum',icon:'\u21c4',color:'blue',price:0.892,change:-0.85,volume:'210M'},
+    {sym:'OP',name:'Optimism',icon:'O',color:'red',price:1.842,change:2.65,volume:'170M'},
+    {sym:'APT',name:'Aptos',icon:'A',color:'teal',price:8.95,change:1.32,volume:'120M'},
+    {sym:'XLM',name:'Stellar',icon:'\u2605',color:'sky',price:0.108,change:-0.62,volume:'80M'}
+  ];
+  const COLOR_MAP={yellow:'bg-yellow-500/10 text-yellow-500',blue:'bg-blue-500/10 text-blue-400',purple:'bg-purple-500/10 text-purple-400',slate:'bg-slate-500/10 text-slate-300',red:'bg-red-500/10 text-red-400',sky:'bg-sky-500/10 text-sky-400',amber:'bg-amber-500/10 text-amber-400',pink:'bg-pink-500/10 text-pink-400',violet:'bg-violet-500/10 text-violet-400',indigo:'bg-indigo-500/10 text-indigo-400',emerald:'bg-emerald-500/10 text-emerald-400',cyan:'bg-cyan-500/10 text-cyan-400',fuchsia:'bg-fuchsia-500/10 text-fuchsia-400',teal:'bg-teal-500/10 text-teal-300'};
+  const DEFAULT_FAVS=['BTC','ETH','SOL','BNB','XRP','AVAX'];
+  let favs=loadFavs();
+  let state={filter:'all',sort:'change',dir:'desc',search:'',showAll:false};
+
+  function loadFavs(){try{const v=JSON.parse(localStorage.getItem(STORAGE_KEY));return Array.isArray(v)?v:DEFAULT_FAVS.slice();}catch(e){return DEFAULT_FAVS.slice();}}
+  function saveFavs(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(favs));}catch(e){}}
+  function fmtPrice(p){return p>=1000?'$'+p.toLocaleString('en-US',{maximumFractionDigits:2}):'$'+p.toFixed(p<1?3:2);}
+  function makeSparkPoints(seed,up){
+    const pts=[];let y=12+((seed*7)%6)-3;
+    for(let i=0;i<=7;i++){const x=i*(60/7);y+=(Math.sin((seed+i)*1.7)*3)+(up?-0.8:0.8);y=Math.max(3,Math.min(21,y));pts.push(x.toFixed(0)+','+y.toFixed(0));}
+    return pts.join(' ');
+  }
+  function sparkSvg(a,i){
+    const up=a.change>=0;const stroke=up?'#4ade80':'#f87171';
+    return '<svg class="sparkline" viewBox="0 0 60 24" preserveAspectRatio="none"><polyline points="'+makeSparkPoints(i+a.sym.length,up)+'" fill="none" stroke="'+stroke+'" stroke-width="1.5"/></svg>';
+  }
+  function parseVol(v){const n=parseFloat(v);if(v.endsWith('B'))return n*1e9;if(v.endsWith('M'))return n*1e6;return n;}
+
+  function getList(){
+    let list=state.showAll?ASSETS.slice():ASSETS.filter(a=>favs.includes(a.sym));
+    const q=state.search.trim().toLowerCase();
+    if(q) list=list.filter(a=>a.sym.toLowerCase().includes(q)||a.name.toLowerCase().includes(q));
+    if(state.filter==='up') list=list.filter(a=>a.change>=0);
+    else if(state.filter==='down') list=list.filter(a=>a.change<0);
+    list.sort((a,b)=>{
+      let av,bv;
+      if(state.sort==='price'){av=a.price;bv=b.price;}
+      else if(state.sort==='change'){av=a.change;bv=b.change;}
+      else if(state.sort==='name'){return state.dir==='asc'?a.name.localeCompare(b.name):b.name.localeCompare(a.name);}
+      else if(state.sort==='volume'){av=parseVol(a.volume);bv=parseVol(b.volume);}
+      return state.dir==='asc'?av-bv:bv-av;
+    });
+    return list;
+  }
+
+  function render(){
+    const list=getList();
+    const cnt=document.getElementById('fav-count');if(cnt)cnt.textContent=state.showAll?ASSETS.length:favs.length;
+    const root=document.getElementById('fav-list');if(!root)return;
+    if(!list.length){root.innerHTML='<div class="fav-empty"><i class="fa-regular fa-star text-3xl mb-3 block"></i>لا توجد أصول مطابقة<br><span class="text-[11px]">جرّب البحث أو غيّر الفلتر</span></div>';return;}
+    root.innerHTML=list.map((a,i)=>{
+      const up=a.change>=0;const isFav=favs.includes(a.sym);
+      return '<div class="fav-row" onclick="favShowDetails(\''+a.sym+'\')">'+
+        '<div class="flex items-center gap-2.5 min-w-0 flex-1">'+
+          '<button class="star-btn '+(isFav?'':'off')+'" onclick="event.stopPropagation();favToggle(\''+a.sym+'\')" aria-label="favorite"><i class="fa-'+(isFav?'solid':'regular')+' fa-star"></i></button>'+
+          '<div class="w-9 h-9 rounded-full '+(COLOR_MAP[a.color]||'bg-white/10 text-white')+' flex items-center justify-center font-bold flex-shrink-0">'+a.icon+'</div>'+
+          '<div class="min-w-0"><p class="text-xs font-bold text-white truncate">'+a.name+'</p><span class="text-[10px] text-gray-500">'+a.sym+' \u00b7 \u062d\u062c\u0645 '+a.volume+'</span></div>'+
+        '</div>'+
+        sparkSvg(a,i)+
+        '<div class="text-left flex-shrink-0"><p class="text-xs font-bold text-white">'+fmtPrice(a.price)+'</p><span class="text-[10px] font-bold '+(up?'text-green-400':'text-red-400')+'">'+(up?'+':'')+a.change.toFixed(2)+'%</span></div>'+
+      '</div>';
+    }).join('');
+  }
+
+  setInterval(()=>{
+    ASSETS.forEach(a=>{
+      const drift=(Math.random()-0.5)*0.4;
+      a.change=Math.max(-15,Math.min(15,a.change+drift));
+      a.price=Math.max(0.0001,a.price*(1+drift/100));
+    });
+    const modal=document.getElementById('favorites-modal');
+    if(modal&&modal.classList.contains('open'))render();
+  },3000);
+
+  window.openFavoritesModal=function(){
+    const m=document.getElementById('favorites-modal');m.classList.add('open');m.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';
+    state.showAll=false;document.getElementById('fav-toggle-all').textContent='كل الأصول';
+    const si=document.getElementById('fav-search');if(si){si.value='';}state.search='';
+    render();
+  };
+  window.closeFavoritesModal=function(){const m=document.getElementById('favorites-modal');m.classList.remove('open');m.setAttribute('aria-hidden','true');document.body.style.overflow='';};
+  window.favToggle=function(sym){const i=favs.indexOf(sym);if(i>=0)favs.splice(i,1);else favs.push(sym);saveFavs();render();};
+  window.favShowDetails=function(sym){const a=ASSETS.find(x=>x.sym===sym);if(!a)return;alert(a.name+' ('+a.sym+')\n\u0627\u0644\u0633\u0639\u0631: '+fmtPrice(a.price)+'\n\u0627\u0644\u062a\u063a\u064a\u0651\u0631: '+(a.change>=0?'+':'')+a.change.toFixed(2)+'%\n\u0627\u0644\u062d\u062c\u0645: '+a.volume);};
+  window.toggleShowAllAssets=function(){state.showAll=!state.showAll;document.getElementById('fav-toggle-all').textContent=state.showAll?'المفضلة فقط':'كل الأصول';render();};
+
+  document.addEventListener('keydown',function(e){if(e.key==='Escape'){const m=document.getElementById('favorites-modal');if(m&&m.classList.contains('open'))closeFavoritesModal();}});
+
+  document.addEventListener('DOMContentLoaded',function(){
+    const s=document.getElementById('fav-search');if(s)s.addEventListener('input',function(e){state.search=e.target.value;render();});
+    document.querySelectorAll('#fav-filter-chips .fav-chip').forEach(function(c){c.addEventListener('click',function(){document.querySelectorAll('#fav-filter-chips .fav-chip').forEach(function(x){x.classList.remove('active');});c.classList.add('active');state.filter=c.dataset.filter;render();});});
+    document.querySelectorAll('#fav-sort-chips .fav-chip[data-sort]').forEach(function(c){c.addEventListener('click',function(){document.querySelectorAll('#fav-sort-chips .fav-chip[data-sort]').forEach(function(x){x.classList.remove('active');});c.classList.add('active');state.sort=c.dataset.sort;render();});});
+    const dirBtn=document.getElementById('fav-sort-dir');if(dirBtn)dirBtn.addEventListener('click',function(){state.dir=state.dir==='desc'?'asc':'desc';dirBtn.innerHTML=state.dir==='desc'?'<i class="fa-solid fa-arrow-down-wide-short"></i>':'<i class="fa-solid fa-arrow-up-wide-short"></i>';render();});
+  });
+})();
+</script>
 
 </body>
 
