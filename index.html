@@ -6681,6 +6681,10 @@ const BFR_DICT = {
   "موثّق": "Verified",
   "أيام": "days",
   "ابدأ": "Start",
+  "ابدأ الآن": "Start Now",
+  "إنشاء حساب جديد": "Create New Account",
+  "نسخ الرابط": "Copy Link",
+  "الحساب موثق VIP": "Verified Account VIP",
   "اردو": "Urdu",
   "الآن": "Now",
   "الكل": "All",
@@ -6810,8 +6814,11 @@ const BFR_PATTERNS = [
 
 function _bfrLookup(s){
   if(BFR_DICT[s]) return BFR_DICT[s];
+  // Normalize internal whitespace (collapse newlines/tabs/multiple spaces) and retry
+  const norm = s.replace(/\s+/g, ' ').trim();
+  if(norm !== s && BFR_DICT[norm]) return BFR_DICT[norm];
   for(const p of BFR_PATTERNS){
-    const mm = s.match(p.re);
+    const mm = s.match(p.re) || (norm !== s ? norm.match(p.re) : null);
     if(mm){
       return p.en.replace(/\$(\d+)/g, (_,i)=> mm[+i] || '');
     }
