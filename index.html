@@ -216,7 +216,7 @@
             top: 56px;
             left: 50%;
             transform: translateX(-50%);
-            z-index: 200;
+            z-index: 1200;
             display: flex;
             flex-direction: column;
             gap: 10px;
@@ -4425,7 +4425,7 @@ class="w-full py-3.5 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blu
         }
     }
 
-    function showToast(message, type = 'loading', duration = 3000) {
+    function showToast(message, type = 'loading', duration = 3000, dir) {
         const container = document.getElementById('toastContainer');
         if (!container) return;
         const toast = document.createElement('div');
@@ -4434,6 +4434,10 @@ class="w-full py-3.5 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blu
         if (type === 'error') icon = 'fa-circle-exclamation';
         if (type === 'success') icon = 'fa-circle-check';
         toast.className = `toast ${type}`;
+        const _dir = dir || document.documentElement.getAttribute('dir') || 'rtl';
+        toast.setAttribute('dir', _dir);
+        toast.style.direction = _dir;
+        toast.style.textAlign = _dir === 'ltr' ? 'left' : 'right';
         toast.innerHTML = `<i class="fa-solid ${icon}"></i><span>${message}</span>`;
         container.appendChild(toast);
         requestAnimationFrame(() => toast.classList.add('show'));
@@ -6992,11 +6996,16 @@ function selectLang(code){
   setCurrentLang(code);
   closeLangModal();
   applyLanguage(code);
-  const msg = (code==='ar') ? '🌐 تم التبديل إلى العربية' : '🌐 Switched to English';
-  try {
-    if(typeof showToast==='function') showToast(msg,'success',1800);
-    else if(typeof toast==='function') toast(msg,'success',1800);
-  } catch(e){}
+  const msg = (code==='ar')
+    ? '✅ تم تغيير اللغة إلى العربية بنجاح'
+    : '✅ Language changed to English successfully';
+  const dir = (code==='ar') ? 'rtl' : 'ltr';
+  setTimeout(function(){
+    try {
+      if(typeof showToast==='function') showToast(msg,'success',2200,dir);
+      else if(typeof toast==='function') toast(msg,'success',2200);
+    } catch(e){}
+  }, 280);
 }
 
 /* Apply saved language as early as possible */
