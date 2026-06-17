@@ -620,8 +620,8 @@
             box-shadow: 0 4px 20px rgba(168, 85, 247, 0.1);
         }
 
-        .reward-tier.highlight::before {
-            content: '✨ الأكثر شيوعاً';
+        .reward-tier.highlight .popular-badge,
+        .popular-badge {
             position: absolute;
             top: 8px;
             left: 8px;
@@ -632,6 +632,8 @@
             border-radius: 20px;
             font-weight: 600;
             letter-spacing: 0.3px;
+            display: inline-block;
+            z-index: 2;
         }
 
         /* ==================== تنسيقات نافذة دعوة صديق ==================== */
@@ -1019,6 +1021,11 @@
             font-size: 14px; flex-shrink: 0;
         }
         .tx-icon.withdraw { background: rgba(239,68,68,.15); color: #f87171; }
+        .tx-icon.team_profit { background: rgba(245,158,11,.15); color: #fbbf24; }
+        .tx-icon.team_bonus  { background: rgba(168,85,247,.15); color: #c084fc; }
+        .tx-tabs-scroll::-webkit-scrollbar { height: 0; display: none; }
+        .tx-tabs-scroll { scrollbar-width: none; -ms-overflow-style: none; }
+        .tx-tabs-scroll .tx-tab { flex: 0 0 auto; }
         .tx-icon.deposit  { background: rgba(34,197,94,.15); color: #4ade80; }
         .tx-badge {
             font-size: 9px;
@@ -2231,6 +2238,7 @@ font[style]{background:transparent!important}
             </div>
 
             <div class="reward-tier highlight flex justify-between items-center">
+                <span class="popular-badge">✨ الأكثر شيوعاً</span>
                 <div class="flex items-center gap-2.5">
                     <div class="w-9 h-9 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-400">
                         <i class="fa-solid fa-users text-xs"></i>
@@ -4777,7 +4785,7 @@ class="w-full py-3.5 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blu
         }
     }, 3000);
 
-    console.log('✅ [BontFoR] جاهز - نظام مصادقة حقيقي مع حفظ المستخدمين | PWA مفعل | إيداع وسحب متعددي الشبكات | قسم دعوة في الهيدر | حقل رمز دعوة (4 أرقام) في التسجيل | QR Code أبيض احترافي');
+    console.log('✅ [BontFoR] جاهز - نظام مصادقة حقيقي مع حفظ المستخدمين | PWA مفعل | إيداع وسحب متعددي الشبكات | قسم دعوة في الهيدر | حقل رمز دعوة (4 أرقام) في التسجيل | QR Code أبيض احترافي | سجل أرباح ومكافآت الفريق مفعّل');
     console.log('📝 [BontFoR] ميزات الأمان: التحقق من تنسيق البريد | قوة كلمة المرور | تشفير كلمات المرور | منع تكرار التسجيل | تحقق من عناوين السحب');
 </script>
 
@@ -4794,10 +4802,12 @@ class="w-full py-3.5 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blu
             </div>
         </div>
 
-        <div class="flex gap-1 p-1 rounded-xl bg-white/5">
+        <div class="flex gap-1 p-1 rounded-xl bg-white/5 overflow-x-auto whitespace-nowrap tx-tabs-scroll">
             <button type="button" class="tx-tab active" data-tx-filter="all" onclick="renderTxHistory('all')">الكل</button>
             <button type="button" class="tx-tab" data-tx-filter="withdraw" onclick="renderTxHistory('withdraw')">سحب</button>
             <button type="button" class="tx-tab" data-tx-filter="deposit" onclick="renderTxHistory('deposit')">إيداع</button>
+            <button type="button" class="tx-tab" data-tx-filter="team_profit" onclick="renderTxHistory('team_profit')">أرباح الفريق</button>
+            <button type="button" class="tx-tab" data-tx-filter="team_bonus" onclick="renderTxHistory('team_bonus')">مكافأة الفريق</button>
         </div>
 
         <div id="tx-history-list" class="space-y-2 overflow-y-auto flex-1 pr-1" style="min-height:200px;max-height:60vh;"></div>
@@ -4826,7 +4836,7 @@ class="w-full py-3.5 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blu
         const list = getTxList();
         list.unshift({
             id: Date.now() + '-' + Math.random().toString(36).slice(2, 7),
-            type: tx.type,                     // 'withdraw' | 'deposit'
+            type: tx.type,                     // 'withdraw' | 'deposit' | 'team_profit' | 'team_bonus'
             amount: Number(tx.amount) || 0,
             network: tx.network || '-',
             address: tx.address || '',
@@ -4835,6 +4845,14 @@ class="w-full py-3.5 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blu
             ts: Date.now()
         });
         setTxList(list);
+    };
+
+    // مساعدات تسجيل أرباح/مكافآت الفريق
+    window.logTeamProfit = function (amount, note) {
+        window.saveTransaction({ type: 'team_profit', amount: amount, network: 'Team', status: 'success', note: note || 'ربح من نشاط الفريق' });
+    };
+    window.logTeamBonus = function (amount, note) {
+        window.saveTransaction({ type: 'team_bonus', amount: amount, network: 'Team', status: 'success', note: note || 'مكافأة من إنجاز الفريق' });
     };
 
     function fmtDate(ts) {
@@ -4878,22 +4896,30 @@ class="w-full py-3.5 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blu
             return;
         }
 
+        const TX_META = {
+            withdraw:    { label: 'سحب',           icon: 'fa-arrow-up',    color: 'text-red-400',    sign: '−', cls: 'withdraw' },
+            deposit:     { label: 'إيداع',         icon: 'fa-arrow-down',  color: 'text-green-400',  sign: '+', cls: 'deposit' },
+            team_profit: { label: 'أرباح الفريق',  icon: 'fa-users-gear',  color: 'text-amber-400',  sign: '+', cls: 'team_profit' },
+            team_bonus:  { label: 'مكافأة الفريق', icon: 'fa-gift',        color: 'text-purple-400', sign: '+', cls: 'team_bonus' }
+        };
+
         container.innerHTML = list.map(t => {
-            const isW = t.type === 'withdraw';
-            const sign = isW ? '−' : '+';
-            const color = isW ? 'text-red-400' : 'text-green-400';
-            const icon  = isW ? 'fa-arrow-up' : 'fa-arrow-down';
+            const meta = TX_META[t.type] || TX_META.deposit;
             const __tt = (typeof window!=='undefined' && typeof window.t==='function') ? window.t : function(x){return x;};
-            const label = __tt(isW ? 'سحب' : 'إيداع');
+            const label = __tt(meta.label);
             const __cancelTitle = __tt('إلغاء العملية');
             const __cancelLabel = __tt('إلغاء');
-            const cancelBtn = (t.status === 'pending')
+            const isTeam = (t.type === 'team_profit' || t.type === 'team_bonus');
+            const cancelBtn = (t.status === 'pending' && !isTeam)
                 ? `<button onclick="cancelTx('${t.id}')" title="${__cancelTitle}" style="margin-top:6px;background:rgba(239,68,68,.15);color:#fca5a5;border:1px solid rgba(239,68,68,.35);border-radius:8px;padding:4px 10px;font-size:10px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:4px;"><i class="fa-solid fa-xmark"></i> ${__cancelLabel}</button>`
                 : '';
+            const secondLine = isTeam
+                ? `<span class="text-[10px] text-gray-500 truncate">${__tt(t.note || '')}</span>`
+                : `<span class="text-[10px] text-gray-500 truncate" dir="ltr">${shortAddr(t.address)}</span>`;
             return `
                 <div class="tx-item">
-                    <div class="tx-icon ${isW ? 'withdraw' : 'deposit'}">
-                        <i class="fa-solid ${icon}"></i>
+                    <div class="tx-icon ${meta.cls}">
+                        <i class="fa-solid ${meta.icon}"></i>
                     </div>
                     <div class="flex-1 min-w-0">
                         <div class="flex items-center justify-between gap-2">
@@ -4901,13 +4927,13 @@ class="w-full py-3.5 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blu
                             ${statusBadge(t.status)}
                         </div>
                         <div class="flex items-center justify-between gap-2 mt-1">
-                            <span class="text-[10px] text-gray-500 truncate" dir="ltr">${shortAddr(t.address)}</span>
+                            ${secondLine}
                             <span class="text-[10px] text-gray-400">${fmtDate(t.ts)}</span>
                         </div>
                         ${cancelBtn}
                     </div>
                     <div class="text-left flex-shrink-0">
-                        <span class="text-sm font-extrabold ${color}">${sign}${t.amount.toFixed(2)}</span>
+                        <span class="text-sm font-extrabold ${meta.color}">${meta.sign}${t.amount.toFixed(2)}</span>
                         <span class="block text-[9px] text-gray-500">USDT</span>
                     </div>
                 </div>`;
@@ -4920,6 +4946,7 @@ class="w-full py-3.5 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blu
         if (idx < 0) return;
         const tx = list[idx];
         if (tx.status !== 'pending') return;
+        if (tx.type !== 'deposit' && tx.type !== 'withdraw') return;
         if (!window.__confirmCancelTxApproved) { window.__openCancelTxConfirm(id); return; } window.__confirmCancelTxApproved = false;
         try {
             const session = (typeof getCurrentSession === 'function') ? getCurrentSession() : null;
@@ -6629,6 +6656,9 @@ const BFR_DICT = {
   "لا توجد عمليات بعد": "No transactions yet",
   "مرفوضة": "Rejected",
   "ناجحة": "Successful",
+  "أرباح الفريق": "Team Profits",
+  "مكافأة الفريق": "Team Bonus",
+  "الأكثر شيوعاً": "Most Popular",
   "✨ الأكثر شيوعاً": "✨ Most Popular",
   "&lt; 1s — فوري": "&lt; 1s — Instant",
   "1s — فوري": "1s — Instant",
@@ -6886,6 +6916,13 @@ function applyLanguage(code){
     // First run when code==='ar': nothing to translate yet, just start observer for future
     _walkAndTranslate(document.body, toEn);
     _startObserver();
+    // Re-render tx history so JS-generated team labels pick up the new language
+    try {
+      const active = document.querySelector('.tx-tab.active');
+      if (active && typeof renderTxHistory === 'function') {
+        renderTxHistory(active.getAttribute('data-tx-filter'));
+      }
+    } catch(e){}
   } catch(e){ console && console.warn && console.warn('applyLanguage error', e); }
 }
 
