@@ -1216,6 +1216,149 @@ body{top:0!important}
 .goog-text-highlight{background:transparent!important;box-shadow:none!important}
 #google_translate_element{position:fixed;top:-9999px;left:-9999px;visibility:hidden;height:0;width:0;overflow:hidden}
 font[style]{background:transparent!important}
+
+        /* ==================== تحديثات احترافية BontFoR ==================== */
+        :root{
+            --bf-primary:#3b82f6;
+            --bf-primary-glow:#60a5fa;
+            --bf-accent:#8b5cf6;
+            --bf-success:#10b981;
+            --bf-danger:#ef4444;
+            --bf-surface:#0f1524;
+            --bf-surface-2:#151b2e;
+        }
+        @keyframes bfFadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+        @keyframes bfScaleIn{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:scale(1)}}
+        @keyframes bfShimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+        @keyframes bfPulseRing{0%{box-shadow:0 0 0 0 rgba(59,130,246,.55)}70%{box-shadow:0 0 0 14px rgba(59,130,246,0)}100%{box-shadow:0 0 0 0 rgba(59,130,246,0)}}
+        .bf-fade-up{animation:bfFadeUp .45s cubic-bezier(.2,.7,.2,1) both}
+        .bf-scale-in{animation:bfScaleIn .35s cubic-bezier(.2,.7,.2,1) both}
+        .bf-delay-1{animation-delay:.05s}.bf-delay-2{animation-delay:.12s}.bf-delay-3{animation-delay:.2s}.bf-delay-4{animation-delay:.28s}
+
+        /* Profile redesign */
+        .bf-profile-hero{
+            position:relative;overflow:hidden;border-radius:24px;
+            background:
+                radial-gradient(120% 80% at 100% 0%, rgba(139,92,246,.25), transparent 60%),
+                radial-gradient(120% 80% at 0% 100%, rgba(59,130,246,.22), transparent 60%),
+                linear-gradient(135deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+            border:1px solid rgba(255,255,255,.08);
+            box-shadow:0 20px 60px -25px rgba(59,130,246,.45);
+        }
+        .bf-profile-hero::after{
+            content:"";position:absolute;inset:-1px;border-radius:24px;pointer-events:none;
+            background:linear-gradient(120deg, transparent 40%, rgba(255,255,255,.08) 50%, transparent 60%);
+            background-size:200% 100%;animation:bfShimmer 6s linear infinite;mix-blend-mode:overlay;
+        }
+        .bf-avatar-ring{
+            position:relative;width:72px;height:72px;border-radius:50%;
+            background:conic-gradient(from 0deg, #3b82f6, #8b5cf6, #ec4899, #3b82f6);
+            padding:3px;animation:bfSpin 8s linear infinite;
+        }
+        @keyframes bfSpin{to{transform:rotate(360deg)}}
+        .bf-avatar-ring>div{width:100%;height:100%;border-radius:50%;background:#0b0f19;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:26px;color:#fff;background-image:linear-gradient(135deg,#1e293b,#0b0f19)}
+        .bf-badge-vip{
+            display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;
+            padding:3px 9px;border-radius:999px;color:#fff;
+            background:linear-gradient(135deg,#f59e0b,#ef4444);
+            box-shadow:0 4px 14px -4px rgba(245,158,11,.6);
+        }
+        .bf-badge-verified{
+            display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;
+            padding:3px 9px;border-radius:999px;color:#10b981;
+            background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.3);
+        }
+        .bf-stat{
+            position:relative;padding:12px;border-radius:16px;
+            background:linear-gradient(135deg,rgba(255,255,255,.05),rgba(255,255,255,.01));
+            border:1px solid rgba(255,255,255,.07);transition:transform .2s ease, border-color .2s ease;
+        }
+        .bf-stat:active{transform:scale(.97)}
+        .bf-stat:hover{border-color:rgba(59,130,246,.3)}
+        .bf-stat-icon{width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:13px;margin-bottom:8px}
+        .bf-group-title{font-size:10px;font-weight:700;color:#94a3b8;letter-spacing:.08em;padding:0 4px 6px;text-transform:uppercase}
+        .bf-row{display:flex;align-items:center;gap:12px;padding:13px 14px;cursor:pointer;transition:background .15s ease}
+        .bf-row:hover{background:rgba(255,255,255,.04)}
+        .bf-row:active{background:rgba(255,255,255,.07)}
+        .bf-row-icon{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+        .bf-row-title{font-size:13px;color:#e5e7eb;font-weight:500}
+        .bf-row-sub{font-size:10.5px;color:#94a3b8;margin-top:1px}
+        .bf-chevron{margin-inline-start:auto;color:#64748b;font-size:11px}
+        .bf-btn-edit{
+            width:100%;padding:12px;border-radius:14px;font-weight:700;font-size:13px;color:#fff;
+            background:linear-gradient(135deg,#3b82f6,#8b5cf6);
+            box-shadow:0 10px 30px -10px rgba(59,130,246,.6);
+            transition:transform .15s ease, box-shadow .2s ease;
+            display:flex;align-items:center;justify-content:center;gap:8px;
+        }
+        .bf-btn-edit:active{transform:scale(.97)}
+        .bf-btn-edit:hover{box-shadow:0 14px 36px -10px rgba(139,92,246,.7)}
+
+        /* Notification panel */
+        #bf-notif-overlay{position:fixed;inset:0;background:rgba(5,8,15,.6);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);z-index:199;opacity:0;pointer-events:none;transition:opacity .25s ease}
+        #bf-notif-overlay.open{opacity:1;pointer-events:auto}
+        #bf-notif-panel{
+            position:fixed;top:0;right:50%;transform:translate(50%,-100%);
+            width:100%;max-width:448px;max-height:88vh;z-index:200;
+            background:linear-gradient(180deg,#10162a 0%, #0b0f19 100%);
+            border-bottom-left-radius:24px;border-bottom-right-radius:24px;
+            border:1px solid rgba(255,255,255,.08);border-top:none;
+            box-shadow:0 30px 60px -20px rgba(0,0,0,.6);
+            transition:transform .35s cubic-bezier(.2,.8,.2,1);
+            display:flex;flex-direction:column;overflow:hidden;
+        }
+        #bf-notif-panel.open{transform:translate(50%,0)}
+        .bf-notif-head{padding:16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,.06)}
+        .bf-notif-tabs{display:flex;gap:6px;padding:10px 12px;overflow-x:auto;scrollbar-width:none}
+        .bf-notif-tabs::-webkit-scrollbar{display:none}
+        .bf-notif-tab{flex-shrink:0;padding:7px 14px;border-radius:999px;font-size:11.5px;font-weight:600;color:#94a3b8;background:rgba(255,255,255,.04);border:1px solid transparent;cursor:pointer;transition:all .2s ease;white-space:nowrap}
+        .bf-notif-tab.active{color:#fff;background:linear-gradient(135deg,#3b82f6,#6366f1);border-color:rgba(255,255,255,.1);box-shadow:0 6px 16px -6px rgba(59,130,246,.6)}
+        .bf-notif-list{flex:1;overflow-y:auto;padding:8px 12px 16px}
+        .bf-notif-item{display:flex;gap:12px;padding:12px;border-radius:14px;margin-bottom:8px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05);transition:background .15s ease;animation:bfFadeUp .35s both}
+        .bf-notif-item:hover{background:rgba(255,255,255,.05)}
+        .bf-notif-item.unread{background:linear-gradient(135deg,rgba(59,130,246,.10),rgba(139,92,246,.05));border-color:rgba(59,130,246,.25)}
+        .bf-notif-icon{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+        .bf-notif-body{flex:1;min-width:0}
+        .bf-notif-title{font-size:12.5px;font-weight:700;color:#e5e7eb;margin-bottom:2px}
+        .bf-notif-desc{font-size:11px;color:#94a3b8;line-height:1.5}
+        .bf-notif-time{font-size:10px;color:#64748b;margin-top:4px}
+        .bf-notif-del{color:#64748b;background:transparent;border:none;padding:4px;cursor:pointer;transition:color .15s ease;align-self:flex-start}
+        .bf-notif-del:hover{color:#ef4444}
+        .bf-notif-empty{text-align:center;padding:40px 20px;color:#64748b;font-size:12px}
+        @keyframes bellShake{0%,100%{transform:rotate(0)}15%{transform:rotate(-18deg)}30%{transform:rotate(14deg)}45%{transform:rotate(-10deg)}60%{transform:rotate(8deg)}75%{transform:rotate(-4deg)}}
+.bell-shake i{display:inline-block;transform-origin:50% 10%;animation:bellShake .9s ease-in-out}
+#bf-notif-bell-count{position:absolute;top:-3px;left:-3px;min-width:16px;height:16px;padding:0 4px;border-radius:999px;background:linear-gradient(135deg,#ef4444,#f97316);color:#fff;font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center;border:2px solid #0b0f19;box-shadow:0 2px 6px rgba(239,68,68,.5)}
+
+        /* Bottom Nav polish */
+        .nav-btn{position:relative;-webkit-tap-highlight-color:transparent}
+        .nav-btn .bf-nav-indicator{position:absolute;top:-2px;left:50%;transform:translateX(-50%) scaleX(0);width:28px;height:3px;border-radius:0 0 4px 4px;background:linear-gradient(90deg,#3b82f6,#8b5cf6);transition:transform .3s cubic-bezier(.2,.8,.2,1);transform-origin:center}
+        .nav-btn.active .bf-nav-indicator,
+        .nav-btn[style*="rgb(96, 165, 250)"] .bf-nav-indicator,
+        .nav-btn.text-blue-400 .bf-nav-indicator{transform:translateX(-50%) scaleX(1)}
+        .nav-btn i{transition:transform .25s ease}
+        .nav-btn.text-blue-400 i{transform:translateY(-1px) scale(1.12)}
+        .nav-btn:active i{transform:scale(.9)}
+
+    
+/* ==================== Light Mode + Switch ==================== */
+.bf-switch{position:relative;display:inline-block;width:42px;height:24px;flex-shrink:0}
+.bf-switch input{opacity:0;width:0;height:0}
+.bf-switch-slider{position:absolute;cursor:pointer;inset:0;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);transition:.3s;border-radius:24px}
+.bf-switch-slider:before{content:"";position:absolute;height:18px;width:18px;right:2px;top:2px;background:#cbd5e1;transition:.3s;border-radius:50%}
+.bf-switch input:checked + .bf-switch-slider{background:linear-gradient(135deg,#3b82f6,#6366f1);border-color:transparent}
+.bf-switch input:checked + .bf-switch-slider:before{transform:translateX(-18px);background:#fff}
+
+html[data-theme="light"] body{background-color:#f3f4f6 !important;color:#111827}
+html[data-theme="light"] .glass{background:rgba(255,255,255,.7) !important;border:1px solid rgba(0,0,0,.06) !important;color:#111827}
+html[data-theme="light"] .glass-card{background:linear-gradient(135deg,rgba(255,255,255,.85),rgba(255,255,255,.6)) !important;border:1px solid rgba(0,0,0,.06) !important;color:#111827}
+html[data-theme="light"] .text-white,html[data-theme="light"] .text-gray-100,html[data-theme="light"] .text-gray-200,html[data-theme="light"] .text-gray-300{color:#111827 !important}
+html[data-theme="light"] .text-gray-400,html[data-theme="light"] .text-gray-500{color:#4b5563 !important}
+html[data-theme="light"] .bg-gray-900,html[data-theme="light"] .bg-gray-800,html[data-theme="light"] .bg-slate-900,html[data-theme="light"] .bg-\[\#0b0f19\]{background-color:#f9fafb !important;color:#111827}
+html[data-theme="light"] .border-white\/5,html[data-theme="light"] .border-white\/10,html[data-theme="light"] .border-white\/20{border-color:rgba(0,0,0,.08) !important}
+html[data-theme="light"] .divide-white\/5 > * + *{border-color:rgba(0,0,0,.08) !important}
+html[data-theme="light"] .bf-row-title{color:#111827}
+html[data-theme="light"] .bf-row-sub{color:#4b5563}
+html[data-theme="light"] input,html[data-theme="light"] textarea,html[data-theme="light"] select{color:#111827}
 </style>
 
 <style>
@@ -1622,9 +1765,12 @@ font[style]{background:transparent!important}
             <span class="invite-dot"></span>
         </button>
         <!-- ===== زر الإشعارات / ترخيص المنصة ===== -->
-        <button id="header-bell-btn" onclick="openLicenseModal()" class="w-9 h-9 rounded-xl bg-white/5 flex items-center justify-center hover:bg-white/10 transition relative" title="ترخيص المنصة">
+        <button id="header-notif-btn" onclick="bfOpenNotif()" class="w-9 h-9 rounded-xl bg-white/5 flex items-center justify-center hover:bg-white/10 transition relative" title="الإشعارات">
             <i class="fa-regular fa-bell text-sm text-gray-300"></i>
-            <span class="bell-pulse"></span>
+            <span id="bf-notif-bell-count" style="display:none">0</span>
+        </button>
+        <button id="header-bell-btn" onclick="openLicenseModal()" class="w-9 h-9 rounded-xl bg-white/5 flex items-center justify-center hover:bg-white/10 transition relative" title="ترخيص المنصة">
+            <i class="fa-solid fa-shield-halved text-sm text-gray-300"></i>
         </button>
         <!-- ===== زر تسجيل الخروج ===== -->
         <button onclick="logout()"
@@ -2279,71 +2425,159 @@ font[style]{background:transparent!important}
     </div>
 </section>
 
-<!-- ========== حسابي ========== -->
+<!-- ========== حسابي (محدّث) ========== -->
 <section id="sec-account" class="space-y-4 tab-content hidden">
-    <div class="glass p-4 rounded-2xl flex items-center space-x-4 space-x-reverse">
-        <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-purple-500 to-pink-600 flex items-center justify-center text-xl font-bold">
-            <i class="fa-solid fa-user-gear"></i>
-        </div>
-        <div>
-            <h3 class="text-base font-bold id-username-view">BontFoR</h3>
-            <div class="flex items-center gap-2">
-                <p class="text-xs text-gray-400" id="account-uid">UID: 82749104</p>
-                <button type="button" onclick="copyUID(this)"
-                    class="text-blue-400 hover:text-blue-300 active:scale-90 transition text-[11px] flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-blue-500/10 hover:bg-blue-500/20"
-                    title="نسخ UID" aria-label="نسخ UID">
-                    <i class="fa-regular fa-copy"></i>
-                </button>
+
+    <!-- بطاقة الهيرو -->
+    <div class="bf-profile-hero p-5 bf-fade-up">
+        <div class="flex items-center gap-4 relative z-10">
+            <div class="bf-avatar-ring">
+                <div id="bf-avatar-letter">B</div>
             </div>
-            <p class="text-[10px] text-gray-500" id="account-email-view"></p>
+            <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2 flex-wrap">
+                    <h3 class="text-base font-bold text-white id-username-view truncate">BontFoR</h3>
+                    <span class="bf-badge-verified"><i class="fa-solid fa-circle-check text-[9px]"></i> موثّق</span>
+                    <span class="bf-badge-vip"><i class="fa-solid fa-crown text-[9px]"></i> VIP</span>
+                </div>
+                <p class="text-[11px] text-gray-300 mt-1" id="account-email-view">user@bontfor.com</p>
+                <div class="flex items-center gap-2 mt-1.5">
+                    <p class="text-[10px] text-gray-400" id="account-uid">UID: 82749104</p>
+                    <button type="button" onclick="copyUID(this)"
+                        class="text-blue-400 hover:text-blue-300 active:scale-90 transition text-[10px] flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-blue-500/10 hover:bg-blue-500/20">
+                        <i class="fa-regular fa-copy"></i> نسخ
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 
-    <div class="glass-card p-4 rounded-2xl space-y-3" id="install-card-section">
+    <!-- (تمت إزالة بطاقات الإحصائيات السريعة: الرصيد / الأرباح / الصفقات / النجاح) -->
+
+
+    <!-- بطاقة تثبيت التطبيق -->
+    <div class="glass-card p-4 rounded-2xl space-y-3 bf-fade-up bf-delay-2" id="install-card-section">
         <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-500 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-blue-500/20"
-            id="install-card-icon">
-            <i class="fa-solid fa-download text-sm"></i>
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-500 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-blue-500/20" id="install-card-icon">
+                <i class="fa-solid fa-download text-sm"></i>
+            </div>
+            <div>
+                <h4 class="text-xs font-bold text-white" id="install-card-title">تثبيت تطبيق BontFoR على جهازك</h4>
+                <p class="text-[10px] text-gray-400" id="install-card-desc">وصول فوري للتداول بنقرة واحدة من الشاشة الرئيسية</p>
+            </div>
         </div>
-        <div>
-            <h4 class="text-xs font-bold text-white" id="install-card-title">تثبيت تطبيق BontFoR على جهازك</h4>
-            <p class="text-[10px] text-gray-400" id="install-card-desc">وصول فوري للتداول بنقرة واحدة من الشاشة الرئيسية</p>
+        <button id="install-btn-account" onclick="triggerInstall()"
+            class="w-full py-2.5 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 rounded-xl font-medium text-sm shadow-lg shadow-blue-500/20 transition transform active:scale-95 flex items-center justify-center gap-2">
+            <i class="fa-solid fa-plus-square"></i>
+            <span>تثبيت تطبيق BontFoR الآن</span>
+        </button>
+        <div id="already-installed-msg" class="hidden flex-col items-center gap-2 py-2">
+            <div class="flex items-center gap-2 text-green-400">
+                <i class="fa-solid fa-check-circle text-lg"></i>
+                <span class="text-xs font-bold">✓ تطبيق BontFoR مثبت بالفعل على جهازك</span>
+            </div>
+            <span class="text-[10px] text-gray-500">يمكنك الوصول للمنصة من درج التطبيقات بنقرة واحدة</span>
         </div>
     </div>
-    <button id="install-btn-account" onclick="triggerInstall()"
-    class="w-full py-2.5 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 rounded-xl font-medium text-sm shadow-lg shadow-blue-500/20 transition transform active:scale-95 flex items-center justify-center gap-2">
-    <i class="fa-solid fa-plus-square"></i>
-    <span>تثبيت تطبيق BontFoR الآن</span>
-</button>
-<div id="already-installed-msg" class="hidden flex-col items-center gap-2 py-2">
-    <div class="flex items-center gap-2 text-green-400">
-        <i class="fa-solid fa-check-circle text-lg"></i>
-        <span class="text-xs font-bold">✓ تطبيق BontFoR مثبت بالفعل على جهازك</span>
-    </div>
-    <span class="text-[10px] text-gray-500">يمكنك الوصول للمنصة من درج التطبيقات بنقرة واحدة</span>
-</div>
-</div>
 
-<div class="glass rounded-2xl divide-y divide-white/5 text-sm">
-    <div class="p-4 flex justify-between items-center">
-        <span class="text-gray-400 text-xs flex items-center gap-2"><i class="fa-solid fa-shield-halved text-blue-400"></i> أمان الحساب</span>
-        <span class="text-xs text-green-400 font-medium">عالي جداً (مفعل)</span>
+    <!-- مجموعة: الأمان -->
+    <div class="bf-fade-up bf-delay-3">
+        <div class="bf-group-title">الأمان والحماية</div>
+        <div class="glass rounded-2xl divide-y divide-white/5 overflow-hidden">
+            <div class="bf-row">
+                <div class="bf-row-icon" style="background:rgba(16,185,129,.15);color:#34d399"><i class="fa-solid fa-shield-halved"></i></div>
+                <div class="flex-1">
+                    <div class="bf-row-title">أمان الحساب</div>
+                    <div class="bf-row-sub">الحماية مفعلة بالكامل</div>
+                </div>
+                <span class="text-[10px] text-green-400 font-bold bg-green-500/10 px-2 py-1 rounded-full">عالي جداً</span>
+            </div>
+            <div class="bf-row" onclick="openChangePasswordModal()">
+                <div class="bf-row-icon" style="background:rgba(59,130,246,.15);color:#60a5fa"><i class="fa-solid fa-key"></i></div>
+                <div class="flex-1">
+                    <div class="bf-row-title">تغيير كلمة المرور</div>
+                    <div class="bf-row-sub" id="bf-pwd-changed-sub">لم يتم تغييرها بعد</div>
+                </div>
+                <i class="fa-solid fa-chevron-left bf-chevron"></i>
+            </div>
+        </div>
     </div>
-    <div class="p-4 flex justify-between items-center cursor-pointer hover:bg-white/5 transition" onclick="openChangePasswordModal()">
-        <span class="text-gray-400 text-xs flex items-center gap-2"><i class="fa-solid fa-key text-blue-400"></i> تغيير كلمة المرور</span>
-        <i class="fa-solid fa-chevron-left text-gray-500 text-xs"></i>
-    </div>
-    <div class="p-4 flex justify-between items-center">
-        <span class="text-gray-400 text-xs flex items-center gap-2"><i class="fa-solid fa-headset text-blue-400"></i> الدعم الفني المباشر</span>
-        <span class="text-xs bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded-full">متصل 24/7</span>
-    </div>
-</div>
 
-<button onclick="logout()"
-class="w-full py-3.5 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 rounded-xl text-red-400 font-medium transition flex items-center justify-center gap-2">
-<i class="fa-solid fa-arrow-right-from-bracket"></i>
-<span>تسجيل الخروج من الحساب</span>
-</button>
+    <!-- مجموعة: التفضيلات -->
+    <div class="bf-fade-up bf-delay-3">
+        <div class="bf-group-title">التفضيلات</div>
+        <div class="glass rounded-2xl divide-y divide-white/5 overflow-hidden">
+            <div class="bf-row" onclick="bfOpenNotif()">
+                <div class="bf-row-icon" style="background:rgba(245,158,11,.15);color:#fbbf24"><i class="fa-regular fa-bell"></i></div>
+                <div class="flex-1">
+                    <div class="bf-row-title">مركز الإشعارات</div>
+                    <div class="bf-row-sub">إدارة التنبيهات الواردة</div>
+                </div>
+                <i class="fa-solid fa-chevron-left bf-chevron"></i>
+            </div>
+            <div class="bf-row" onclick="openLangModal()">
+                <div class="bf-row-icon" style="background:rgba(99,102,241,.15);color:#818cf8"><i class="fa-solid fa-language"></i></div>
+                <div class="flex-1">
+                    <div class="bf-row-title">اللغة</div>
+                    <div class="bf-row-sub" id="bf-lang-sub">العربية</div>
+                </div>
+                <i class="fa-solid fa-chevron-left bf-chevron"></i>
+            </div>
+            <div class="bf-row" onclick="bfToggleTheme()">
+                <div class="bf-row-icon" id="bf-theme-icon" style="background:rgba(15,23,42,.6);color:#cbd5e1"><i class="fa-solid fa-moon"></i></div>
+                <div class="flex-1">
+                    <div class="bf-row-title">المظهر</div>
+                    <div class="bf-row-sub" id="bf-theme-sub">داكن (افتراضي)</div>
+                </div>
+                <label class="bf-switch" onclick="event.stopPropagation();">
+                    <input type="checkbox" id="bf-theme-toggle" onchange="bfToggleTheme()">
+                    <span class="bf-switch-slider"></span>
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <!-- مجموعة: الدعم -->
+    <div class="bf-fade-up bf-delay-4">
+        <div class="bf-group-title">الدعم والمساعدة</div>
+        <div class="glass rounded-2xl divide-y divide-white/5 overflow-hidden">
+            <div class="bf-row">
+                <div class="bf-row-icon" style="background:rgba(59,130,246,.15);color:#60a5fa"><i class="fa-solid fa-headset"></i></div>
+                <div class="flex-1">
+                    <div class="bf-row-title">الدعم الفني المباشر</div>
+                    <div class="bf-row-sub">فريقنا متاح على مدار الساعة</div>
+                </div>
+                <span class="text-[10px] text-blue-400 font-bold bg-blue-500/10 px-2 py-1 rounded-full">24/7</span>
+            </div>
+            <div class="bf-row" onclick="openLicenseModal && openLicenseModal()">
+                <div class="bf-row-icon" style="background:rgba(16,185,129,.15);color:#34d399"><i class="fa-solid fa-shield-check"></i></div>
+                <div class="flex-1">
+                    <div class="bf-row-title">ترخيص المنصة</div>
+                    <div class="bf-row-sub">مرخّصة ومعتمدة</div>
+                </div>
+                <i class="fa-solid fa-chevron-left bf-chevron"></i>
+            </div>
+            <div class="bf-row" onclick="bfToast('إصدار التطبيق 2.0.0')">
+                <div class="bf-row-icon" style="background:rgba(148,163,184,.15);color:#cbd5e1"><i class="fa-solid fa-circle-info"></i></div>
+                <div class="flex-1">
+                    <div class="bf-row-title">حول التطبيق</div>
+                    <div class="bf-row-sub">الإصدار 2.0.0</div>
+                </div>
+                <i class="fa-solid fa-chevron-left bf-chevron"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- زر تسجيل الخروج -->
+    <button onclick="logout()"
+        class="w-full py-3.5 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 rounded-xl text-red-400 font-medium transition flex items-center justify-center gap-2 bf-fade-up bf-delay-4">
+        <i class="fa-solid fa-arrow-right-from-bracket"></i>
+        <span>تسجيل الخروج من الحساب</span>
+    </button>
+
+    <div class="text-center text-[10px] text-gray-600 pt-2">
+        © 2026 BontFoR — جميع الحقوق محفوظة
+    </div>
 </section>
 
 
@@ -2438,21 +2672,25 @@ class="w-full py-3.5 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 
 <nav class="fixed bottom-0 left-0 right-0 max-w-md mx-auto glass border-t border-white/10 rounded-t-3xl grid grid-cols-4 px-1.5 py-2 z-40 shadow-xl backdrop-blur-xl">
     <button onclick="switchTab('home', this)" data-tab="home"
     class="nav-btn flex flex-col items-center justify-center py-2 text-blue-400 transition">
+    <span class="bf-nav-indicator"></span>
     <i class="fa-solid fa-house text-base mb-1"></i>
     <span class="text-[9px] font-medium">الرئيسية</span>
 </button>
 <button onclick="switchTab('sync', this)" data-tab="sync"
 class="nav-btn flex flex-col items-center justify-center py-2 text-gray-400 hover:text-white transition">
+<span class="bf-nav-indicator"></span>
 <i class="fa-solid fa-arrow-rotate-left text-base mb-1"></i>
 <span class="text-[9px] font-medium">تزامن</span>
 </button>
 <button onclick="switchTab('tasks', this)" data-tab="tasks"
 class="nav-btn flex flex-col items-center justify-center py-2 text-gray-400 hover:text-white transition">
+<span class="bf-nav-indicator"></span>
 <i class="fa-solid fa-list-check text-base mb-1"></i>
 <span class="text-[9px] font-medium">مهام</span>
 </button>
 <button onclick="switchTab('account', this)" data-tab="account"
 class="nav-btn flex flex-col items-center justify-center py-2 text-gray-400 hover:text-white transition">
+<span class="bf-nav-indicator"></span>
 <i class="fa-regular fa-user text-base mb-1"></i>
 <span class="text-[9px] font-medium">حسابي</span>
 </button>
@@ -5645,6 +5883,7 @@ document.addEventListener('DOMContentLoaded',function(){var m=document.getElemen
             users[idx].passwordHash = hashPassword(next);
             users[idx].passwordChangedAt = new Date().toISOString();
             saveAllUsers(users);
+            try { if (typeof window.updatePwdChangedSub === 'function') window.updatePwdChangedSub(); } catch(e){}
         } catch (err) {
             console.error('خطأ في حفظ كلمة المرور:', err);
             showCPError('cp-general-error', 'حدث خطأ أثناء حفظ كلمة المرور. حاول مرة أخرى.');
@@ -5656,6 +5895,29 @@ document.addEventListener('DOMContentLoaded',function(){var m=document.getElemen
         if (success) success.classList.remove('hidden');
         const btn = document.getElementById('cp-submit-btn');
         if (btn) { btn.disabled = true; btn.classList.add('opacity-60','cursor-not-allowed'); }
+
+        // إشعار احترافي في مركز الإشعارات (الجرس)
+        try {
+            if (typeof window.bfAddNotif === 'function') {
+                window.bfAddNotif({
+                    type: 'system',
+                    icon: 'fa-shield-halved',
+                    bg: 'rgba(34,197,94,.15)',
+                    color: '#22c55e',
+                    title: 'تم تغيير كلمة المرور بنجاح',
+                    desc: 'تم تحديث كلمة مرور حسابك بأمان. إذا لم تكن أنت من قام بذلك، يرجى تأمين الحساب فوراً.'
+                });
+            }
+            if (typeof window.bfToast === 'function') {
+                window.bfToast('تم تغيير كلمة المرور بنجاح');
+            }
+            // اهتزاز خفيف للجرس
+            var _bell = document.getElementById('header-notif-btn');
+            if (_bell) {
+                _bell.classList.add('bell-shake');
+                setTimeout(function(){ _bell.classList.remove('bell-shake'); }, 1200);
+            }
+        } catch(e) { console.warn('notif add failed', e); }
 
         setTimeout(() => {
             if (btn) { btn.disabled = false; btn.classList.remove('opacity-60','cursor-not-allowed'); }
@@ -6703,8 +6965,67 @@ const BFR_DICT = {
   "السابق": "Previous",
   "موافق": "OK",
   "نعم": "Yes",
-  "لا": "No"
+  "لا": "No",
+  "الرصيد": "Balance",
+  "الأرباح": "Profits",
+  "صفقات": "Trades",
+  "النجاح": "Success",
+  "الأمان والحماية": "Security & Protection",
+  "أمان الحساب": "Account Security",
+  "الحماية مفعلة بالكامل": "Protection fully enabled",
+  "عالي جداً": "Very High",
+  "عالي جدا": "Very High",
+  "تغيير كلمة المرور": "Change Password",
+  "آخر تغيير منذ 30 يوم": "Last changed 30 days ago",
+  "التفضيلات": "Preferences",
+  "مركز الإشعارات": "Notifications Center",
+  "إدارة التنبيهات الواردة": "Manage incoming alerts",
+  "اللغة": "Language",
+  "المظهر": "Appearance",
+  "داكن (افتراضي)": "Dark (default)",
+  "فاتح": "Light",
+  "داكن": "Dark",
+  "الدعم والمساعدة": "Help & Support",
+  "الدعم الفني المباشر": "Live Technical Support",
+  "فريقنا متاح على مدار الساعة": "Our team is available 24/7",
+  "ترخيص المنصة": "Platform License",
+  "مرخّصة ومعتمدة": "Licensed & Certified",
+  "مرخصة ومعتمدة": "Licensed & Certified",
+  "حول التطبيق": "About the App",
+  "الإصدار 2.0.0": "Version 2.0.0",
+  "تسجيل الخروج من الحساب": "Logout from Account",
+  "جميع الحقوق محفوظة": "All Rights Reserved",
+  "© 2026 BontFoR — جميع الحقوق محفوظة": "© 2026 BontFoR — All Rights Reserved",
+
+  /* ===== Notifications Center ===== */
+  "الإشعارات": "Notifications",
+  "غير مقروءة": "unread",
+  "تعليم الكل": "Mark all",
+  "الكل": "All",
+  "الأسعار": "Prices",
+  "النظام": "System",
+  "حذف": "Delete",
+  "لا توجد إشعارات في هذا التصنيف": "No notifications",
+  "لا توجد إشعارات": "No notifications",
+  "تم تعليم جميع الإشعارات كمقروءة": "All notifications marked as read",
+
+  /* Notification items (titles + descriptions + times) */
+  "تم إغلاق صفقة بربح": "Trade closed with profit",
+  "صفقة BTC/USDT أُغلقت بربح +2.4% ($12.40)": "BTC/USDT trade closed with +2.4% profit ($12.40)",
+  "تنبيه سعر ETH": "ETH price alert",
+  "وصل سعر ETH إلى $3,250 — الهدف المحدد": "ETH price reached $3,250 — target hit",
+  "تم تسجيل دخول جديد": "New sign-in detected",
+  "تم الدخول لحسابك من جهاز iPhone — إذا لم يكن أنت، غيّر كلمة المرور.": "Your account was accessed from an iPhone — if it wasn't you, change your password.",
+  "تأكيد إيداع": "Deposit confirmed",
+  "تم استلام إيداع 150 USDT بنجاح في محفظتك": "150 USDT deposit successfully received in your wallet",
+  "مكافأة جديدة متاحة": "New reward available",
+  "احصل على 20% بونص عند إيداعك القادم — العرض ينتهي خلال 24 ساعة": "Get a 20% bonus on your next deposit — offer ends in 24 hours",
+  "تنبيه انخفاض سعر": "Price drop alert",
+  "انخفض سعر SOL بنسبة 4.8% خلال آخر ساعة": "SOL price dropped 4.8% in the last hour",
+  "منذ ساعة": "1 hour ago",
+  "أمس": "Yesterday"
 };
+
 
 function getCurrentLang(){ try{return localStorage.getItem('bfr_lang')||'ar'}catch(e){return 'ar'} }
 function setCurrentLang(c){ try{localStorage.setItem('bfr_lang',c)}catch(e){} updateLangBadges(c); }
@@ -6962,6 +7283,326 @@ document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeLangM
 document.addEventListener('DOMContentLoaded',function(){ try{ updateLangBadges(); }catch(e){} });
 
 </script>
+
+<!-- ==================== مركز الإشعارات BontFoR ==================== -->
+<div id="bf-notif-overlay" onclick="bfCloseNotif()"></div>
+<aside id="bf-notif-panel" role="dialog" aria-label="مركز الإشعارات">
+    <div class="bf-notif-head">
+        <div class="flex items-center gap-2">
+            <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-500 to-indigo-600 flex items-center justify-center">
+                <i class="fa-regular fa-bell text-white text-sm"></i>
+            </div>
+            <div>
+                <div class="text-sm font-bold text-white">الإشعارات</div>
+                <div class="text-[10px] text-gray-400"><span id="bf-notif-unread-count">3</span> غير مقروءة</div>
+            </div>
+        </div>
+        <div class="flex items-center gap-2">
+            <button onclick="bfMarkAllRead()" class="text-[11px] text-blue-400 hover:text-blue-300 px-2 py-1 rounded-md hover:bg-blue-500/10 transition">تعليم الكل</button>
+            <button onclick="bfCloseNotif()" class="w-8 h-8 rounded-full flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10 transition">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+    </div>
+    <div class="bf-notif-tabs" id="bf-notif-tabs">
+        <button class="bf-notif-tab active" data-filter="all">الكل</button>
+        <button class="bf-notif-tab" data-filter="trade">الصفقات</button>
+        <button class="bf-notif-tab" data-filter="price">الأسعار</button>
+        <button class="bf-notif-tab" data-filter="system">النظام</button>
+    </div>
+    <div class="bf-notif-list" id="bf-notif-list"></div>
+</aside>
+
+<!-- Toast صغير -->
+<div id="bf-toast" style="position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);background:rgba(15,20,30,.95);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.1);color:#fff;font-size:12px;padding:10px 18px;border-radius:999px;z-index:300;opacity:0;pointer-events:none;transition:all .3s ease;box-shadow:0 10px 30px -10px rgba(0,0,0,.5)"></div>
+
+<script>
+(function(){
+    const STORAGE_KEY = 'bf_notifications_v1';
+    const MAX_NOTIFS = 50;
+    function loadStored(){
+        try {
+            const raw = localStorage.getItem(STORAGE_KEY);
+            if(!raw) return [];
+            const arr = JSON.parse(raw);
+            return Array.isArray(arr) ? arr : [];
+        } catch(e){ return []; }
+    }
+    function persist(){
+        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data.slice(0, MAX_NOTIFS))); } catch(e){}
+    }
+    function relTime(ts){
+        if(!ts) return 'الآن';
+        const diff = Math.max(0, Date.now() - ts);
+        const m = Math.floor(diff / 60000);
+        if(m < 1) return 'الآن';
+        if(m < 60) return 'منذ ' + m + ' د';
+        const h = Math.floor(m / 60);
+        if(h < 24) return 'منذ ' + h + ' س';
+        const d = Math.floor(h / 24);
+        return 'منذ ' + d + ' ي';
+    }
+    function refreshTimes(){
+        data.forEach(n => { if(n.ts) n.time = relTime(n.ts); });
+    }
+    const NOTIFS = loadStored();
+    let activeFilter = 'all';
+    let data = NOTIFS.slice();
+
+    window.bfAddNotif = function(notif){
+        if(!notif || typeof notif !== 'object') return;
+        const n = {
+            id: Date.now() + Math.floor(Math.random()*1000),
+            type: notif.type || 'system',
+            icon: notif.icon || 'fa-bell',
+            bg: notif.bg || 'rgba(59,130,246,.15)',
+            color: notif.color || '#3b82f6',
+            title: notif.title || 'إشعار',
+            desc: notif.desc || '',
+            time: 'الآن',
+            ts: Date.now(),
+            unread: true
+        };
+        data.unshift(n);
+        if(data.length > MAX_NOTIFS) data.length = MAX_NOTIFS;
+        persist();
+        refreshTimes();
+        render();
+    };
+    const _origDelete = function(id){
+        data = data.filter(n => n.id !== id);
+        persist();
+        render();
+    };
+    const _origMarkAll = function(){
+        data.forEach(n => n.unread = false);
+        persist();
+        render();
+    };
+
+    function render(){
+        const list = document.getElementById('bf-notif-list');
+        if(!list) return;
+        const filtered = activeFilter === 'all' ? data : data.filter(n => n.type === activeFilter);
+        if(filtered.length === 0){
+            list.innerHTML = '<div class="bf-notif-empty"><i class="fa-regular fa-bell-slash text-2xl mb-2 block opacity-50"></i>لا توجد إشعارات</div>';
+        } else {
+            list.innerHTML = filtered.map(n => `
+                <div class="bf-notif-item ${n.unread ? 'unread' : ''}" data-id="${n.id}">
+                    <div class="bf-notif-icon" style="background:${n.bg};color:${n.color}"><i class="fa-solid ${n.icon}"></i></div>
+                    <div class="bf-notif-body">
+                        <div class="bf-notif-title">${n.title}</div>
+                        <div class="bf-notif-desc">${n.desc}</div>
+                        <div class="bf-notif-time"><i class="fa-regular fa-clock text-[9px]"></i> ${n.time}</div>
+                    </div>
+                    <button class="bf-notif-del" onclick="bfDeleteNotif(${n.id})" title="حذف"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+            `).join('');
+        }
+        updateCount();
+    }
+    function updateCount(){
+        const unread = data.filter(n => n.unread).length;
+        const bell = document.getElementById('bf-notif-bell-count');
+        const head = document.getElementById('bf-notif-unread-count');
+        if(head) head.textContent = unread;
+        if(bell){
+            if(unread === 0){ bell.style.display = 'none'; }
+            else { bell.style.display = 'flex'; bell.textContent = unread > 9 ? '9+' : unread; }
+        }
+    }
+
+    window.bfOpenNotif = function(){
+        document.getElementById('bf-notif-overlay').classList.add('open');
+        document.getElementById('bf-notif-panel').classList.add('open');
+        refreshTimes();
+        render();
+    };
+    window.bfCloseNotif = function(){
+        document.getElementById('bf-notif-overlay').classList.remove('open');
+        document.getElementById('bf-notif-panel').classList.remove('open');
+    };
+    window.bfMarkAllRead = function(){
+        data.forEach(n => n.unread = false);
+        persist();
+        render();
+        bfToast('تم تعليم جميع الإشعارات كمقروءة');
+    };
+    window.bfDeleteNotif = function(id){
+        data = data.filter(n => n.id !== id);
+        persist();
+        render();
+    };
+    window.bfToast = function(msg){
+        const t = document.getElementById('bf-toast');
+        if(!t) return;
+        t.textContent = msg;
+        t.style.opacity = '1';
+        t.style.transform = 'translateX(-50%) translateY(0)';
+        clearTimeout(window._bfToastT);
+        window._bfToastT = setTimeout(()=>{
+            t.style.opacity = '0';
+            t.style.transform = 'translateX(-50%) translateY(20px)';
+        }, 2200);
+    };
+
+    document.addEventListener('click', function(e){
+        const tab = e.target.closest('.bf-notif-tab');
+        if(tab){
+            document.querySelectorAll('.bf-notif-tab').forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            activeFilter = tab.dataset.filter;
+            render();
+        }
+    });
+
+    document.addEventListener('keydown', function(e){
+        if(e.key === 'Escape') bfCloseNotif();
+    });
+
+    // sync بطاقة الرصيد من sec-home إلى bf-stat-balance إذا أمكن
+    function syncBalance(){
+        try {
+            const main = document.querySelector('#sec-home .text-2xl, #sec-home [id*="balance"], #sec-home [class*="balance"]');
+            const target = document.getElementById('bf-stat-balance');
+            if(main && target && main.textContent.trim()){
+                target.textContent = main.textContent.trim();
+            }
+        } catch(e){}
+    }
+    setInterval(syncBalance, 2000);
+
+    updateCount();
+})();
+
+/* ==================== Theme Toggle (Real Light/Dark) ==================== */
+function bfApplyTheme(t){
+  try{
+    document.documentElement.setAttribute('data-theme', t);
+    localStorage.setItem('bf_theme', t);
+    var mt = document.querySelector('meta[name="theme-color"]');
+    if(mt) mt.setAttribute('content', t==='light' ? '#f3f4f6' : '#0b0f19');
+    var sub = document.getElementById('bf-theme-sub');
+    var ic  = document.getElementById('bf-theme-icon');
+    var tg  = document.getElementById('bf-theme-toggle');
+    if(sub) sub.textContent = (t==='light') ? 'فاتح' : 'داكن (افتراضي)';
+    if(ic)  ic.innerHTML = (t==='light') ? '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
+    if(tg)  tg.checked = (t==='light');
+  }catch(e){}
+}
+function bfToggleTheme(){
+  var cur = localStorage.getItem('bf_theme') || 'dark';
+  var nxt = (cur==='dark') ? 'light' : 'dark';
+  bfApplyTheme(nxt);
+  try{ if(typeof bfToast==='function') bfToast(nxt==='light'?'تم تفعيل الوضع الفاتح':'تم تفعيل الوضع الداكن'); }catch(e){}
+}
+(function(){
+  try{ bfApplyTheme(localStorage.getItem('bf_theme') || 'dark'); }catch(e){}
+  document.addEventListener('DOMContentLoaded', function(){
+    try{ bfApplyTheme(localStorage.getItem('bf_theme') || 'dark'); }catch(e){}
+  });
+})();
+
+/* تحديث نص اللغة في صف الإعدادات */
+(function(){
+  var orig = window.applyLanguage;
+  if(typeof orig === 'function'){
+    window.applyLanguage = function(code){
+      orig(code);
+      try{
+        var sub = document.getElementById('bf-lang-sub');
+        if(sub) sub.textContent = (code==='en') ? 'English' : 'العربية';
+      }catch(e){}
+    };
+  }
+  document.addEventListener('DOMContentLoaded', function(){
+    try{
+      var sub = document.getElementById('bf-lang-sub');
+      var cur = (typeof getCurrentLang==='function') ? getCurrentLang() : 'ar';
+      if(sub) sub.textContent = (cur==='en') ? 'English' : 'العربية';
+    }catch(e){}
+  });
+})();
+
+/* ==================== حساب وقت آخر تغيير لكلمة المرور بشكل حقيقي ==================== */
+(function(){
+  function getLang(){
+    try { return (typeof getCurrentLang==='function') ? getCurrentLang() : (document.documentElement.lang || 'ar'); }
+    catch(e){ return 'ar'; }
+  }
+  function getPwdChangedAt(){
+    try{
+      if(typeof getCurrentSession !== 'function' || typeof getAllUsers !== 'function') return null;
+      var s = getCurrentSession(); if(!s) return null;
+      var u = getAllUsers().find(function(x){ return x.uid === s.uid; });
+      if(!u) return null;
+      return u.passwordChangedAt || u.createdAt || null;
+    }catch(e){ return null; }
+  }
+  function fmt(ts, lang){
+    if(!ts) return lang==='en' ? 'Not changed yet' : 'لم يتم تغييرها بعد';
+    var t = new Date(ts).getTime(); if(isNaN(t)) return lang==='en' ? 'Not changed yet' : 'لم يتم تغييرها بعد';
+    var diff = Math.max(0, Date.now() - t);
+    var sec = Math.floor(diff/1000);
+    var min = Math.floor(sec/60);
+    var hr  = Math.floor(min/60);
+    var day = Math.floor(hr/24);
+    var mon = Math.floor(day/30);
+    var yr  = Math.floor(day/365);
+    if(lang==='en'){
+      var v,u;
+      if(sec<60){ return 'Last changed just now'; }
+      else if(min<60){ v=min; u=(v===1?'minute':'minutes'); }
+      else if(hr<24){  v=hr;  u=(v===1?'hour':'hours'); }
+      else if(day<30){ v=day; u=(v===1?'day':'days'); }
+      else if(mon<12){ v=mon; u=(v===1?'month':'months'); }
+      else { v=yr; u=(v===1?'year':'years'); }
+      return 'Last changed '+v+' '+u+' ago';
+    } else {
+      if(sec<60) return 'آخر تغيير قبل لحظات';
+      function ar(n, one, two, few, many){
+        if(n===1) return one;
+        if(n===2) return two;
+        if(n>=3 && n<=10) return n+' '+few;
+        return n+' '+many;
+      }
+      var label;
+      if(min<60)      label = ar(min, 'دقيقة', 'دقيقتين', 'دقائق', 'دقيقة');
+      else if(hr<24)  label = ar(hr,  'ساعة',  'ساعتين',  'ساعات', 'ساعة');
+      else if(day<30) label = ar(day, 'يوم',   'يومين',   'أيام',  'يوماً');
+      else if(mon<12) label = ar(mon, 'شهر',   'شهرين',   'أشهر',  'شهراً');
+      else            label = ar(yr,  'سنة',   'سنتين',   'سنوات', 'سنة');
+      return 'آخر تغيير منذ '+label;
+    }
+  }
+  function update(){
+    try{
+      var el = document.getElementById('bf-pwd-changed-sub');
+      if(!el) return;
+      el.textContent = fmt(getPwdChangedAt(), getLang());
+    }catch(e){}
+  }
+  window.updatePwdChangedSub = update;
+
+  // Hook into language change
+  try{
+    var orig = window.applyLanguage;
+    if(typeof orig === 'function'){
+      window.applyLanguage = function(code){
+        orig(code);
+        try{ update(); }catch(e){}
+      };
+    }
+  }catch(e){}
+
+  document.addEventListener('DOMContentLoaded', function(){
+    update();
+    setInterval(update, 60000);
+  });
+  if(document.readyState !== 'loading'){ update(); setInterval(update, 60000); }
+})();
+</script>
+
 </body>
 
 </html>
