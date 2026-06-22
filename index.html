@@ -469,6 +469,10 @@
             background: #f0b90b;
             box-shadow: 0 0 8px rgba(240, 185, 11, 0.6);
         }
+        .network-dot.eth {
+            background: linear-gradient(135deg, #627eea, #8a92b2);
+            box-shadow: 0 0 8px rgba(98, 126, 234, 0.6);
+        }
 
         .network-toggle-btn.active .network-dot {
             box-shadow: 0 0 16px currentColor;
@@ -496,6 +500,11 @@
         .withdraw-info-banner.bnb-mode {
             background: rgba(240, 185, 11, 0.06);
             border-color: rgba(240, 185, 11, 0.2);
+        }
+
+        .withdraw-info-banner.eth-mode {
+            background: rgba(59, 130, 246, 0.06);
+            border-color: rgba(59, 130, 246, 0.2);
         }
 
         /* ==================== تنسيقات نافذة الإيداع المحسّنة ==================== */
@@ -2824,25 +2833,34 @@ class="nav-btn flex flex-col items-center justify-center py-2 text-gray-400 hove
         <!-- ========== محدد الشبكة للإيداع ========== -->
         <div>
             <label class="block text-xs font-medium text-gray-400 mb-2">اختر شبكة الإيداع</label>
-            <div class="grid grid-cols-2 gap-2">
+            <div class="grid grid-cols-3 gap-1.5">
                 <button type="button" onclick="switchDepositNetwork('trc20')" id="deposit-network-trc20"
-                class="network-toggle-btn active flex items-center gap-2 p-3 rounded-xl bg-white/5 text-white transition">
+                class="network-toggle-btn active flex items-center gap-1.5 p-2.5 rounded-xl bg-white/5 text-white transition">
                 <span class="network-dot trc"></span>
-                <div class="text-right">
-                    <span class="text-xs font-bold block">TRC20</span>
-                    <span class="text-[9px] text-gray-400">Tron Network</span>
+                <div class="text-right flex-1 min-w-0">
+                    <span class="text-[11px] font-bold block">TRC20</span>
+                    <span class="text-[8px] text-gray-400 block truncate">Tron</span>
                 </div>
-                <i class="fa-solid fa-check-circle text-indigo-400 text-xs mr-auto" id="check-deposit-trc20"></i>
+                <i class="fa-solid fa-check-circle text-indigo-400 text-[10px]" id="check-deposit-trc20"></i>
             </button>
             <button type="button" onclick="switchDepositNetwork('bep20')" id="deposit-network-bep20"
-            class="network-toggle-btn flex items-center gap-2 p-3 rounded-xl bg-white/5 text-white transition">
+            class="network-toggle-btn flex items-center gap-1.5 p-2.5 rounded-xl bg-white/5 text-white transition">
             <span class="network-dot bnb"></span>
-            <div class="text-right">
-                <span class="text-xs font-bold block">BEP20</span>
-                <span class="text-[9px] text-gray-400">BNB Smart Chain</span>
+            <div class="text-right flex-1 min-w-0">
+                <span class="text-[11px] font-bold block">BEP20</span>
+                <span class="text-[8px] text-gray-400 block truncate">BNB Chain</span>
             </div>
-            <i class="fa-solid fa-check-circle text-amber-400 text-xs mr-auto hidden" id="check-deposit-bep20"></i>
+            <i class="fa-solid fa-check-circle text-amber-400 text-[10px] hidden" id="check-deposit-bep20"></i>
         </button>
+        <button type="button" onclick="switchDepositNetwork('erc20')" id="deposit-network-erc20"
+        class="network-toggle-btn flex items-center gap-1.5 p-2.5 rounded-xl bg-white/5 text-white transition">
+        <span class="network-dot eth"></span>
+        <div class="text-right flex-1 min-w-0">
+            <span class="text-[11px] font-bold block">ERC20</span>
+            <span class="text-[8px] text-gray-400 block truncate">Ethereum</span>
+        </div>
+        <i class="fa-solid fa-check-circle text-blue-400 text-[10px] hidden" id="check-deposit-erc20"></i>
+    </button>
     </div>
     <input type="hidden" id="deposit-active-network" value="trc20">
 </div>
@@ -2903,25 +2921,34 @@ class="nav-btn flex flex-col items-center justify-center py-2 text-gray-400 hove
         <!-- ========== محدد الشبكة ========== -->
         <div>
             <label class="block text-xs font-medium text-gray-400 mb-2">اختر شبكة السحب</label>
-            <div class="grid grid-cols-2 gap-2">
+            <div class="grid grid-cols-3 gap-2">
                 <button type="button" onclick="switchWithdrawNetwork('trc20')" id="withdraw-network-trc20"
-                class="network-toggle-btn active flex items-center gap-2 p-3 rounded-xl bg-white/5 text-white transition">
+                class="network-toggle-btn active flex items-center gap-1.5 p-2.5 rounded-xl bg-white/5 text-white transition">
                 <span class="network-dot trc"></span>
                 <div class="text-right">
-                    <span class="text-xs font-bold block">TRC20</span>
-                    <span class="text-[9px] text-gray-400">Tron Network</span>
+                    <span class="text-[11px] font-bold block">TRC20</span>
+                    <span class="text-[9px] text-gray-400">Tron</span>
                 </div>
-                <i class="fa-solid fa-check-circle text-indigo-400 text-xs mr-auto hidden" id="check-trc20"></i>
+                <i class="fa-solid fa-check-circle text-indigo-400 text-[10px] mr-auto hidden" id="check-trc20"></i>
             </button>
             <button type="button" onclick="switchWithdrawNetwork('bep20')" id="withdraw-network-bep20"
-            class="network-toggle-btn flex items-center gap-2 p-3 rounded-xl bg-white/5 text-white transition">
+            class="network-toggle-btn flex items-center gap-1.5 p-2.5 rounded-xl bg-white/5 text-white transition">
             <span class="network-dot bnb"></span>
             <div class="text-right">
-                <span class="text-xs font-bold block">BEP20</span>
-                <span class="text-[9px] text-gray-400">BNB Smart Chain</span>
+                <span class="text-[11px] font-bold block">BEP20</span>
+                <span class="text-[9px] text-gray-400">BNB Chain</span>
             </div>
-            <i class="fa-solid fa-check-circle text-amber-400 text-xs mr-auto hidden" id="check-bep20"></i>
+            <i class="fa-solid fa-check-circle text-amber-400 text-[10px] mr-auto hidden" id="check-bep20"></i>
         </button>
+        <button type="button" onclick="switchWithdrawNetwork('erc20')" id="withdraw-network-erc20"
+        class="network-toggle-btn flex items-center gap-1.5 p-2.5 rounded-xl bg-white/5 text-white transition">
+        <span class="network-dot eth"></span>
+        <div class="text-right">
+            <span class="text-[11px] font-bold block">ERC20</span>
+            <span class="text-[9px] text-gray-400">Ethereum</span>
+        </div>
+        <i class="fa-solid fa-check-circle text-blue-400 text-[10px] mr-auto hidden" id="check-erc20"></i>
+    </button>
     </div>
     <input type="hidden" id="withdraw-active-network" value="trc20">
 </div>
@@ -4028,7 +4055,8 @@ class="w-full py-3.5 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blu
 
     const depositAddresses = {
         trc20: 'TUS4f9PchpPML6QzijdqgVx7qkdjzbq1iW',
-        bep20: '0xe94CFa883b3a7A31bFFe3E48dD66334B67d1B35F'
+        bep20: '0xe94CFa883b3a7A31bFFe3E48dD66334B67d1B35F',
+        erc20: '0xe94CFa883b3a7A31bFFe3E48dD66334B67d1B35F'
     };
 
     const depositNetworkData = {
@@ -4051,6 +4079,16 @@ class="w-full py-3.5 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blu
             instructions: 'أرسل USDT فقط عبر شبكة BEP20 (BNB Smart Chain). تأكد من أن المحفظة المرسلة تدعم BEP20.',
             warning: '⚠️ يرجى إرسال عملة USDT فقط عبر شبكة BEP20 (BNB Smart Chain). أي عملة أو شبكة أخرى ستؤدي إلى فقدان الأصول بشكل دائم.',
             labelDisplay: 'BEP20'
+        },
+        erc20: {
+            name: 'ERC20',
+            fullName: 'Ethereum Network (ERC20)',
+            colorClass: 'blue',
+            confirmTime: '5-15 دقيقة',
+            confirmations: 12,
+            instructions: 'أرسل Tether USD (USDT) فقط عبر شبكة ERC20 (Ethereum). تأكد من أن المحفظة المرسلة تدعم شبكة Ethereum وأن لديك رسوم Gas كافية.',
+            warning: '⚠️ يرجى إرسال عملة USDT فقط عبر شبكة ERC20 (Ethereum Mainnet). أي عملة أو شبكة أخرى ستؤدي إلى فقدان الأصول بشكل دائم.',
+            labelDisplay: 'ERC20'
         }
     };
 
@@ -4112,6 +4150,35 @@ class="w-full py-3.5 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blu
                     error: 'تنسيق عنوان BEP20 غير صالح (يجب أن يكون بصيغة hex بعد 0x)' };
                 return { valid: true, error: null };
             }
+        },
+        erc20: {
+            name: 'ERC20',
+            fullName: 'Ethereum Network (ERC20)',
+            icon: 'eth',
+            color: '#3b82f6',
+            colorClass: 'blue',
+            placeholder: 'أدخل عنوان محفظة ERC20...',
+            hint: 'يجب أن يبدأ العنوان بـ 0x ويتكون من 42 حرفاً',
+            addressPrefix: '0x',
+            addressLength: 42,
+            minWithdraw: 20,
+            fee: 5.00,
+            feeDisplay: '5.00 USDT',
+            instructions: 'تأكد من اختيار شبكة ERC20 (Ethereum) الصحيحة. الحد الأدنى للسحب 20 USDT ورسوم الشبكة 5 USDT. عناوين ERC20 تبدأ بـ 0x.',
+            warning: '⚠️ تأكد من أن العنوان يبدأ بـ 0x وأنك تتعامل مع شبكة Ethereum (ERC20). أي خطأ في الشبكة سيؤدي لفقدان الأصول.',
+            labelNetwork: '(ERC20)',
+            validateAddress: function(address) {
+                if (!address || address.trim().length === 0) return { valid: false,
+                error: 'يرجى إدخال عنوان المحفظة' };
+                const addr = address.trim();
+                if (!addr.startsWith('0x')) return { valid: false,
+                    error: 'عنوان ERC20 يجب أن يبدأ بـ 0x' };
+                if (addr.length !== 42) return { valid: false,
+                    error: 'عنوان ERC20 يجب أن يتكون من 42 حرفاً بالضبط' };
+                if (!/^0x[a-fA-F0-9]{40}$/.test(addr)) return { valid: false,
+                    error: 'تنسيق عنوان ERC20 غير صالح (يجب أن يكون بصيغة hex بعد 0x)' };
+                return { valid: true, error: null };
+            }
         }
     };
 
@@ -4122,24 +4189,25 @@ class="w-full py-3.5 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blu
     function switchDepositNetwork(network) {
         document.getElementById('deposit-active-network').value = network;
 
-        const data = depositNetworkData[network];
+        const data = depositNetworkData[network] || depositNetworkData['trc20'];
         const address = depositAddresses[network] || depositAddresses['trc20'];
 
-        const trc20Btn = document.getElementById('deposit-network-trc20');
-        const bep20Btn = document.getElementById('deposit-network-bep20');
-        const checkTrc = document.getElementById('check-deposit-trc20');
-        const checkBep = document.getElementById('check-deposit-bep20');
+        const btns = {
+            trc20: document.getElementById('deposit-network-trc20'),
+            bep20: document.getElementById('deposit-network-bep20'),
+            erc20: document.getElementById('deposit-network-erc20')
+        };
+        const checks = {
+            trc20: document.getElementById('check-deposit-trc20'),
+            bep20: document.getElementById('check-deposit-bep20'),
+            erc20: document.getElementById('check-deposit-erc20')
+        };
 
-        [trc20Btn, bep20Btn].forEach(btn => btn.classList.remove('active'));
-        [checkTrc, checkBep].forEach(chk => chk.classList.add('hidden'));
+        Object.values(btns).forEach(btn => btn && btn.classList.remove('active'));
+        Object.values(checks).forEach(chk => chk && chk.classList.add('hidden'));
 
-        if (network === 'trc20') {
-            trc20Btn.classList.add('active');
-            checkTrc.classList.remove('hidden');
-        } else {
-            bep20Btn.classList.add('active');
-            checkBep.classList.remove('hidden');
-        }
+        if (btns[network]) btns[network].classList.add('active');
+        if (checks[network]) checks[network].classList.remove('hidden');
 
         const addressDisplay = document.getElementById('deposit-address-display');
         if (addressDisplay) {
@@ -4157,28 +4225,40 @@ class="w-full py-3.5 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blu
         if (qrImage) {
             qrImage.src = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' +
                 encodeURIComponent(address) + '&bgcolor=FFFFFF&color=000000&margin=15';
+            qrImage.alt = 'QR Code - ' + data.labelDisplay + ' - ' + address;
         }
+
+        const labelColorMap = {
+            trc20: 'text-indigo-400 font-bold',
+            bep20: 'text-amber-400 font-bold',
+            erc20: 'text-blue-400 font-bold'
+        };
+        const iconColorMap = {
+            trc20: 'text-indigo-400',
+            bep20: 'text-amber-400',
+            erc20: 'text-blue-400'
+        };
 
         const networkLabel = document.getElementById('deposit-network-label-display');
         if (networkLabel) {
             networkLabel.textContent = data.labelDisplay;
-            networkLabel.className = network === 'trc20' ? 'text-indigo-400 font-bold' : 'text-amber-400 font-bold';
+            networkLabel.className = labelColorMap[network] || labelColorMap['trc20'];
         }
 
         const timeDisplay = document.getElementById('deposit-time-display');
         if (timeDisplay) timeDisplay.textContent = data.confirmTime;
         const confEl = document.getElementById('deposit-eta-confirmations');
-        if (confEl) confEl.textContent = data.confirmations || (network === 'trc20' ? 20 : 15);
+        if (confEl) confEl.textContent = data.confirmations || 20;
         const etaBadge = document.getElementById('deposit-eta-badge');
         if (etaBadge) etaBadge.classList.toggle('is-bep', network === 'bep20');
 
         const instructions = document.getElementById('deposit-network-instructions');
         if (instructions) {
-            instructions.querySelector('span').textContent = data.instructions;
+            const sp = instructions.querySelector('span');
+            if (sp) sp.textContent = data.instructions;
             const iconEl = instructions.querySelector('i');
             if (iconEl) {
-                iconEl.className = 'fa-solid fa-info-circle mt-0.5 flex-shrink-0';
-                iconEl.classList.add(network === 'trc20' ? 'text-indigo-400' : 'text-amber-400');
+                iconEl.className = 'fa-solid fa-info-circle mt-0.5 flex-shrink-0 ' + (iconColorMap[network] || iconColorMap['trc20']);
             }
         }
 
@@ -4216,18 +4296,23 @@ class="w-full py-3.5 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blu
         const data = withdrawNetworkData[network];
         const trc20Btn = document.getElementById('withdraw-network-trc20');
         const bep20Btn = document.getElementById('withdraw-network-bep20');
+        const erc20Btn = document.getElementById('withdraw-network-erc20');
         const checkTrc = document.getElementById('check-trc20');
         const checkBep = document.getElementById('check-bep20');
+        const checkErc = document.getElementById('check-erc20');
 
-        [trc20Btn, bep20Btn].forEach(btn => btn.classList.remove('active'));
-        [checkTrc, checkBep].forEach(chk => chk.classList.add('hidden'));
+        [trc20Btn, bep20Btn, erc20Btn].forEach(btn => { if (btn) btn.classList.remove('active'); });
+        [checkTrc, checkBep, checkErc].forEach(chk => { if (chk) chk.classList.add('hidden'); });
 
         if (network === 'trc20') {
             trc20Btn.classList.add('active');
             checkTrc.classList.remove('hidden');
-        } else {
+        } else if (network === 'bep20') {
             bep20Btn.classList.add('active');
             checkBep.classList.remove('hidden');
+        } else if (network === 'erc20') {
+            erc20Btn.classList.add('active');
+            checkErc.classList.remove('hidden');
         }
 
         const addressInput = document.getElementById('withdraw-address-input');
@@ -4261,7 +4346,8 @@ class="w-full py-3.5 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blu
             const iconEl = instructions.querySelector('i');
             if (iconEl) {
                 iconEl.className = 'fa-solid fa-info-circle mt-0.5 flex-shrink-0';
-                iconEl.classList.add(network === 'trc20' ? 'text-indigo-400' : 'text-amber-400');
+                const iconColor = network === 'trc20' ? 'text-indigo-400' : (network === 'erc20' ? 'text-blue-400' : 'text-amber-400');
+                iconEl.classList.add(iconColor);
             }
         }
 
@@ -4270,9 +4356,11 @@ class="w-full py-3.5 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blu
 
         const infoBanner = document.getElementById('withdraw-info-banner');
         if (infoBanner) {
-            infoBanner.classList.remove('bnb-mode');
+            infoBanner.classList.remove('bnb-mode', 'eth-mode');
             if (network === 'bep20') {
                 infoBanner.classList.add('bnb-mode');
+            } else if (network === 'erc20') {
+                infoBanner.classList.add('eth-mode');
             }
         }
 
