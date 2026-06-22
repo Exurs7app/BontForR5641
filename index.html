@@ -2313,14 +2313,6 @@ html[data-theme="light"] input,html[data-theme="light"] textarea,html[data-theme
     الرابط</button>
 </div>
 
-<div class="glass p-4 rounded-2xl flex justify-between items-center" id="task-kyc-card">
-    <div class="space-y-1">
-        <p class="text-xs font-bold">إكمال التحقق من الهوية (KYC)</p>
-        <span class="text-[10px] text-amber-400 font-medium" id="task-kyc-reward-label">+5.00 USDT مكافأة</span>
-    </div>
-    <button id="task-kyc-btn" onclick="bfHandleKycTaskClick()"
-        class="text-[11px] bg-blue-500 text-white px-3 py-1.5 rounded-lg font-bold hover:bg-blue-600 transition">ابدأ الآن</button>
-</div>
 </div>
 </section>
 
@@ -2996,7 +2988,7 @@ class="nav-btn flex flex-col items-center justify-center py-2 text-gray-400 hove
 <div class="withdraw-info-banner" id="withdraw-info-banner">
     <div class="flex justify-between text-[11px] text-gray-300 mb-1.5">
         <span>رصيدك المتاح:</span>
-        <b class="text-white">0.00 USDT</b>
+        <b class="text-white"><span id="withdraw-available" data-balance-display>0.00</span> USDT</b>
     </div>
     <div class="flex justify-between text-[11px] text-gray-300 mb-1.5">
         <span>رسوم الشبكة:</span>
@@ -8716,19 +8708,6 @@ function bfToggleTheme(){
     if(typeof window.bfToast === 'function'){ window.bfToast('تم التحقق من الهوية بنجاح ✓'); }
     // KYC reward task: re-render task card with "جمع" button
     try { if(typeof window.bfRenderKycTaskCard === 'function') window.bfRenderKycTaskCard(); } catch(e){}
-    try {
-      var _lang2 = (typeof getCurrentLang==='function') ? getCurrentLang() : 'ar';
-      if(typeof window.bfAddNotif === 'function'){
-        window.bfAddNotif({
-          type:'system',
-          icon:'fa-gift',
-          bg:'rgba(245,158,11,.15)',
-          color:'#fbbf24',
-          title: (_lang2==='en') ? 'KYC Reward available' : 'مكافأة التحقق متاحة',
-          desc: (_lang2==='en') ? 'Collect your 5.00 USDT reward from the Tasks section.' : 'اجمع مكافأتك 5.00 USDT من قسم المهام.'
-        });
-      }
-    } catch(e){}
   }
 
   window.openKycModal = function(){
@@ -9033,6 +9012,224 @@ function bfToggleTheme(){
 })();
 </script>
 
+
+<script>
+/* ===== Auto-refresh KYC task button after verification & on KYC modal close ===== */
+(function(){
+  function refresh(){
+    try { window.bfRenderKycTaskCard && window.bfRenderKycTaskCard(); } catch(e){}
+    try { window.bfRefreshAllBalances && window.bfRefreshAllBalances(); } catch(e){}
+  }
+  // Poll KYC state every 1.5s (cheap) so the button flips to "جمع" right after verify
+  var _lastVerified = false, _lastClaimed = false;
+  setInterval(function(){
+    try {
+      var v = !!(window.bfIsKycVerified && window.bfIsKycVerified());
+      var c = !!(window.bfIsKycRewardClaimed && window.bfIsKycRewardClaimed());
+      if (v !== _lastVerified || c !== _lastClaimed){
+        _lastVerified = v; _lastClaimed = c;
+        refresh();
+      }
+    } catch(e){}
+  }, 1500);
+  // Also refresh when closing the KYC modal
+  document.addEventListener('click', function(e){
+    var t = e.target;
+    if (!t) return;
+    if (t.id === 'kyc-overlay' || (t.closest && (t.closest('.kyc-close') || t.closest('#kyc-overlay .kyc-btn-primary')))){
+      setTimeout(refresh, 250);
+      setTimeout(refresh, 1200);
+    }
+  }, true);
+  document.addEventListener('DOMContentLoaded', function(){ setTimeout(refresh, 600); });
+})();
+</script>
+
+
+<!-- ==================== KYC reward claim from notification bell ==================== -->
+<script>
+(function(){
+  function isKycRewardNotif(titleText){
+    if(!titleText) return false;
+    var t = String(titleText).trim();
+    return t.indexOf('مكافأة التحقق متاحة') !== -1 || /KYC Reward available/i.test(t);
+  }
+  function styleClaimable(){
+    try{
+      document.querySelectorAll('#bf-notif-list .bf-notif-item').forEach(function(item){
+        var titleEl = item.querySelector('.bf-notif-title');
+        if(!titleEl) return;
+        if(isKycRewardNotif(titleEl.textContent)){
+          if(window.bfIsKycRewardClaimed && window.bfIsKycRewardClaimed()){
+            // already claimed -> remove this notif silently
+            var id = item.getAttribute('data-id');
+            if(id && typeof window.bfDeleteNotif === 'function'){
+              window.bfDeleteNotif(Number(id));
+            }
+            return;
+          }
+          item.style.cursor = 'pointer';
+          item.setAttribute('data-kyc-claim','1');
+          if(!item.querySelector('.bf-kyc-claim-hint')){
+            var hint = document.createElement('div');
+            hint.className = 'bf-kyc-claim-hint';
+            hint.style.cssText = 'margin-top:6px;font-size:10.5px;font-weight:700;color:#fbbf24;display:flex;align-items:center;gap:4px';
+            hint.innerHTML = '<i class="fa-solid fa-hand-pointer"></i> اضغط للاستلام (+5.00 USDT)';
+            var body = item.querySelector('.bf-notif-body');
+            if(body) body.appendChild(hint);
+          }
+        }
+      });
+    }catch(e){}
+  }
+  // Delegated click on notif list
+  document.addEventListener('click', function(e){
+    var del = e.target.closest('.bf-notif-del');
+    if(del) return; // let delete work
+    var item = e.target.closest('#bf-notif-list .bf-notif-item[data-kyc-claim="1"]');
+    if(!item) return;
+    e.preventDefault();
+    e.stopPropagation();
+    if(window.bfIsKycRewardClaimed && window.bfIsKycRewardClaimed()){
+      if(typeof window.bfToast === 'function') window.bfToast('تم استلام المكافأة مسبقاً');
+      var id0 = item.getAttribute('data-id');
+      if(id0 && typeof window.bfDeleteNotif === 'function') window.bfDeleteNotif(Number(id0));
+      return;
+    }
+    if(!(window.bfIsKycVerified && window.bfIsKycVerified())){
+      if(typeof window.bfToast === 'function') window.bfToast('أكمل التحقق من الهوية أولاً');
+      return;
+    }
+    try { window.bfHandleKycTaskClick(); } catch(err){}
+    // remove the "available" notif after claim
+    var id = item.getAttribute('data-id');
+    if(id && typeof window.bfDeleteNotif === 'function'){
+      setTimeout(function(){ window.bfDeleteNotif(Number(id)); }, 200);
+    }
+  }, true);
+
+  // Observe list re-renders
+  var listEl;
+  function attachObserver(){
+    listEl = document.getElementById('bf-notif-list');
+    if(!listEl) { setTimeout(attachObserver, 500); return; }
+    var mo = new MutationObserver(function(){ styleClaimable(); });
+    mo.observe(listEl, { childList:true, subtree:false });
+    styleClaimable();
+  }
+  document.addEventListener('DOMContentLoaded', attachObserver);
+  if(document.readyState !== 'loading') attachObserver();
+
+  // Re-style when bell opens
+  var _origOpen = window.bfOpenNotif;
+  window.bfOpenNotif = function(){
+    if(typeof _origOpen === 'function') _origOpen.apply(this, arguments);
+    setTimeout(styleClaimable, 50);
+  };
+})();
+</script>
+
+<!-- ==================== KYC step 4 green + bell claim hardening ==================== -->
+<script>
+(function(){
+  // 1) Make review step (data-s="5", labeled "4") turn green once verified
+  function applyKycStepColors(){
+    try{
+      var verified = false;
+      try { verified = !!(window.bfIsKycVerified && window.bfIsKycVerified()); } catch(e){}
+      var successPane = document.getElementById('kyc-review-success');
+      var successVisible = successPane && successPane.style.display !== 'none' && successPane.offsetParent !== null;
+      if(verified || successVisible){
+        document.querySelectorAll('#kyc-steps .kyc-step').forEach(function(el){
+          el.classList.remove('active');
+          el.classList.add('done');
+          var dot = el.querySelector('.dot');
+          if(dot && !dot.querySelector('i.kyc-done-check')){
+            dot.innerHTML = '<i class="fa-solid fa-check kyc-done-check"></i>';
+          }
+        });
+      }
+    }catch(e){}
+  }
+  // Hook into updateSteps if available
+  var _origUpd = window.updateSteps;
+  // updateSteps is module-scoped (not on window). Use interval + observer fallback.
+  setInterval(applyKycStepColors, 700);
+  document.addEventListener('DOMContentLoaded', function(){
+    var modal = document.getElementById('kyc-modal');
+    if(modal){
+      var mo = new MutationObserver(function(){ setTimeout(applyKycStepColors, 50); });
+      mo.observe(modal, { attributes:true, subtree:true, childList:true, attributeFilter:['style','class'] });
+    }
+    applyKycStepColors();
+  });
+
+  // 2) Bell "جمع 5 USDT" — guarantee the 5 USDT is really added and reflected
+  function curLangSafe(){ try { return (typeof getCurrentLang==='function') ? getCurrentLang() : 'ar'; } catch(e){ return 'ar'; } }
+  function claimFromBell(item){
+    try{
+      // ensure verified
+      if(!(window.bfIsKycVerified && window.bfIsKycVerified())){
+        if(typeof window.bfToast === 'function') window.bfToast(curLangSafe()==='en' ? 'Complete identity verification first' : 'أكمل التحقق من الهوية أولاً');
+        return;
+      }
+      var already = !!(window.bfIsKycRewardClaimed && window.bfIsKycRewardClaimed());
+      var before  = (window.bfGetUserBalance && window.bfGetUserBalance()) || 0;
+
+      // Call the real claim (adds 5 USDT to user.balance & saves)
+      if(typeof window.bfHandleKycTaskClick === 'function'){
+        window.bfHandleKycTaskClick();
+      }
+
+      // Safety: if for any reason balance did not change & reward not flagged, force it.
+      setTimeout(function(){
+        try{
+          var after = (window.bfGetUserBalance && window.bfGetUserBalance()) || 0;
+          var claimed = !!(window.bfIsKycRewardClaimed && window.bfIsKycRewardClaimed());
+          if(!already && !claimed && after === before){
+            // Manual fallback: directly add via bfSetUserBalance + mark flag
+            if(typeof window.bfSetUserBalance === 'function'){
+              window.bfSetUserBalance(before + 5);
+            }
+            try {
+              var s = (typeof getCurrentSession==='function') ? getCurrentSession() : null;
+              var users = (typeof getAllUsers==='function') ? getAllUsers() : [];
+              if(s){
+                var i = users.findIndex(function(x){ return x.uid===s.uid; });
+                if(i>=0){ users[i].kycRewardClaimed = true; if(typeof saveAllUsers==='function') saveAllUsers(users); }
+              }
+            } catch(e){}
+            try { window.bfRefreshAllBalances && window.bfRefreshAllBalances(); } catch(e){}
+            try { window.bfRenderKycTaskCard && window.bfRenderKycTaskCard(); } catch(e){}
+            if(typeof window.bfToast === 'function') window.bfToast(curLangSafe()==='en' ? '+5.00 USDT added to your balance' : '✅ تمت إضافة 5.00 USDT إلى رصيدك');
+          }
+        }catch(e){}
+      }, 150);
+
+      // Remove notif & refresh again
+      setTimeout(function(){
+        try{
+          var id = item && item.getAttribute('data-id');
+          if(id && typeof window.bfDeleteNotif === 'function') window.bfDeleteNotif(Number(id));
+        }catch(e){}
+        try { window.bfRefreshAllBalances && window.bfRefreshAllBalances(); } catch(e){}
+      }, 350);
+    }catch(e){}
+  }
+  // Capture-phase click to override the older handler safely
+  document.addEventListener('click', function(e){
+    var del = e.target.closest && e.target.closest('.bf-notif-del');
+    if(del) return;
+    var item = e.target.closest && e.target.closest('#bf-notif-list .bf-notif-item[data-kyc-claim="1"]');
+    if(!item) return;
+    e.preventDefault();
+    e.stopPropagation();
+    claimFromBell(item);
+  }, true);
+})();
+</script>
+
 </body>
 
 </html>
+
