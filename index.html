@@ -1451,10 +1451,55 @@ html[data-theme="light"] input,html[data-theme="light"] textarea,html[data-theme
     .news-modal-panel { border-radius: 20px; max-height: 85vh; }
     .news-modal-head { border-radius: 20px 20px 0 0; }
 }
+
+/* ==================== Page Loader (Spinner) ==================== */
+#app-loader {
+    position: fixed; inset: 0; z-index: 99999;
+    display: flex; align-items: center; justify-content: center;
+    background: radial-gradient(ellipse at center, #121826 0%, #0b0f19 70%);
+    transition: opacity 0.4s ease, visibility 0.4s ease;
+}
+#app-loader.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+#app-loader .ring {
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    border: 3px solid rgba(255,255,255,0.08);
+    border-top-color: #3b82f6;
+    border-right-color: #8b5cf6;
+    animation: bf-spin 0.9s linear infinite;
+    box-shadow: 0 0 24px rgba(59,130,246,0.25);
+}
+@keyframes bf-spin { to { transform: rotate(360deg); } }
+
+/* ==================== Exit Toast ==================== */
+#exit-toast {
+    position: fixed; bottom: 90px; left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: rgba(20, 25, 38, 0.95); color: #fff;
+    padding: 12px 22px; border-radius: 999px;
+    font-size: 14px; font-weight: 500;
+    border: 1px solid rgba(255,255,255,0.08);
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    z-index: 99998; opacity: 0; visibility: hidden;
+    transition: opacity 0.25s ease, transform 0.25s ease, visibility 0.25s ease;
+    display: flex; align-items: center; gap: 8px; direction: rtl;
+}
+#exit-toast.show { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0); }
+#exit-toast i { color: #f59e0b; }
 </style>
 
 </head>
 <body class="text-white min-h-screen flex flex-col overflow-x-hidden">
+
+<!-- ==================== App Loader ==================== -->
+<div id="app-loader" aria-hidden="true"><div class="ring"></div></div>
+
+<!-- ==================== Exit Toast ==================== -->
+<div id="exit-toast" role="status" aria-live="polite">
+    <i class="fas fa-sign-out-alt"></i>
+    <span>اضغط مرة أخرى للخروج من التطبيق</span>
+</div>
 
 <!-- ==================== Language Modal ==================== -->
 <div id="lang-modal" role="dialog" aria-modal="true" onclick="if(event.target===this)closeLangModal()">
@@ -2258,6 +2303,15 @@ html[data-theme="light"] input,html[data-theme="light"] textarea,html[data-theme
         class="text-[11px] bg-white/10 text-white px-3 py-1.5 rounded-lg font-bold hover:bg-white/20 transition">نسخ
     الرابط</button>
 </div>
+
+<div class="glass p-4 rounded-2xl flex justify-between items-center" id="task-kyc-card">
+    <div class="space-y-1">
+        <p class="text-xs font-bold">إكمال التحقق من الهوية (KYC)</p>
+        <span class="text-[10px] text-amber-400 font-medium" id="task-kyc-reward-label">+5.00 USDT مكافأة</span>
+    </div>
+    <button id="task-kyc-btn" onclick="bfHandleKycTaskClick()"
+        class="text-[11px] bg-blue-500 text-white px-3 py-1.5 rounded-lg font-bold hover:bg-blue-600 transition">ابدأ الآن</button>
+</div>
 </div>
 </section>
 
@@ -2437,7 +2491,7 @@ html[data-theme="light"] input,html[data-theme="light"] textarea,html[data-theme
             <div class="flex-1 min-w-0">
                 <div class="flex items-center gap-2 flex-wrap">
                     <h3 class="text-base font-bold text-white id-username-view truncate">BontFoR</h3>
-                    <span class="bf-badge-verified"><i class="fa-solid fa-circle-check text-[9px]"></i> موثّق</span>
+                    <span id="hero-verified-badge" onclick="openKycModal()" style="cursor:pointer;display:none" class="bf-badge-verified"><i class="fa-solid fa-circle-check text-[9px]"></i> موثّق</span>
                     <span class="bf-badge-vip"><i class="fa-solid fa-crown text-[9px]"></i> VIP</span>
                 </div>
                 <p class="text-[11px] text-gray-300 mt-1" id="account-email-view">user@bontfor.com</p>
@@ -2499,6 +2553,15 @@ html[data-theme="light"] input,html[data-theme="light"] textarea,html[data-theme
                     <div class="bf-row-sub" id="bf-pwd-changed-sub">لم يتم تغييرها بعد</div>
                 </div>
                 <i class="fa-solid fa-chevron-left bf-chevron"></i>
+            </div>
+            <div class="bf-row" onclick="openKycModal()" id="kyc-row">
+                <div class="bf-row-icon" style="background:rgba(168,85,247,.15);color:#c084fc"><i class="fa-solid fa-id-card"></i></div>
+                <div class="flex-1">
+                    <div class="bf-row-title">التحقق من الهوية (KYC)</div>
+                    <div class="bf-row-sub" id="kyc-row-sub">غير مُحقّق — قم بتوثيق حسابك</div>
+                </div>
+                <span id="kyc-row-badge" class="text-[10px] font-bold px-2 py-1 rounded-full" style="background:rgba(245,158,11,.15);color:#fbbf24">غير مُحقّق</span>
+                <i class="fa-solid fa-chevron-left bf-chevron ml-1"></i>
             </div>
         </div>
     </div>
@@ -2895,7 +2958,7 @@ class="nav-btn flex flex-col items-center justify-center py-2 text-gray-400 hove
         step="any" min="0">
         <span class="absolute left-3 inset-y-0 flex items-center text-xs font-bold text-indigo-400">USDT</span>
     </div>
-    <p class="text-[9px] text-gray-500 mt-1" id="withdraw-min-hint">الحد الأدنى: 10 USDT</p>
+    <p class="text-[9px] text-gray-500 mt-1" id="withdraw-min-hint">الحد الأدنى: 15 USDT</p>
     <div class="error-message" id="withdraw-amount-error">
         <i class="fa-solid fa-circle-exclamation"></i>
         <span></span>
@@ -2919,7 +2982,7 @@ class="nav-btn flex flex-col items-center justify-center py-2 text-gray-400 hove
     <div class="border-t border-white/5 my-1.5"></div>
     <div class="flex items-start gap-1.5 text-[9px] text-gray-400" id="withdraw-network-instructions">
         <i class="fa-solid fa-info-circle text-indigo-400 mt-0.5 flex-shrink-0"></i>
-        <span>تأكد من اختيار شبكة TRC20 الصحيحة. الحد الأدنى للسحب 10 USDT ورسوم الشبكة 1 USDT.</span>
+        <span>تأكد من اختيار شبكة TRC20 الصحيحة. الحد الأدنى للسحب 15 USDT ورسوم الشبكة 1 USDT.</span>
     </div>
 </div>
 
@@ -3656,6 +3719,7 @@ class="w-full py-3.5 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blu
     function enterPlatform(user) {
         document.getElementById('auth-container').classList.add('hidden');
         document.getElementById('main-platform').classList.remove('hidden');
+        setTimeout(function(){ if(typeof window.bfRefreshKyc==='function') window.bfRefreshKyc(); }, 0);
 
         document.getElementById('user-display-name').innerText = user.username;
         const usernameViews = document.querySelectorAll('.id-username-view');
@@ -3752,6 +3816,9 @@ class="w-full py-3.5 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blu
         if (headerInviteBtn) {
             headerInviteBtn.classList.remove('header-btn-active');
         }
+        if(typeof window.bfRefreshKyc==='function') window.bfRefreshKyc();
+        try { if(typeof window.bfClearAllNotifs==='function') window.bfClearAllNotifs(); } catch(e){}
+        try { localStorage.removeItem('bf_notifications_v1'); } catch(e){}
         showToast('👋 تم تسجيل الخروج بنجاح', 'success', 2500);
         console.log('👋 [BontFoR] تم تسجيل الخروج');
     }
@@ -3998,10 +4065,10 @@ class="w-full py-3.5 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blu
             hint: 'يجب أن يبدأ العنوان بـ T ويتكون من 34 حرفاً',
             addressPrefix: 'T',
             addressLength: 34,
-            minWithdraw: 10,
+            minWithdraw: 15,
             fee: 1.00,
             feeDisplay: '1.00 USDT',
-            instructions: 'تأكد من اختيار شبكة TRC20 الصحيحة. الحد الأدنى للسحب 10 USDT ورسوم الشبكة 1 USDT. عناوين TRC20 تبدأ بحرف T.',
+            instructions: 'تأكد من اختيار شبكة TRC20 الصحيحة. الحد الأدنى للسحب 15 USDT ورسوم الشبكة 1 USDT. عناوين TRC20 تبدأ بحرف T.',
             warning: '⚠️ تأكد من أن العنوان يبدأ بـ T وأنك تتعامل مع شبكة TRC20 (Tron). أي خطأ في الشبكة سيؤدي لفقدان الأصول.',
             labelNetwork: '(TRC20)',
             validateAddress: function(address) {
@@ -4027,10 +4094,10 @@ class="w-full py-3.5 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blu
             hint: 'يجب أن يبدأ العنوان بـ 0x ويتكون من 42 حرفاً',
             addressPrefix: '0x',
             addressLength: 42,
-            minWithdraw: 5,
+            minWithdraw: 10,
             fee: 0.50,
             feeDisplay: '0.50 USDT',
-            instructions: 'تأكد من اختيار شبكة BEP20 (BNB Smart Chain) الصحيحة. الحد الأدنى للسحب 5 USDT ورسوم الشبكة 0.50 USDT. عناوين BEP20 تبدأ بـ 0x.',
+            instructions: 'تأكد من اختيار شبكة BEP20 (BNB Smart Chain) الصحيحة. الحد الأدنى للسحب 10 USDT ورسوم الشبكة 0.50 USDT. عناوين BEP20 تبدأ بـ 0x.',
             warning: '⚠️ تأكد من أن العنوان يبدأ بـ 0x وأنك تتعامل مع شبكة BNB Smart Chain (BEP20). أي خطأ في الشبكة سيؤدي لفقدان الأصول.',
             labelNetwork: '(BEP20)',
             validateAddress: function(address) {
@@ -4277,8 +4344,12 @@ class="w-full py-3.5 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blu
             });
         } catch (e) { console.warn(e); }
 
-        showToast('❌ فشلت العملية: رصيدك الحالي هو 0.00 USDT وهو أقل من الحد الأدنى للسحب (' + data.minWithdraw +
-            ' USDT عبر ' + data.name + ').', 'error', 5000);
+        var _bal = (typeof window.bfGetUserBalance==='function') ? window.bfGetUserBalance() : 0;
+        var _lang = (typeof getCurrentLang==='function') ? getCurrentLang() : 'ar';
+        var _msg = (_lang==='en')
+            ? ('❌ Operation failed: Your current balance is ' + _bal.toFixed(2) + ' USDT, which is less than the minimum withdrawal limit (' + data.minWithdraw + ' USDT via ' + data.name + ').')
+            : ('❌ فشلت العملية: رصيدك الحالي هو ' + _bal.toFixed(2) + ' USDT وهو أقل من الحد الأدنى للسحب (' + data.minWithdraw + ' USDT عبر ' + data.name + ').');
+        showToast(_msg, 'error', 5000);
     }
 
     // مستمع لتحديث الكمية بشكل مباشر (للسحب)
@@ -6416,12 +6487,12 @@ const BFR_DICT = {
   "✅ [BontFoR] جاهز - نظام مصادقة حقيقي مع حفظ المستخدمين | PWA مفعل | إيداع وسحب متعددي الشبكات | قسم دعوة في الهيدر | حقل رمز دعوة (4 أرقام) في التسجيل | QR Code أبيض احترافي": "✅ [BontFoR] Ready - Real Authentication System with User Persistence | PWA Enabled | Multi-network Deposit & Withdrawal | Invite Section in Header | 4-Digit Invitation Code Field in Registration | Professional White QR Code",
   "⚠️ تنبيه: يجب على صديقك التسجيل عبر رابط الدعوة الخاص بك وإتمام أول عملية إيداع حتى تتمكن من استلام المكافأة. المكافآت تُضاف تلقائياً خلال 24 ساعة من تأكيد الإيداع.": "⚠️ Alert: Your friend must register using your invitation link and complete their first deposit for you to receive the reward. Rewards are automatically credited within 24 hours of deposit confirmation.",
   "📝 [BontFoR] ميزات الأمان: التحقق من تنسيق البريد | قوة كلمة المرور | تشفير كلمات المرور | منع تكرار التسجيل | تحقق من عناوين السحب": "📝 [BontFoR] Security Features: Email Format Validation | Password Strength | Password Encryption | Duplicate Registration Prevention | Withdrawal Address Verification",
-  "تأكد من اختيار شبكة BEP20 (BNB Smart Chain) الصحيحة. الحد الأدنى للسحب 5 USDT ورسوم الشبكة 0.50 USDT. عناوين BEP20 تبدأ بـ 0x.": "Ensure you select the correct BEP20 (BNB Smart Chain) network. The minimum withdrawal is 5 USDT, with a network fee of 0.50 USDT. BEP20 addresses start with 0x.",
+  "تأكد من اختيار شبكة BEP20 (BNB Smart Chain) الصحيحة. الحد الأدنى للسحب 10 USDT ورسوم الشبكة 0.50 USDT. عناوين BEP20 تبدأ بـ 0x.": "Ensure you select the correct BEP20 (BNB Smart Chain) network. The minimum withdrawal is 5 USDT, with a network fee of 0.50 USDT. BEP20 addresses start with 0x.",
   "التحويلات الداخلية تتم على دفتر الحسابات الخاص بـ BontFoR ولا يمكن إلغاؤها بعد التأكيد. تأكد من اختيار الحسابات المناسبة.": "Internal transfers are processed on BontFoR's ledger and cannot be canceled after confirmation. Ensure you select the correct accounts.",
   "بمجرد إتمام صديقك لأول عملية إيداع، ستتم إضافة المكافأة إلى رصيدك تلقائياً. كلما زاد عدد أصدقائك النشطين، زادت أرباحك!": "Once your friend completes their first deposit, the reward will be automatically added to your balance. The more active friends you have, the more you earn!",
   "⚠️ يرجى إرسال عملة USDT فقط عبر شبكة BEP20 (BNB Smart Chain). أي عملة أو شبكة أخرى ستؤدي إلى فقدان الأصول بشكل دائم.": "⚠️ Please send USDT only via the BEP20 (BNB Smart Chain) network. Any other currency or network will result in permanent loss of assets.",
   "⚠️ تأكد من أن العنوان يبدأ بـ 0x وأنك تتعامل مع شبكة BNB Smart Chain (BEP20). أي خطأ في الشبكة سيؤدي لفقدان الأصول.": "⚠️ Ensure the address starts with 0x and you are using the BNB Smart Chain (BEP20) network. Any network error will result in asset loss.",
-  "تأكد من اختيار شبكة TRC20 الصحيحة. الحد الأدنى للسحب 10 USDT ورسوم الشبكة 1 USDT. عناوين TRC20 تبدأ بحرف T.": "Ensure you select the correct TRC20 network. The minimum withdrawal is 10 USDT, with a network fee of 1 USDT. TRC20 addresses start with 'T'.",
+  "تأكد من اختيار شبكة TRC20 الصحيحة. الحد الأدنى للسحب 15 USDT ورسوم الشبكة 1 USDT. عناوين TRC20 تبدأ بحرف T.": "Ensure you select the correct TRC20 network. The minimum withdrawal is 10 USDT, with a network fee of 1 USDT. TRC20 addresses start with 'T'.",
   "⚠️ تأكد من أن العنوان يبدأ بـ T وأنك تتعامل مع شبكة TRC20 (Tron). أي خطأ في الشبكة سيؤدي لفقدان الأصول.": "⚠️ Ensure the address starts with 'T' and you are using the TRC20 (Tron) network. Any network error will result in asset loss.",
   "أرسل الرابط عبر واتساب، تيليجرام، فيسبوك، تويتر، أو أي تطبيق آخر. كلما شاركت أكثر، زادت فرصك في الربح.": "Send the link via WhatsApp, Telegram, Facebook, Twitter, or any other app. The more you share, the more chances you have to earn.",
   "اضغط على رابط الدعوة أعلاه لنسخه تلقائياً إلى الحافظة. يمكنك مشاركته مع أصدقائك عبر أي وسيلة تواصل.": "Click the invitation link above to automatically copy it to your clipboard. You can share it with your friends via any communication method.",
@@ -6431,7 +6502,7 @@ const BFR_DICT = {
   "— Policy #LL-CRY-9928-A · حماية شاملة لأصول المستخدمين ضد المخاطر السيبرانية والتشغيلية": "— Policy #LL-CRY-9928-A · Comprehensive protection of user assets against cyber and operational risks",
   "أرسل USDT فقط عبر شبكة BEP20 (BNB Smart Chain). تأكد من أن المحفظة المرسلة تدعم BEP20.": "Send USDT only via the BEP20 (BNB Smart Chain) network. Ensure the sending wallet supports BEP20.",
   "💱 [BontFoR] نظام الإيداع والسحب: دعم شبكات TRC20 + BEP20 مع تبديل ديناميكي احترافي": "💱 [BontFoR] Deposit & Withdrawal System: TRC20 + BEP20 Network Support with Professional Dynamic Switching",
-  "تأكد من اختيار شبكة TRC20 الصحيحة. الحد الأدنى للسحب 10 USDT ورسوم الشبكة 1 USDT.": "Ensure you select the correct TRC20 network. The minimum withdrawal is 10 USDT, with a network fee of 1 USDT.",
+  "تأكد من اختيار شبكة TRC20 الصحيحة. الحد الأدنى للسحب 15 USDT ورسوم الشبكة 1 USDT.": "Ensure you select the correct TRC20 network. The minimum withdrawal is 10 USDT, with a network fee of 1 USDT.",
   "JPMorgan: ارتفاع البيتكوين إلى 80,000 دولار قبل نهاية العام أصبح \"سيناريو أساسي\"": "JPMorgan: Bitcoin rally to $80,000 before year-end becomes 'base case scenario'",
   "الفيدرالي يلمّح إلى خفض جديد لأسعار الفائدة وسط ارتفاع شهية المخاطرة في الأسواق": "Fed hints at new rate cut amidst rising risk appetite in markets",
   "صناديق ETF للبيتكوين تستقطب تدفقات صافية بقيمة 540 مليون دولار خلال يوم واحد": "Bitcoin ETFs attract $540 million in net inflows in a single day",
@@ -7023,7 +7094,301 @@ const BFR_DICT = {
   "تنبيه انخفاض سعر": "Price drop alert",
   "انخفض سعر SOL بنسبة 4.8% خلال آخر ساعة": "SOL price dropped 4.8% in the last hour",
   "منذ ساعة": "1 hour ago",
-  "أمس": "Yesterday"
+  "أمس": "Yesterday",
+  "تم التحقق من هويتك ✓": "Your identity has been verified ✓",
+  "جاري التحقق من هويتك...": "Verifying your identity...",
+  "يتم الآن فحص وثائقك للتأكد من صحتها.": "We are now reviewing your documents to confirm their validity.",
+  "قد يستغرق ذلك حتى": "This may take up to",
+  "5 دقائق": "5 minutes",
+  "كحد أقصى.": "at most.",
+  "يمكنك إغلاق هذه النافذة ومتابعة استخدام التطبيق — سنرسل لك إشعاراً فور انتهاء التحقق.": "You can close this window and keep using the app — we'll notify you the moment verification is complete.",
+  "تم التحقق من هويتك بنجاح ✓": "Your identity has been verified successfully ✓",
+  "البلد": "Country",
+  "نوع الوثيقة": "Document type",
+  "حالة الحساب": "Account status",
+  "تاريخ التحقق": "Verification date",
+  "معرّف المستخدم (UID)": "User ID (UID)",
+  "رقم مرجعي": "Reference number",
+  "عدد الملفات المرفوعة": "Number of uploaded files",
+  "بصمة الوثيقة (SHA-256)": "Document fingerprint (SHA-256)",
+  "الوجه الأمامي": "Front side",
+  "ملف ": "File ",
+  "جواز السفر": "Passport",
+  "بطاقة الهوية الوطنية": "National ID card",
+  "رخصة القيادة": "Driver's license",
+  "البلد لا يتطابق مع الوثيقة": "Country does not match the document",
+  "تم رفض التحقق": "Verification rejected",
+  "إعادة المحاولة": "Try again",
+  "غير مُحقّق — قم بتوثيق حسابك": "Not verified — verify your account",
+  "موثّق": "Verified",
+  "موثّق ✓": "Verified ✓",
+  "غير مُحقّق": "Not verified",
+  "قيد المراجعة": "Under review",
+  "حسابك موثّق بالفعل ✓": "Your account is already verified ✓",
+  "تم التحقق من الهوية بنجاح ✓": "Identity verified successfully ✓",
+  "تهانينا! حسابك أصبح موثّقاً بالكامل ويمكنك الآن الاستفادة من جميع ميزات المنصة.": "Congratulations! Your account is now fully verified and you can use all platform features.",
+  "التحقق من الهوية (KYC)": "Identity Verification (KYC)",
+  "تم رفض هذه الوثيقة: مستخدمة لتوثيق حساب آخر، يجب رفع وثيقة جديدة.": "This document has been rejected: it was used to verify another account. Please upload a new document.",
+  "لم يتم اختيار ملف.": "No file selected.",
+  "يجب أن يكون الملف صورة.": "The file must be an image.",
+  "حجم الصورة يتجاوز 8MB.": "Image size exceeds 8MB.",
+  "الصورة صغيرة جداً أو غير واضحة.": "The image is too small or unclear.",
+  "دقة الصورة منخفضة جداً.": "Image resolution is too low.",
+  "تعذّر قراءة الصورة.": "Unable to read the image.",
+  "تم رفع الصورة بنجاح": "Image uploaded successfully",
+  "ارفع صورة الوثيقة (الأمامي)": "Upload document image (front)",
+  "ارفع الوجه الخلفي": "Upload back side",
+  "صورة الوثيقة (الأمامي)": "Document image (front)",
+  "الوجه الخلفي": "Back side",
+  "من المعرض": "From gallery",
+  "الكاميرا": "Camera",
+  "JPG / PNG — بحد أقصى 8MB": "JPG / PNG — up to 8MB",
+  "التالي": "Next",
+  "رجوع": "Back",
+  "بدء التحقق": "Start verification",
+  "البلد": "Country",
+  "نوع الوثيقة": "Document type",
+  "حالة الحساب": "Account status",
+  "تاريخ التحقق": "Verification date",
+  "معرّف المستخدم (UID)": "User ID (UID)",
+  "رقم مرجعي": "Reference number",
+  "عدد الملفات المرفوعة": "Files uploaded",
+  "بصمة الوثيقة (SHA-256)": "Document fingerprint (SHA-256)",
+  "ملف 1 — الوجه الأمامي": "File 1 — Front",
+  "ملف 2 — الوجه الخلفي": "File 2 — Back",
+  "ملف 1 — الوجه الخلفي": "File 1 — Back",
+  "جواز السفر": "Passport",
+  "بطاقة الهوية الوطنية": "National ID card",
+  "رخصة القيادة": "Driver's license",
+  "لا توجد نتائج": "No results",
+  "أمان الحساب": "Account security",
+  "الحماية مفعلة بالكامل": "Protection fully enabled",
+  "عالي جداً": "Very high",
+  "تغيير كلمة المرور": "Change password",
+  "لم يتم تغييرها بعد": "Not changed yet",
+  "الأمان والحماية": "Security & Protection",
+  "الولايات المتحدة الأمريكية": "United States of America",
+  "الدول الرئيسية": "Major countries",
+  "دول أجنبية مختارة": "Selected foreign countries",
+  "جميع البلدان": "All countries",
+  "المملكة العربية السعودية": "Saudi Arabia",
+  "الإمارات العربية المتحدة": "United Arab Emirates",
+  "مصر": "Egypt",
+  "الكويت": "Kuwait",
+  "قطر": "Qatar",
+  "البحرين": "Bahrain",
+  "عُمان": "Oman",
+  "الأردن": "Jordan",
+  "المغرب": "Morocco",
+  "الجزائر": "Algeria",
+  "تونس": "Tunisia",
+  "العراق": "Iraq",
+  "تركيا": "Turkey",
+  "المملكة المتحدة": "United Kingdom",
+  "ألمانيا": "Germany",
+  "فرنسا": "France",
+  "كندا": "Canada",
+  "أستراليا": "Australia",
+  "اليابان": "Japan",
+  "الصين": "China",
+  "كوريا الجنوبية": "South Korea",
+  "الهند": "India",
+  "البرازيل": "Brazil",
+  "روسيا": "Russia",
+  "إيطاليا": "Italy",
+  "إسبانيا": "Spain",
+  "هولندا": "Netherlands",
+  "السويد": "Sweden",
+  "النرويج": "Norway",
+  "سويسرا": "Switzerland",
+  "سنغافورة": "Singapore",
+  "ماليزيا": "Malaysia",
+  "إندونيسيا": "Indonesia",
+  "جنوب أفريقيا": "South Africa",
+  "المكسيك": "Mexico",
+  "الأرجنتين": "Argentina",
+  "أفغانستان": "Afghanistan",
+  "ألبانيا": "Albania",
+  "أندورا": "Andorra",
+  "أنغولا": "Angola",
+  "أنتيغوا وباربودا": "Antigua and Barbuda",
+  "أرمينيا": "Armenia",
+  "النمسا": "Austria",
+  "أذربيجان": "Azerbaijan",
+  "الباهاما": "Bahamas",
+  "بنغلاديش": "Bangladesh",
+  "بربادوس": "Barbados",
+  "بيلاروسيا": "Belarus",
+  "بلجيكا": "Belgium",
+  "بليز": "Belize",
+  "بنين": "Benin",
+  "بوتان": "Bhutan",
+  "بوليفيا": "Bolivia",
+  "البوسنة والهرسك": "Bosnia and Herzegovina",
+  "بوتسوانا": "Botswana",
+  "بروناي": "Brunei",
+  "بلغاريا": "Bulgaria",
+  "بوركينا فاسو": "Burkina Faso",
+  "بوروندي": "Burundi",
+  "كمبوديا": "Cambodia",
+  "الكاميرون": "Cameroon",
+  "الرأس الأخضر": "Cape Verde",
+  "إفريقيا الوسطى": "Central African Republic",
+  "تشاد": "Chad",
+  "تشيلي": "Chile",
+  "كولومبيا": "Colombia",
+  "جزر القمر": "Comoros",
+  "الكونغو": "Congo",
+  "كوستاريكا": "Costa Rica",
+  "كرواتيا": "Croatia",
+  "كوبا": "Cuba",
+  "قبرص": "Cyprus",
+  "التشيك": "Czech Republic",
+  "الدنمارك": "Denmark",
+  "جيبوتي": "Djibouti",
+  "دومينيكا": "Dominica",
+  "الدومينيكان": "Dominican Republic",
+  "الإكوادور": "Ecuador",
+  "السلفادور": "El Salvador",
+  "غينيا الاستوائية": "Equatorial Guinea",
+  "إريتريا": "Eritrea",
+  "إستونيا": "Estonia",
+  "إثيوبيا": "Ethiopia",
+  "فيجي": "Fiji",
+  "فنلندا": "Finland",
+  "الغابون": "Gabon",
+  "غامبيا": "Gambia",
+  "جورجيا": "Georgia",
+  "غانا": "Ghana",
+  "اليونان": "Greece",
+  "غرينادا": "Grenada",
+  "غواتيمالا": "Guatemala",
+  "غينيا": "Guinea",
+  "غينيا بيساو": "Guinea-Bissau",
+  "غيانا": "Guyana",
+  "هايتي": "Haiti",
+  "هندوراس": "Honduras",
+  "المجر": "Hungary",
+  "آيسلندا": "Iceland",
+  "إيران": "Iran",
+  "أيرلندا": "Ireland",
+  "إسرائيل": "Israel",
+  "جامايكا": "Jamaica",
+  "كازاخستان": "Kazakhstan",
+  "كينيا": "Kenya",
+  "كيريباتي": "Kiribati",
+  "كوسوفو": "Kosovo",
+  "قيرغيزستان": "Kyrgyzstan",
+  "لاوس": "Laos",
+  "لاتفيا": "Latvia",
+  "لبنان": "Lebanon",
+  "ليسوتو": "Lesotho",
+  "ليبيريا": "Liberia",
+  "ليبيا": "Libya",
+  "ليختنشتاين": "Liechtenstein",
+  "ليتوانيا": "Lithuania",
+  "لوكسمبورغ": "Luxembourg",
+  "مقدونيا الشمالية": "North Macedonia",
+  "مدغشقر": "Madagascar",
+  "مالاوي": "Malawi",
+  "المالديف": "Maldives",
+  "مالي": "Mali",
+  "مالطا": "Malta",
+  "جزر مارشال": "Marshall Islands",
+  "موريتانيا": "Mauritania",
+  "موريشيوس": "Mauritius",
+  "ميكرونيزيا": "Micronesia",
+  "مولدوفا": "Moldova",
+  "موناكو": "Monaco",
+  "منغوليا": "Mongolia",
+  "الجبل الأسود": "Montenegro",
+  "موزمبيق": "Mozambique",
+  "ميانمار": "Myanmar",
+  "ناميبيا": "Namibia",
+  "ناورو": "Nauru",
+  "نيبال": "Nepal",
+  "نيوزيلندا": "New Zealand",
+  "نيكاراغوا": "Nicaragua",
+  "النيجر": "Niger",
+  "نيجيريا": "Nigeria",
+  "كوريا الشمالية": "North Korea",
+  "باكستان": "Pakistan",
+  "بالاو": "Palau",
+  "فلسطين": "Palestine",
+  "بنما": "Panama",
+  "بابوا غينيا الجديدة": "Papua New Guinea",
+  "باراغواي": "Paraguay",
+  "بيرو": "Peru",
+  "الفلبين": "Philippines",
+  "بولندا": "Poland",
+  "البرتغال": "Portugal",
+  "رومانيا": "Romania",
+  "رواندا": "Rwanda",
+  "سانت كيتس ونيفيس": "Saint Kitts and Nevis",
+  "سانت لوسيا": "Saint Lucia",
+  "سانت فنسنت": "Saint Vincent",
+  "ساموا": "Samoa",
+  "سان مارينو": "San Marino",
+  "ساو تومي وبرينسيب": "Sao Tome and Principe",
+  "السنغال": "Senegal",
+  "صربيا": "Serbia",
+  "سيشل": "Seychelles",
+  "سيراليون": "Sierra Leone",
+  "سلوفاكيا": "Slovakia",
+  "سلوفينيا": "Slovenia",
+  "جزر سليمان": "Solomon Islands",
+  "الصومال": "Somalia",
+  "جنوب السودان": "South Sudan",
+  "سريلانكا": "Sri Lanka",
+  "السودان": "Sudan",
+  "سورينام": "Suriname",
+  "إسواتيني": "Eswatini",
+  "سوريا": "Syria",
+  "تايوان": "Taiwan",
+  "طاجيكستان": "Tajikistan",
+  "تنزانيا": "Tanzania",
+  "تايلاند": "Thailand",
+  "تيمور الشرقية": "Timor-Leste",
+  "توغو": "Togo",
+  "تونغا": "Tonga",
+  "ترينيداد وتوباغو": "Trinidad and Tobago",
+  "تركمانستان": "Turkmenistan",
+  "توفالو": "Tuvalu",
+  "أوغندا": "Uganda",
+  "أوكرانيا": "Ukraine",
+  "الأوروغواي": "Uruguay",
+  "أوزبكستان": "Uzbekistan",
+  "فانواتو": "Vanuatu",
+  "الفاتيكان": "Vatican City",
+  "فنزويلا": "Venezuela",
+  "فيتنام": "Vietnam",
+  "اليمن": "Yemen",
+  "زامبيا": "Zambia",
+  "زيمبابوي": "Zimbabwe",
+  "اختر نوع وثيقة الهوية": "Choose your ID document type",
+  "صفحة واحدة (الصفحة الرئيسية)": "Single page (main page)",
+  "الوجه الأمامي + الخلفي": "Front + back side",
+  "تأكد من أن الوثيقة سارية المفعول وأن جميع الزوايا مرئية بوضوح.": "Make sure the document is valid and all corners are clearly visible.",
+  "صورك مشفّرة ولا تُستخدم إلا لغرض التحقق من هويتك.": "Your photos are encrypted and used solely for identity verification.",
+  "الوجه الأمامي للوثيقة": "Front side of the document",
+  "الوجه الخلفي للوثيقة": "Back side of the document",
+  "🔍 ابحث عن بلد...": "🔍 Search for a country...",
+  "ابحث عن بلد...": "Search for a country...",
+  "صورة الوثيقة (الأمامي)": "Document image (front)",
+  "الوجه الأمامي": "Front side",
+  "إكمال التحقق من الهوية (KYC)": "Complete identity verification (KYC)",
+  "+5.00 USDT مكافأة": "+5.00 USDT Reward",
+  "+5.00 USDT جاهزة للجمع": "+5.00 USDT Ready to collect",
+  "+5.00 USDT تم استلامها": "+5.00 USDT Collected",
+  "جمع": "Collect",
+  "تم الجمع ✓": "Collected ✓",
+  "ابدأ الآن": "Start now",
+  "تم استلام مكافأة التحقق": "KYC Reward Collected",
+  "تمت إضافة 5.00 USDT إلى رصيدك.": "5.00 USDT has been added to your balance.",
+  "تمت إضافة 5.00 USDT إلى رصيدك": "5.00 USDT added to your balance",
+  "✅ تمت إضافة 5.00 USDT إلى رصيدك": "✅ 5.00 USDT added to your balance",
+  "مكافأة التحقق متاحة": "KYC Reward available",
+  "اجمع مكافأتك 5.00 USDT من قسم المهام.": "Collect your 5.00 USDT reward from the Tasks section.",
 };
 
 
@@ -7063,7 +7428,8 @@ const BFR_PATTERNS = [
   { re: /^عدد الدعوات:\s*(.+)$/, en: 'Invites: $1' },
   { re: /^المكافآت:\s*(.+)$/, en: 'Rewards: $1' },
   { re: /^مرحباً،?\s*(.+)$/, en: 'Welcome, $1' },
-  { re: /^أهلاً،?\s*(.+)$/, en: 'Hello, $1' }
+  { re: /^أهلاً،?\s*(.+)$/, en: 'Hello, $1' },
+  { re: /^قيد المراجعة\.\.\.\s*متبقي\s+(\S+)$/, en: 'Under review... remaining $1' }
 ];
 
 function _bfrLookup(s){
@@ -7428,6 +7794,11 @@ document.addEventListener('DOMContentLoaded',function(){ try{ updateLangBadges()
         render();
         bfToast('تم تعليم جميع الإشعارات كمقروءة');
     };
+    window.bfClearAllNotifs = function(){
+        data = [];
+        try { localStorage.removeItem(STORAGE_KEY); } catch(e){}
+        render();
+    };
     window.bfDeleteNotif = function(id){
         data = data.filter(n => n.id !== id);
         persist();
@@ -7600,6 +7971,977 @@ function bfToggleTheme(){
     setInterval(update, 60000);
   });
   if(document.readyState !== 'loading'){ update(); setInterval(update, 60000); }
+})();
+</script>
+
+<!-- ==================== KYC: Styles ==================== -->
+<style>
+#kyc-overlay{position:fixed;inset:0;background:rgba(5,8,15,.78);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);z-index:300;display:none;align-items:flex-end;justify-content:center}
+#kyc-overlay.open{display:flex;animation:kycFade .25s ease}
+@keyframes kycFade{from{opacity:0}to{opacity:1}}
+#kyc-modal{width:100%;max-width:448px;max-height:92vh;background:linear-gradient(180deg,#10162a 0%,#0b0f19 100%);border-top-left-radius:24px;border-top-right-radius:24px;border:1px solid rgba(255,255,255,.08);display:flex;flex-direction:column;overflow:hidden;animation:kycSlide .35s cubic-bezier(.2,.9,.3,1)}
+@keyframes kycSlide{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.kyc-head{padding:14px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,.06);background:rgba(255,255,255,.02)}
+.kyc-title{font-size:14px;font-weight:800;color:#fff;display:flex;align-items:center;gap:8px}
+.kyc-close{width:32px;height:32px;border-radius:10px;background:rgba(255,255,255,.06);color:#cbd5e1;display:flex;align-items:center;justify-content:center;border:none;cursor:pointer}
+.kyc-steps{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;gap:6px;background:rgba(255,255,255,.02)}
+.kyc-step{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;position:relative}
+.kyc-step .dot{width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.06);color:#64748b;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;border:2px solid transparent;transition:all .25s}
+.kyc-step.active .dot{background:linear-gradient(135deg,#3b82f6,#6366f1);color:#fff;box-shadow:0 4px 14px -4px rgba(99,102,241,.7)}
+.kyc-step.done .dot{background:linear-gradient(135deg,#10b981,#059669);color:#fff}
+.kyc-step .lbl{font-size:9px;color:#94a3b8;font-weight:600;text-align:center}
+.kyc-step.active .lbl{color:#fff}
+.kyc-body{flex:1;overflow-y:auto;padding:16px 18px 18px}
+.kyc-pane{display:none;animation:kycFade .25s}
+.kyc-pane.active{display:block}
+.kyc-foot{padding:12px 16px 16px;border-top:1px solid rgba(255,255,255,.06);display:flex;gap:8px;background:rgba(255,255,255,.02)}
+.kyc-btn{flex:1;padding:12px;border-radius:12px;font-size:13px;font-weight:700;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:transform .15s}
+.kyc-btn:active{transform:scale(.97)}
+.kyc-btn-primary{background:linear-gradient(135deg,#3b82f6,#6366f1);color:#fff;box-shadow:0 6px 18px -6px rgba(99,102,241,.6)}
+.kyc-btn-primary:disabled{opacity:.4;cursor:not-allowed;box-shadow:none}
+.kyc-btn-ghost{background:rgba(255,255,255,.05);color:#cbd5e1}
+.kyc-label{font-size:12px;color:#cbd5e1;font-weight:600;margin-bottom:8px;display:block}
+.kyc-search{width:100%;padding:11px 14px;border-radius:12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);color:#fff;font-size:13px;margin-bottom:10px;outline:none}
+.kyc-search:focus{border-color:rgba(99,102,241,.5)}
+.kyc-country-list{max-height:340px;overflow-y:auto;background:rgba(255,255,255,.02);border-radius:14px;border:1px solid rgba(255,255,255,.05);padding:6px}
+.kyc-country-group{font-size:10px;font-weight:800;color:#64748b;padding:10px 10px 6px;text-transform:uppercase;letter-spacing:.5px}
+.kyc-country-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;cursor:pointer;transition:background .15s;color:#e5e7eb;font-size:13px}
+.kyc-country-item:hover{background:rgba(255,255,255,.05)}
+.kyc-country-item.selected{background:linear-gradient(135deg,rgba(59,130,246,.18),rgba(99,102,241,.10));border:1px solid rgba(99,102,241,.4)}
+.kyc-country-item .flag{font-size:18px}
+.kyc-country-item .check{margin-right:auto;color:#22c55e;opacity:0;transition:opacity .15s}
+.kyc-country-item.selected .check{opacity:1}
+.kyc-doc-grid{display:grid;grid-template-columns:1fr;gap:10px}
+.kyc-doc-card{padding:14px;border-radius:14px;background:rgba(255,255,255,.03);border:1.5px solid rgba(255,255,255,.06);cursor:pointer;display:flex;align-items:center;gap:12px;transition:all .2s}
+.kyc-doc-card:hover{background:rgba(255,255,255,.05)}
+.kyc-doc-card.selected{background:linear-gradient(135deg,rgba(59,130,246,.15),rgba(99,102,241,.05));border-color:rgba(99,102,241,.6);box-shadow:0 6px 18px -8px rgba(99,102,241,.5)}
+.kyc-doc-card .icn{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px;background:rgba(99,102,241,.15);color:#a5b4fc}
+.kyc-doc-card .ttl{font-size:13px;font-weight:700;color:#fff}
+.kyc-doc-card .sub{font-size:10.5px;color:#94a3b8;margin-top:2px}
+.kyc-upload-zone{border:2px dashed rgba(255,255,255,.12);border-radius:16px;padding:22px 14px;text-align:center;background:rgba(255,255,255,.02);transition:all .2s;position:relative;overflow:hidden}
+.kyc-upload-zone.has-file{border-style:solid;border-color:rgba(34,197,94,.45);background:rgba(34,197,94,.05)}
+.kyc-upload-zone .ph-icon{width:52px;height:52px;border-radius:14px;background:rgba(99,102,241,.15);color:#a5b4fc;font-size:22px;display:flex;align-items:center;justify-content:center;margin:0 auto 8px}
+.kyc-upload-zone .ph-title{font-size:13px;font-weight:700;color:#fff;margin-bottom:4px}
+.kyc-upload-zone .ph-sub{font-size:11px;color:#94a3b8;margin-bottom:12px}
+.kyc-upload-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.kyc-upload-btn{padding:10px;border-radius:11px;font-size:12px;font-weight:700;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:transform .15s}
+.kyc-upload-btn:active{transform:scale(.96)}
+.kyc-upload-btn.gallery{background:rgba(59,130,246,.15);color:#60a5fa;border:1px solid rgba(59,130,246,.3)}
+.kyc-upload-btn.camera{background:rgba(168,85,247,.15);color:#c084fc;border:1px solid rgba(168,85,247,.3)}
+.kyc-preview{position:relative;border-radius:14px;overflow:hidden;margin-top:8px;background:#000}
+.kyc-preview img{width:100%;display:block;max-height:240px;object-fit:contain}
+.kyc-preview .rm{position:absolute;top:8px;right:8px;width:32px;height:32px;border-radius:50%;background:rgba(239,68,68,.9);color:#fff;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;box-shadow:0 4px 12px rgba(0,0,0,.4)}
+.kyc-tip{display:flex;gap:8px;padding:10px 12px;background:rgba(59,130,246,.07);border:1px solid rgba(59,130,246,.18);border-radius:12px;margin-top:12px;font-size:11px;color:#93c5fd;line-height:1.6}
+.kyc-tip i{margin-top:2px;color:#60a5fa}
+.kyc-review-wrap{padding:20px 12px;text-align:center}
+.kyc-spinner{width:96px;height:96px;border-radius:50%;margin:0 auto 18px;position:relative;background:conic-gradient(from 0deg,#6366f1 0%,#3b82f6 60%,transparent 60%);animation:kycSpin 1.2s linear infinite;display:flex;align-items:center;justify-content:center}
+.kyc-spinner::before{content:"";position:absolute;inset:8px;background:#0b0f19;border-radius:50%}
+.kyc-spinner i{position:relative;color:#a5b4fc;font-size:30px}
+@keyframes kycSpin{to{transform:rotate(360deg)}}
+.kyc-countdown{font-size:32px;font-weight:800;color:#fff;letter-spacing:2px;margin:6px 0;font-variant-numeric:tabular-nums}
+.kyc-review-title{font-size:15px;font-weight:800;color:#fff;margin-bottom:6px}
+.kyc-review-sub{font-size:12px;color:#94a3b8;line-height:1.7}
+.kyc-progress-bar{height:6px;background:rgba(255,255,255,.06);border-radius:999px;overflow:hidden;margin:14px 0}
+.kyc-progress-bar > div{height:100%;background:linear-gradient(90deg,#3b82f6,#6366f1,#a855f7);width:0%;transition:width .8s ease;border-radius:999px}
+.kyc-success-wrap{padding:30px 20px;text-align:center}
+.kyc-success-check{width:96px;height:96px;border-radius:50%;background:linear-gradient(135deg,#10b981,#059669);margin:0 auto 18px;display:flex;align-items:center;justify-content:center;font-size:42px;color:#fff;box-shadow:0 12px 36px -10px rgba(16,185,129,.6);animation:kycPop .5s cubic-bezier(.2,1.4,.4,1)}
+@keyframes kycPop{0%{transform:scale(0)}60%{transform:scale(1.15)}100%{transform:scale(1)}}
+.kyc-summary{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:14px;padding:12px;margin-top:14px;text-align:right}
+.kyc-summary .row{display:flex;justify-content:space-between;padding:6px 0;font-size:12px;border-bottom:1px dashed rgba(255,255,255,.05)}
+.kyc-summary .row:last-child{border-bottom:none}
+.kyc-summary .k{color:#94a3b8}
+.kyc-summary .v{color:#e5e7eb;font-weight:700}
+.kyc-cam-stage{position:relative;background:#000;border-radius:14px;overflow:hidden;aspect-ratio:3/4;margin-top:10px}
+.kyc-cam-stage video{width:100%;height:100%;object-fit:cover;display:block}
+.kyc-cam-actions{display:flex;gap:8px;margin-top:10px}
+.kyc-error{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.25);color:#fca5a5;padding:10px 12px;border-radius:11px;font-size:12px;margin-top:10px;display:none}
+.kyc-error.show{display:block}
+</style>
+
+<!-- ==================== KYC: Modal ==================== -->
+<div id="kyc-overlay" onclick="if(event.target===this)closeKycModal()">
+  <div id="kyc-modal" role="dialog" aria-label="التحقق من الهوية">
+    <div class="kyc-head">
+      <div class="kyc-title"><i class="fa-solid fa-id-card text-purple-400"></i><span>التحقق من الهوية (KYC)</span></div>
+      <button type="button" class="kyc-close" onclick="closeKycModal()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+
+    <div class="kyc-steps" id="kyc-steps">
+      <div class="kyc-step active" data-s="1"><div class="dot">1</div><div class="lbl">البلد</div></div>
+      <div class="kyc-step" data-s="2"><div class="dot">2</div><div class="lbl">الوثيقة</div></div>
+      <div class="kyc-step" data-s="3"><div class="dot">3</div><div class="lbl">الرفع</div></div>
+      <div class="kyc-step" data-s="5"><div class="dot">4</div><div class="lbl">مراجعة</div></div>
+    </div>
+
+    <div class="kyc-body">
+      <!-- Step 1: Country -->
+      <div class="kyc-pane active" data-pane="1">
+        <label class="kyc-label"><i class="fa-solid fa-globe text-blue-400"></i> اختر بلد إصدار الوثيقة</label>
+        <input type="text" class="kyc-search" id="kyc-country-search" placeholder="🔍 ابحث عن بلد..." oninput="kycFilterCountries(this.value)">
+        <div class="kyc-country-list" id="kyc-country-list"></div>
+      </div>
+
+      <!-- Step 2: Doc type -->
+      <div class="kyc-pane" data-pane="2">
+        <label class="kyc-label"><i class="fa-solid fa-file-shield text-indigo-400"></i> اختر نوع وثيقة الهوية</label>
+        <div class="kyc-doc-grid" id="kyc-doc-grid">
+          <div class="kyc-doc-card" data-doc="passport" onclick="kycSelectDoc(this,'passport',1)">
+            <div class="icn"><i class="fa-solid fa-passport"></i></div>
+            <div><div class="ttl">جواز السفر</div><div class="sub">صفحة واحدة (الصفحة الرئيسية)</div></div>
+          </div>
+          <div class="kyc-doc-card" data-doc="id" onclick="kycSelectDoc(this,'id',2)">
+            <div class="icn"><i class="fa-solid fa-id-badge"></i></div>
+            <div><div class="ttl">بطاقة الهوية الوطنية</div><div class="sub">الوجه الأمامي + الخلفي</div></div>
+          </div>
+          <div class="kyc-doc-card" data-doc="license" onclick="kycSelectDoc(this,'license',2)">
+            <div class="icn"><i class="fa-solid fa-id-card-clip"></i></div>
+            <div><div class="ttl">رخصة القيادة</div><div class="sub">الوجه الأمامي + الخلفي</div></div>
+          </div>
+        </div>
+        <div class="kyc-tip"><i class="fa-solid fa-circle-info"></i><span>تأكد من أن الوثيقة سارية المفعول وأن جميع الزوايا مرئية بوضوح.</span></div>
+      </div>
+
+      <!-- Step 3: Upload document -->
+      <div class="kyc-pane" data-pane="3">
+        <label class="kyc-label" id="kyc-up1-label"><i class="fa-solid fa-image text-blue-400"></i> الوجه الأمامي للوثيقة</label>
+        <div class="kyc-upload-zone" id="kyc-up1-zone">
+          <div class="ph-icon"><i class="fa-solid fa-cloud-arrow-up"></i></div>
+          <div class="ph-title">ارفع صورة الوثيقة</div>
+          <div class="ph-sub">JPG / PNG — بحد أقصى 8MB</div>
+          <div class="kyc-upload-btns">
+            <button type="button" class="kyc-upload-btn gallery" onclick="document.getElementById('kyc-up1-file').click()"><i class="fa-solid fa-folder-open"></i> من المعرض</button>
+            <button type="button" class="kyc-upload-btn camera" onclick="kycOpenCamera('up1','environment')"><i class="fa-solid fa-camera"></i> الكاميرا</button>
+          </div>
+          <input type="file" id="kyc-up1-file" accept="image/*" hidden onchange="kycHandleFile(event,'up1')">
+        </div>
+
+        <div id="kyc-up2-wrap" style="margin-top:14px;display:none">
+          <label class="kyc-label"><i class="fa-solid fa-image text-blue-400"></i> الوجه الخلفي للوثيقة</label>
+          <div class="kyc-upload-zone" id="kyc-up2-zone">
+            <div class="ph-icon"><i class="fa-solid fa-cloud-arrow-up"></i></div>
+            <div class="ph-title">ارفع الوجه الخلفي</div>
+            <div class="ph-sub">JPG / PNG — بحد أقصى 8MB</div>
+            <div class="kyc-upload-btns">
+              <button type="button" class="kyc-upload-btn gallery" onclick="document.getElementById('kyc-up2-file').click()"><i class="fa-solid fa-folder-open"></i> من المعرض</button>
+              <button type="button" class="kyc-upload-btn camera" onclick="kycOpenCamera('up2','environment')"><i class="fa-solid fa-camera"></i> الكاميرا</button>
+            </div>
+            <input type="file" id="kyc-up2-file" accept="image/*" hidden onchange="kycHandleFile(event,'up2')">
+          </div>
+        </div>
+        <div class="kyc-error" id="kyc-err-3"></div>
+        <div class="kyc-tip"><i class="fa-solid fa-shield-halved"></i><span>صورك مشفّرة ولا تُستخدم إلا لغرض التحقق من هويتك.</span></div>
+      </div>
+
+      <!-- Step 5: Review -->
+      <div class="kyc-pane" data-pane="5">
+        <div class="kyc-review-wrap" id="kyc-review-active">
+          <div class="kyc-spinner"><i class="fa-solid fa-shield-halved"></i></div>
+          <div class="kyc-review-title">جاري التحقق من هويتك...</div>
+          <div class="kyc-review-sub">يتم الآن فحص وثائقك للتأكد من صحتها.<br>قد يستغرق ذلك حتى <b class="text-white">5 دقائق</b> كحد أقصى.</div>
+          <div class="kyc-countdown" id="kyc-countdown">05:00</div>
+          <div class="kyc-progress-bar"><div id="kyc-progress"></div></div>
+          <div class="kyc-tip"><i class="fa-solid fa-circle-info"></i><span>يمكنك إغلاق هذه النافذة ومتابعة استخدام التطبيق — سنرسل لك إشعاراً فور انتهاء التحقق.</span></div>
+        </div>
+
+        <div class="kyc-success-wrap" id="kyc-review-success" style="display:none">
+          <div class="kyc-success-check"><i class="fa-solid fa-check"></i></div>
+          <div class="kyc-review-title" style="color:#34d399">تم التحقق من هويتك بنجاح ✓</div>
+          <div class="kyc-review-sub">تهانينا! حسابك أصبح موثّقاً بالكامل ويمكنك الآن الاستفادة من جميع ميزات المنصة.</div>
+          <div class="kyc-summary" id="kyc-summary"></div>
+        </div>
+
+        <div class="kyc-success-wrap" id="kyc-review-rejected" style="display:none">
+          <div class="kyc-success-check" style="background:linear-gradient(135deg,#ef4444,#b91c1c);box-shadow:0 12px 36px -10px rgba(239,68,68,.6)"><i class="fa-solid fa-xmark"></i></div>
+          <div class="kyc-review-title" style="color:#fca5a5">تم رفض التحقق</div>
+          <div class="kyc-review-sub">البلد لا يتطابق مع الوثيقة</div>
+          <button type="button" class="kyc-btn kyc-btn-primary" style="margin-top:18px;max-width:220px;margin-left:auto;margin-right:auto" onclick="kycRetryAfterReject()"><i class="fa-solid fa-rotate-right"></i> إعادة المحاولة</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="kyc-foot" id="kyc-foot">
+      <button type="button" class="kyc-btn kyc-btn-ghost" id="kyc-back-btn" onclick="kycBack()" style="display:none"><i class="fa-solid fa-arrow-right"></i> رجوع</button>
+      <button type="button" class="kyc-btn kyc-btn-primary" id="kyc-next-btn" onclick="kycNext()" disabled>التالي <i class="fa-solid fa-arrow-left"></i></button>
+    </div>
+  </div>
+</div>
+
+<!-- Inline live camera capture modal -->
+<div id="kyc-cam-overlay" onclick="if(event.target===this)kycCloseCamera()" style="position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:400;display:none;align-items:center;justify-content:center;padding:14px">
+  <div style="width:100%;max-width:420px;background:#0b0f19;border-radius:18px;overflow:hidden;border:1px solid rgba(255,255,255,.08)">
+    <div style="padding:12px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,.06)">
+      <div style="color:#fff;font-weight:800;font-size:13px"><i class="fa-solid fa-camera text-purple-400"></i> التقاط مباشر</div>
+      <button type="button" onclick="kycCloseCamera()" style="background:rgba(255,255,255,.08);color:#fff;border:none;width:30px;height:30px;border-radius:9px;cursor:pointer"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div style="padding:12px">
+      <div class="kyc-cam-stage"><video id="kyc-cam-video" autoplay playsinline muted></video></div>
+      <div class="kyc-cam-actions">
+        <button type="button" class="kyc-btn kyc-btn-ghost" onclick="kycCloseCamera()">إلغاء</button>
+        <button type="button" class="kyc-btn kyc-btn-primary" onclick="kycSnap()"><i class="fa-solid fa-circle-dot"></i> التقاط</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== KYC: Logic ==================== -->
+<script>
+(function(){
+  const USED_DOCS_KEY = 'bf_kyc_used_docs';
+  function _curUid(){ try{ const x=JSON.parse(localStorage.getItem('bontfor_current_user')||'null'); return x&&x.uid?String(x.uid):'guest'; }catch(e){ return 'guest'; } }
+  function STORAGE_KEY(){ return 'bf_kyc_state_'+_curUid(); }
+  const ALL_COUNTRIES = [
+    {g:'الولايات المتحدة الأمريكية', items:[{c:'US',n:'الولايات المتحدة الأمريكية',f:'🇺🇸',en:'United States'}]},
+    {g:'الدول الرئيسية', items:[
+      {c:'SA',n:'المملكة العربية السعودية',f:'🇸🇦',en:'Saudi Arabia'},{c:'AE',n:'الإمارات العربية المتحدة',f:'🇦🇪',en:'United Arab Emirates'},
+      {c:'EG',n:'مصر',f:'🇪🇬',en:'Egypt'},{c:'KW',n:'الكويت',f:'🇰🇼',en:'Kuwait'},{c:'QA',n:'قطر',f:'🇶🇦',en:'Qatar'},
+      {c:'BH',n:'البحرين',f:'🇧🇭',en:'Bahrain'},{c:'OM',n:'عُمان',f:'🇴🇲',en:'Oman'},{c:'JO',n:'الأردن',f:'🇯🇴',en:'Jordan'},
+      {c:'MA',n:'المغرب',f:'🇲🇦',en:'Morocco'},{c:'DZ',n:'الجزائر',f:'🇩🇿',en:'Algeria'},{c:'TN',n:'تونس',f:'🇹🇳',en:'Tunisia'},
+      {c:'IQ',n:'العراق',f:'🇮🇶',en:'Iraq'},{c:'TR',n:'تركيا',f:'🇹🇷',en:'Turkey'},{c:'GB',n:'المملكة المتحدة',f:'🇬🇧',en:'United Kingdom'},
+      {c:'DE',n:'ألمانيا',f:'🇩🇪',en:'Germany'},{c:'FR',n:'فرنسا',f:'🇫🇷',en:'France'},{c:'CA',n:'كندا',f:'🇨🇦',en:'Canada'},
+      {c:'AU',n:'أستراليا',f:'🇦🇺',en:'Australia'}
+    ]},
+    {g:'دول أجنبية مختارة', items:[
+      {c:'JP',n:'اليابان',f:'🇯🇵',en:'Japan'},{c:'CN',n:'الصين',f:'🇨🇳',en:'China'},{c:'KR',n:'كوريا الجنوبية',f:'🇰🇷',en:'South Korea'},
+      {c:'IN',n:'الهند',f:'🇮🇳',en:'India'},{c:'BR',n:'البرازيل',f:'🇧🇷',en:'Brazil'},{c:'RU',n:'روسيا',f:'🇷🇺',en:'Russia'},
+      {c:'IT',n:'إيطاليا',f:'🇮🇹',en:'Italy'},{c:'ES',n:'إسبانيا',f:'🇪🇸',en:'Spain'},{c:'NL',n:'هولندا',f:'🇳🇱',en:'Netherlands'},
+      {c:'SE',n:'السويد',f:'🇸🇪',en:'Sweden'},{c:'NO',n:'النرويج',f:'🇳🇴',en:'Norway'},{c:'CH',n:'سويسرا',f:'🇨🇭',en:'Switzerland'},
+      {c:'SG',n:'سنغافورة',f:'🇸🇬',en:'Singapore'},{c:'MY',n:'ماليزيا',f:'🇲🇾',en:'Malaysia'},{c:'ID',n:'إندونيسيا',f:'🇮🇩',en:'Indonesia'},
+      {c:'ZA',n:'جنوب أفريقيا',f:'🇿🇦'},{c:'MX',n:'المكسيك',f:'🇲🇽'},{c:'AR',n:'الأرجنتين',f:'🇦🇷'}
+    ]},
+    {g:'جميع البلدان', items:[
+      {c:'AF',n:'أفغانستان',f:'🇦🇫'},{c:'AL',n:'ألبانيا',f:'🇦🇱'},{c:'AD',n:'أندورا',f:'🇦🇩'},{c:'AO',n:'أنغولا',f:'🇦🇴'},
+      {c:'AG',n:'أنتيغوا وباربودا',f:'🇦🇬'},{c:'AM',n:'أرمينيا',f:'🇦🇲'},{c:'AT',n:'النمسا',f:'🇦🇹'},{c:'AZ',n:'أذربيجان',f:'🇦🇿'},
+      {c:'BS',n:'الباهاما',f:'🇧🇸'},{c:'BD',n:'بنغلاديش',f:'🇧🇩'},{c:'BB',n:'بربادوس',f:'🇧🇧'},{c:'BY',n:'بيلاروسيا',f:'🇧🇾'},
+      {c:'BE',n:'بلجيكا',f:'🇧🇪'},{c:'BZ',n:'بليز',f:'🇧🇿'},{c:'BJ',n:'بنين',f:'🇧🇯'},{c:'BT',n:'بوتان',f:'🇧🇹'},
+      {c:'BO',n:'بوليفيا',f:'🇧🇴'},{c:'BA',n:'البوسنة والهرسك',f:'🇧🇦'},{c:'BW',n:'بوتسوانا',f:'🇧🇼'},{c:'BN',n:'بروناي',f:'🇧🇳'},
+      {c:'BG',n:'بلغاريا',f:'🇧🇬'},{c:'BF',n:'بوركينا فاسو',f:'🇧🇫'},{c:'BI',n:'بوروندي',f:'🇧🇮'},{c:'KH',n:'كمبوديا',f:'🇰🇭'},
+      {c:'CM',n:'الكاميرون',f:'🇨🇲'},{c:'CV',n:'الرأس الأخضر',f:'🇨🇻'},{c:'CF',n:'إفريقيا الوسطى',f:'🇨🇫'},{c:'TD',n:'تشاد',f:'🇹🇩'},
+      {c:'CL',n:'تشيلي',f:'🇨🇱'},{c:'CO',n:'كولومبيا',f:'🇨🇴'},{c:'KM',n:'جزر القمر',f:'🇰🇲'},{c:'CG',n:'الكونغو',f:'🇨🇬'},
+      {c:'CR',n:'كوستاريكا',f:'🇨🇷'},{c:'HR',n:'كرواتيا',f:'🇭🇷'},{c:'CU',n:'كوبا',f:'🇨🇺'},{c:'CY',n:'قبرص',f:'🇨🇾'},
+      {c:'CZ',n:'التشيك',f:'🇨🇿'},{c:'DK',n:'الدنمارك',f:'🇩🇰'},{c:'DJ',n:'جيبوتي',f:'🇩🇯'},{c:'DM',n:'دومينيكا',f:'🇩🇲'},
+      {c:'DO',n:'الدومينيكان',f:'🇩🇴'},{c:'EC',n:'الإكوادور',f:'🇪🇨'},{c:'SV',n:'السلفادور',f:'🇸🇻'},{c:'GQ',n:'غينيا الاستوائية',f:'🇬🇶'},
+      {c:'ER',n:'إريتريا',f:'🇪🇷'},{c:'EE',n:'إستونيا',f:'🇪🇪'},{c:'ET',n:'إثيوبيا',f:'🇪🇹'},{c:'FJ',n:'فيجي',f:'🇫🇯'},
+      {c:'FI',n:'فنلندا',f:'🇫🇮'},{c:'GA',n:'الغابون',f:'🇬🇦'},{c:'GM',n:'غامبيا',f:'🇬🇲'},{c:'GE',n:'جورجيا',f:'🇬🇪'},
+      {c:'GH',n:'غانا',f:'🇬🇭'},{c:'GR',n:'اليونان',f:'🇬🇷'},{c:'GD',n:'غرينادا',f:'🇬🇩'},{c:'GT',n:'غواتيمالا',f:'🇬🇹'},
+      {c:'GN',n:'غينيا',f:'🇬🇳'},{c:'GW',n:'غينيا بيساو',f:'🇬🇼'},{c:'GY',n:'غيانا',f:'🇬🇾'},{c:'HT',n:'هايتي',f:'🇭🇹'},
+      {c:'HN',n:'هندوراس',f:'🇭🇳'},{c:'HU',n:'المجر',f:'🇭🇺'},{c:'IS',n:'آيسلندا',f:'🇮🇸'},{c:'IR',n:'إيران',f:'🇮🇷'},
+      {c:'IE',n:'أيرلندا',f:'🇮🇪'},{c:'IL',n:'إسرائيل',f:'🇮🇱'},{c:'JM',n:'جامايكا',f:'🇯🇲'},{c:'KZ',n:'كازاخستان',f:'🇰🇿'},
+      {c:'KE',n:'كينيا',f:'🇰🇪'},{c:'KI',n:'كيريباتي',f:'🇰🇮'},{c:'XK',n:'كوسوفو',f:'🇽🇰'},{c:'KG',n:'قيرغيزستان',f:'🇰🇬'},
+      {c:'LA',n:'لاوس',f:'🇱🇦'},{c:'LV',n:'لاتفيا',f:'🇱🇻'},{c:'LB',n:'لبنان',f:'🇱🇧'},{c:'LS',n:'ليسوتو',f:'🇱🇸'},
+      {c:'LR',n:'ليبيريا',f:'🇱🇷'},{c:'LY',n:'ليبيا',f:'🇱🇾'},{c:'LI',n:'ليختنشتاين',f:'🇱🇮'},{c:'LT',n:'ليتوانيا',f:'🇱🇹'},
+      {c:'LU',n:'لوكسمبورغ',f:'🇱🇺'},{c:'MK',n:'مقدونيا الشمالية',f:'🇲🇰'},{c:'MG',n:'مدغشقر',f:'🇲🇬'},{c:'MW',n:'مالاوي',f:'🇲🇼'},
+      {c:'MV',n:'المالديف',f:'🇲🇻'},{c:'ML',n:'مالي',f:'🇲🇱'},{c:'MT',n:'مالطا',f:'🇲🇹'},{c:'MH',n:'جزر مارشال',f:'🇲🇭'},
+      {c:'MR',n:'موريتانيا',f:'🇲🇷'},{c:'MU',n:'موريشيوس',f:'🇲🇺'},{c:'FM',n:'ميكرونيزيا',f:'🇫🇲'},{c:'MD',n:'مولدوفا',f:'🇲🇩'},
+      {c:'MC',n:'موناكو',f:'🇲🇨'},{c:'MN',n:'منغوليا',f:'🇲🇳'},{c:'ME',n:'الجبل الأسود',f:'🇲🇪'},{c:'MZ',n:'موزمبيق',f:'🇲🇿'},
+      {c:'MM',n:'ميانمار',f:'🇲🇲'},{c:'NA',n:'ناميبيا',f:'🇳🇦'},{c:'NR',n:'ناورو',f:'🇳🇷'},{c:'NP',n:'نيبال',f:'🇳🇵'},
+      {c:'NZ',n:'نيوزيلندا',f:'🇳🇿'},{c:'NI',n:'نيكاراغوا',f:'🇳🇮'},{c:'NE',n:'النيجر',f:'🇳🇪'},{c:'NG',n:'نيجيريا',f:'🇳🇬'},
+      {c:'KP',n:'كوريا الشمالية',f:'🇰🇵'},{c:'PK',n:'باكستان',f:'🇵🇰'},{c:'PW',n:'بالاو',f:'🇵🇼'},{c:'PS',n:'فلسطين',f:'🇵🇸'},
+      {c:'PA',n:'بنما',f:'🇵🇦'},{c:'PG',n:'بابوا غينيا الجديدة',f:'🇵🇬'},{c:'PY',n:'باراغواي',f:'🇵🇾'},{c:'PE',n:'بيرو',f:'🇵🇪'},
+      {c:'PH',n:'الفلبين',f:'🇵🇭'},{c:'PL',n:'بولندا',f:'🇵🇱'},{c:'PT',n:'البرتغال',f:'🇵🇹'},{c:'RO',n:'رومانيا',f:'🇷🇴'},
+      {c:'RW',n:'رواندا',f:'🇷🇼'},{c:'KN',n:'سانت كيتس ونيفيس',f:'🇰🇳'},{c:'LC',n:'سانت لوسيا',f:'🇱🇨'},{c:'VC',n:'سانت فنسنت',f:'🇻🇨'},
+      {c:'WS',n:'ساموا',f:'🇼🇸'},{c:'SM',n:'سان مارينو',f:'🇸🇲'},{c:'ST',n:'ساو تومي وبرينسيب',f:'🇸🇹'},{c:'SN',n:'السنغال',f:'🇸🇳'},
+      {c:'RS',n:'صربيا',f:'🇷🇸'},{c:'SC',n:'سيشل',f:'🇸🇨'},{c:'SL',n:'سيراليون',f:'🇸🇱'},{c:'SK',n:'سلوفاكيا',f:'🇸🇰'},
+      {c:'SI',n:'سلوفينيا',f:'🇸🇮'},{c:'SB',n:'جزر سليمان',f:'🇸🇧'},{c:'SO',n:'الصومال',f:'🇸🇴'},{c:'SS',n:'جنوب السودان',f:'🇸🇸'},
+      {c:'LK',n:'سريلانكا',f:'🇱🇰'},{c:'SD',n:'السودان',f:'🇸🇩'},{c:'SR',n:'سورينام',f:'🇸🇷'},{c:'SZ',n:'إسواتيني',f:'🇸🇿'},
+      {c:'SY',n:'سوريا',f:'🇸🇾'},{c:'TW',n:'تايوان',f:'🇹🇼'},{c:'TJ',n:'طاجيكستان',f:'🇹🇯'},{c:'TZ',n:'تنزانيا',f:'🇹🇿'},
+      {c:'TH',n:'تايلاند',f:'🇹🇭'},{c:'TL',n:'تيمور الشرقية',f:'🇹🇱'},{c:'TG',n:'توغو',f:'🇹🇬'},{c:'TO',n:'تونغا',f:'🇹🇴'},
+      {c:'TT',n:'ترينيداد وتوباغو',f:'🇹🇹'},{c:'TM',n:'تركمانستان',f:'🇹🇲'},{c:'TV',n:'توفالو',f:'🇹🇻'},{c:'UG',n:'أوغندا',f:'🇺🇬'},
+      {c:'UA',n:'أوكرانيا',f:'🇺🇦'},{c:'UY',n:'الأوروغواي',f:'🇺🇾'},{c:'UZ',n:'أوزبكستان',f:'🇺🇿'},{c:'VU',n:'فانواتو',f:'🇻🇺'},
+      {c:'VA',n:'الفاتيكان',f:'🇻🇦'},{c:'VE',n:'فنزويلا',f:'🇻🇪'},{c:'VN',n:'فيتنام',f:'🇻🇳'},{c:'YE',n:'اليمن',f:'🇾🇪'},
+      {c:'ZM',n:'زامبيا',f:'🇿🇲'},{c:'ZW',n:'زيمبابوي',f:'🇿🇼'}
+    ]}
+  ];
+
+  let state = loadState();
+  let step = 1;
+  let files = { up1:null, up2:null };
+  let docType = null;
+  let docNeedsBack = false;
+  let selectedCountry = null;
+  let countdownTimer = null;
+  let camStream = null, camTarget = null;
+
+  function loadState(){
+    try{ return JSON.parse(localStorage.getItem(STORAGE_KEY())) || {status:'none'}; }
+    catch(e){ return {status:'none'}; }
+  }
+  function saveState(){ try{ localStorage.setItem(STORAGE_KEY(), JSON.stringify(state)); }catch(e){} }
+  function loadUsedDocs(){ try{ return JSON.parse(localStorage.getItem(USED_DOCS_KEY))||{}; }catch(e){ return {}; } }
+  function saveUsedDocs(o){ try{ localStorage.setItem(USED_DOCS_KEY, JSON.stringify(o)); }catch(e){} }
+  async function sha256OfFile(file){
+    try{
+      const buf = await file.arrayBuffer();
+      const h = await crypto.subtle.digest('SHA-256', buf);
+      return Array.from(new Uint8Array(h)).map(b=>b.toString(16).padStart(2,'0')).join('');
+    }catch(e){
+      return 'sz_'+file.size+'_n_'+(file.name||'').replace(/[^a-z0-9]/gi,'_');
+    }
+  }
+
+  function updateAccountRow(){
+    const sub = document.getElementById('kyc-row-sub');
+    const badge = document.getElementById('kyc-row-badge');
+    const heroBadge = document.getElementById('hero-verified-badge');
+    if(heroBadge){ heroBadge.style.display = (state.status==='verified') ? 'inline-flex' : 'none'; }
+    if(!sub || !badge) return;
+    if(state.status === 'verified'){
+      sub.textContent = 'تم التحقق من هويتك ✓';
+      badge.textContent = 'موثّق';
+      badge.style.background = 'rgba(16,185,129,.15)';
+      badge.style.color = '#34d399';
+    } else if(state.status === 'review'){
+      const left = Math.max(0, (state.endsAt||0) - Date.now());
+      const m = Math.floor(left/60000), s = Math.floor((left%60000)/1000);
+      sub.textContent = 'قيد المراجعة... متبقي ' + m + ':' + String(s).padStart(2,'0');
+      badge.textContent = 'قيد المراجعة';
+      badge.style.background = 'rgba(59,130,246,.15)';
+      badge.style.color = '#60a5fa';
+    } else {
+      sub.textContent = 'غير مُحقّق — قم بتوثيق حسابك';
+      badge.textContent = 'غير مُحقّق';
+      badge.style.background = 'rgba(245,158,11,.15)';
+      badge.style.color = '#fbbf24';
+    }
+  }
+
+  function renderCountries(filter){
+    const list = document.getElementById('kyc-country-list');
+    if(!list) return;
+    const q = (filter||'').trim().toLowerCase();
+    let html = '';
+    ALL_COUNTRIES.forEach(grp=>{
+      const items = grp.items.filter(it => !q || it.n.toLowerCase().includes(q) || it.c.toLowerCase().includes(q));
+      if(!items.length) return;
+      html += `<div class="kyc-country-group">${grp.g}</div>`;
+      items.forEach(it=>{
+        const sel = selectedCountry && selectedCountry.c === it.c ? 'selected' : '';
+        html += `<div class="kyc-country-item ${sel}" data-c="${it.c}" data-n="${it.n}" data-f="${it.f}">
+          <span class="flag">${it.f}</span><span>${it.n}</span>
+          <span class="check"><i class="fa-solid fa-circle-check"></i></span>
+        </div>`;
+      });
+    });
+    list.innerHTML = html || '<div style="padding:20px;text-align:center;color:#64748b;font-size:12px">لا توجد نتائج</div>';
+    list.querySelectorAll('.kyc-country-item').forEach(el=>{
+      el.addEventListener('click', ()=>{
+        selectedCountry = { c: el.dataset.c, n: el.dataset.n, f: el.dataset.f };
+        list.querySelectorAll('.kyc-country-item').forEach(x=>x.classList.remove('selected'));
+        el.classList.add('selected');
+        updateNextBtn();
+      });
+    });
+  }
+  window.kycFilterCountries = renderCountries;
+
+  function updateSteps(){
+    document.querySelectorAll('#kyc-steps .kyc-step').forEach(el=>{
+      const s = +el.dataset.s;
+      el.classList.remove('active','done');
+      if(s < step) el.classList.add('done');
+      else if(s === step) el.classList.add('active');
+    });
+    document.querySelectorAll('#kyc-modal .kyc-pane').forEach(el=>{
+      el.classList.toggle('active', +el.dataset.pane === step);
+    });
+    document.getElementById('kyc-back-btn').style.display = (step>1 && step<5) ? 'flex' : 'none';
+    const nextBtn = document.getElementById('kyc-next-btn');
+    if(step === 5){ nextBtn.style.display = 'none'; document.getElementById('kyc-back-btn').style.display='none'; }
+    else { nextBtn.style.display = 'flex'; }
+    updateNextBtn();
+  }
+
+  function updateNextBtn(){
+    const nb = document.getElementById('kyc-next-btn');
+    if(!nb) return;
+    let ok = false;
+    if(step===1) ok = !!selectedCountry;
+    else if(step===2) ok = !!docType;
+    else if(step===3) { ok = !!files.up1 && (!docNeedsBack || !!files.up2); nb.innerHTML = 'بدء التحقق <i class="fa-solid fa-shield-halved"></i>'; }
+    if(step!==3) nb.innerHTML = 'التالي <i class="fa-solid fa-arrow-left"></i>';
+    nb.disabled = !ok;
+  }
+
+  window.kycSelectDoc = function(el, type, faces){
+    docType = type; docNeedsBack = faces > 1;
+    document.querySelectorAll('#kyc-doc-grid .kyc-doc-card').forEach(c=>c.classList.remove('selected'));
+    el.classList.add('selected');
+    document.getElementById('kyc-up2-wrap').style.display = docNeedsBack ? 'block' : 'none';
+    updateNextBtn();
+  };
+
+  function validateImageFile(file){
+    return new Promise((resolve,reject)=>{
+      if(!file) return reject('لم يتم اختيار ملف.');
+      if(!file.type.startsWith('image/')) return reject('يجب أن يكون الملف صورة.');
+      if(file.size > 8*1024*1024) return reject('حجم الصورة يتجاوز 8MB.');
+      if(file.size < 15*1024) return reject('الصورة صغيرة جداً أو غير واضحة.');
+      const url = URL.createObjectURL(file);
+      const img = new Image();
+      img.onload = ()=>{
+        if(img.width < 280 || img.height < 180){ URL.revokeObjectURL(url); return reject('دقة الصورة منخفضة جداً.'); }
+        resolve({ url, w:img.width, h:img.height });
+      };
+      img.onerror = ()=>{ URL.revokeObjectURL(url); reject('تعذّر قراءة الصورة.'); };
+      img.src = url;
+    });
+  }
+
+  window.kycHandleFile = async function(ev, key){
+    const f = ev.target.files && ev.target.files[0];
+    if(!f) return;
+    const errEl = document.getElementById('kyc-err-3');
+    try {
+      const meta = await validateImageFile(f);
+      // Fingerprint and check cross-account reuse
+      const fp = await sha256OfFile(f);
+      const used = loadUsedDocs();
+      const owner = used[fp];
+      const me = _curUid();
+      if(owner && owner !== me){
+        URL.revokeObjectURL(meta.url);
+        throw 'تم رفض هذه الوثيقة: مستخدمة لتوثيق حساب آخر، يجب رفع وثيقة جديدة.';
+      }
+      files[key] = { file:f, url:meta.url, fp:fp, name:f.name, size:f.size, type:f.type };
+      if(errEl){ errEl.classList.remove('show'); errEl.textContent=''; }
+      renderUpload(key);
+      updateNextBtn();
+    } catch(msg){
+      if(errEl){ errEl.textContent = '⚠ ' + msg; errEl.classList.add('show'); }
+      ev.target.value = '';
+    }
+  };
+
+  function renderUpload(key){
+    const zoneId = key==='up1' ? 'kyc-up1-zone' : 'kyc-up2-zone';
+    const zone = document.getElementById(zoneId);
+    if(!zone || !files[key]) return;
+    zone.classList.add('has-file');
+    zone.innerHTML = `
+      <div class="kyc-preview">
+        <img src="${files[key].url}" alt="preview">
+        <button type="button" class="rm" onclick="kycClearFile('${key}')"><i class="fa-solid fa-trash"></i></button>
+      </div>
+      <div style="margin-top:10px;color:#34d399;font-size:12px;font-weight:700"><i class="fa-solid fa-circle-check"></i> تم رفع الصورة بنجاح</div>
+    `;
+  }
+
+  window.kycClearFile = function(key){
+    if(files[key] && files[key].url) URL.revokeObjectURL(files[key].url);
+    files[key] = null;
+    rebuildUploadZone(key);
+    updateNextBtn();
+  };
+
+  function rebuildUploadZone(key){
+    const zoneId = key==='up1' ? 'kyc-up1-zone' : 'kyc-up2-zone';
+    const zone = document.getElementById(zoneId);
+    if(!zone) return;
+    zone.classList.remove('has-file');
+    {
+      const label = key==='up1' ? 'صورة الوثيقة (الأمامي)' : 'الوجه الخلفي';
+      zone.innerHTML = `
+        <div class="ph-icon"><i class="fa-solid fa-cloud-arrow-up"></i></div>
+        <div class="ph-title">ارفع ${label}</div>
+        <div class="ph-sub">JPG / PNG — بحد أقصى 8MB</div>
+        <div class="kyc-upload-btns">
+          <button type="button" class="kyc-upload-btn gallery" onclick="document.getElementById('kyc-${key}-file').click()"><i class="fa-solid fa-folder-open"></i> من المعرض</button>
+          <button type="button" class="kyc-upload-btn camera" onclick="kycOpenCamera('${key}','environment')"><i class="fa-solid fa-camera"></i> الكاميرا</button>
+        </div>
+        <input type="file" id="kyc-${key}-file" accept="image/*" hidden onchange="kycHandleFile(event,'${key}')">`;
+    }
+  }
+
+  // Live camera
+  window.kycOpenCamera = async function(target, facing){
+    camTarget = target;
+    const ov = document.getElementById('kyc-cam-overlay');
+    ov.style.display = 'flex';
+    const v = document.getElementById('kyc-cam-video');
+    try{
+      camStream = await navigator.mediaDevices.getUserMedia({ video:{ facingMode: facing }, audio:false });
+      v.srcObject = camStream;
+    } catch(e){
+      // fallback: trigger file input with capture
+      kycCloseCamera();
+      const inp = document.getElementById('kyc-'+target+'-file');
+      if(inp){ inp.setAttribute('capture', facing==='user' ? 'user' : 'environment'); inp.click(); }
+    }
+  };
+  window.kycCloseCamera = function(){
+    if(camStream){ camStream.getTracks().forEach(t=>t.stop()); camStream=null; }
+    document.getElementById('kyc-cam-overlay').style.display = 'none';
+  };
+  window.kycSnap = function(){
+    const v = document.getElementById('kyc-cam-video');
+    if(!v || !v.videoWidth) return;
+    const canvas = document.createElement('canvas');
+    canvas.width = v.videoWidth; canvas.height = v.videoHeight;
+    canvas.getContext('2d').drawImage(v, 0, 0);
+    canvas.toBlob(async (blob)=>{
+      if(!blob) return;
+      const file = new File([blob], 'capture.jpg', { type:'image/jpeg' });
+      const dt = new DataTransfer(); dt.items.add(file);
+      const inp = document.getElementById('kyc-'+camTarget+'-file');
+      if(inp){ inp.files = dt.files; inp.dispatchEvent(new Event('change')); }
+      kycCloseCamera();
+    }, 'image/jpeg', 0.92);
+  };
+
+  window.kycBack = function(){ if(step>1 && step<5){ step--; updateSteps(); } };
+  window.kycRetryAfterReject = function(){
+    try { localStorage.removeItem(STORAGE_KEY()); } catch(e){}
+    state = {};
+    step = 1;
+    selectedCountry = null; docType = null; docNeedsBack = false;
+    files = { up1:null, up2:null };
+    try { renderCountries(''); } catch(e){}
+    var s = document.getElementById('kyc-country-search'); if(s) s.value = '';
+    try { ['up1','up2'].forEach(rebuildUploadZone); } catch(e){}
+    var up2w = document.getElementById('kyc-up2-wrap'); if(up2w) up2w.style.display = 'none';
+    var rej = document.getElementById('kyc-review-rejected'); if(rej) rej.style.display = 'none';
+    var act = document.getElementById('kyc-review-active'); if(act) act.style.display = '';
+    updateSteps();
+    try { updateAccountRow(); } catch(e){}
+  };
+  window.kycNext = function(){
+    if(step < 3){ step++; updateSteps(); return; }
+    if(step === 3){ startReview(); }
+  };
+
+  function startReview(){
+    step = 5; updateSteps();
+    document.getElementById('kyc-review-active').style.display = '';
+    document.getElementById('kyc-review-success').style.display = 'none';
+    var _rej = document.getElementById('kyc-review-rejected'); if(_rej) _rej.style.display = 'none';
+    // Random duration 30s - 300s (5 min max)
+    const duration = (30 + Math.floor(Math.random()*270)) * 1000;
+    const startedAt = Date.now();
+    const endsAt = startedAt + duration;
+    const willReject = Math.random() < 0.20;
+    state = { status:'review', startedAt, endsAt, country:selectedCountry, docType, willReject };
+    saveState(); updateAccountRow();
+    runCountdown(endsAt, startedAt);
+  }
+
+  function runCountdown(endsAt, startedAt){
+    clearInterval(countdownTimer);
+    const cd = document.getElementById('kyc-countdown');
+    const pb = document.getElementById('kyc-progress');
+    const total = endsAt - startedAt;
+    function tick(){
+      const left = endsAt - Date.now();
+      if(left <= 0){
+        clearInterval(countdownTimer);
+        finishReview();
+        return;
+      }
+      const m = Math.floor(left/60000), s = Math.floor((left%60000)/1000);
+      if(cd) cd.textContent = String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+      if(pb) pb.style.width = Math.min(100, ((Date.now()-startedAt)/total)*100) + '%';
+      updateAccountRow();
+    }
+    tick();
+    countdownTimer = setInterval(tick, 1000);
+  }
+
+  function finishReview(){
+    // Country-mismatch rejection branch (simulated ~20%)
+    if(state && state.willReject === true){
+      try { localStorage.removeItem(STORAGE_KEY()); } catch(e){}
+      state = {};
+      try { updateAccountRow(); } catch(e){}
+      const active = document.getElementById('kyc-review-active');
+      const success = document.getElementById('kyc-review-success');
+      const rejected = document.getElementById('kyc-review-rejected');
+      if(active) active.style.display = 'none';
+      if(success) success.style.display = 'none';
+      if(rejected) rejected.style.display = '';
+      if(typeof window.bfAddNotif === 'function'){
+        window.bfAddNotif({
+          type:'system',
+          icon:'fa-circle-xmark',
+          bg:'rgba(239,68,68,.15)',
+          color:'#fca5a5',
+          title:'تم رفض التحقق',
+          desc:'البلد لا يتطابق مع الوثيقة'
+        });
+      }
+      const bell = document.getElementById('header-bell-btn') || document.querySelector('[onclick*="bfOpenNotif"]');
+      if(bell){ bell.classList.add('bell-shake'); setTimeout(()=>bell.classList.remove('bell-shake'), 1000); }
+      const cnt = document.getElementById('bf-notif-bell-count');
+      if(cnt){
+        const cur = parseInt(cnt.textContent||'0',10) || 0;
+        cnt.textContent = cur + 1;
+        cnt.style.display = 'flex';
+      }
+      if(typeof window.bfToast === 'function'){ window.bfToast('البلد لا يتطابق مع الوثيقة'); }
+      return;
+    }
+    // Register fingerprints to current uid
+    const me = _curUid();
+    const used = loadUsedDocs();
+    const fps = [];
+    ['up1','up2'].forEach(k=>{ if(files[k] && files[k].fp){ used[files[k].fp]=me; fps.push({key:k, fp:files[k].fp, name:files[k].name, size:files[k].size, type:files[k].type, preview:files[k].url}); } });
+    // If reopened after reload (no files in memory) keep previously stored fps
+    saveUsedDocs(used);
+    state = { status:'verified', verifiedAt: Date.now(), country: state.country || selectedCountry, docType: state.docType || docType, uid: me, docFps: fps.length? fps : (state.docFps||[]) };
+    saveState(); updateAccountRow();
+    // Render success
+    const ov = document.getElementById('kyc-overlay');
+    const active = document.getElementById('kyc-review-active');
+    const success = document.getElementById('kyc-review-success');
+    if(active) active.style.display = 'none';
+    if(success){
+      success.style.display = '';
+      const c = state.country || {};
+      const _lang = (typeof getCurrentLang==='function' ? getCurrentLang() : 'ar');
+      const cName = (_lang==='en' && c.en) ? c.en : (c.n || '—');
+      const docLbl = ({passport:'جواز السفر', id:'بطاقة الهوية الوطنية', license:'رخصة القيادة'})[state.docType] || '—';
+      document.getElementById('kyc-summary').innerHTML = `
+        <div class="row"><span class="k">البلد</span><span class="v">${c.f||''} ${cName}</span></div>
+        <div class="row"><span class="k">نوع الوثيقة</span><span class="v">${docLbl}</span></div>
+        <div class="row"><span class="k">حالة الحساب</span><span class="v" style="color:#34d399">موثّق ✓</span></div>
+        <div class="row"><span class="k">تاريخ التحقق</span><span class="v">${new Date(state.verifiedAt).toLocaleString(_lang==='en'?'en-US':'ar-EG')}</span></div>
+      `;
+    }
+    // Send notification
+    if(typeof window.bfAddNotif === 'function'){
+      window.bfAddNotif({
+        type:'system',
+        icon:'fa-shield-check',
+        bg:'rgba(16,185,129,.15)',
+        color:'#34d399',
+        title:'تم التحقق من الهوية بنجاح ✓',
+        desc:'تهانينا! حسابك أصبح موثّقاً بالكامل ويمكنك الآن الاستفادة من جميع ميزات المنصة.'
+      });
+    }
+    // Bell shake + count bump
+    const bell = document.getElementById('header-bell-btn') || document.querySelector('[onclick*="bfOpenNotif"]');
+    if(bell){ bell.classList.add('bell-shake'); setTimeout(()=>bell.classList.remove('bell-shake'), 1000); }
+    const cnt = document.getElementById('bf-notif-bell-count');
+    if(cnt){
+      const cur = parseInt(cnt.textContent||'0',10) || 0;
+      cnt.textContent = cur + 1;
+      cnt.style.display = 'flex';
+    }
+    // Toast
+    if(typeof window.bfToast === 'function'){ window.bfToast('تم التحقق من الهوية بنجاح ✓'); }
+    // KYC reward task: re-render task card with "جمع" button
+    try { if(typeof window.bfRenderKycTaskCard === 'function') window.bfRenderKycTaskCard(); } catch(e){}
+    try {
+      var _lang2 = (typeof getCurrentLang==='function') ? getCurrentLang() : 'ar';
+      if(typeof window.bfAddNotif === 'function'){
+        window.bfAddNotif({
+          type:'system',
+          icon:'fa-gift',
+          bg:'rgba(245,158,11,.15)',
+          color:'#fbbf24',
+          title: (_lang2==='en') ? 'KYC Reward available' : 'مكافأة التحقق متاحة',
+          desc: (_lang2==='en') ? 'Collect your 5.00 USDT reward from the Tasks section.' : 'اجمع مكافأتك 5.00 USDT من قسم المهام.'
+        });
+      }
+    } catch(e){}
+  }
+
+  window.openKycModal = function(){
+    if(state.status === 'verified'){
+      // Show professional details modal (reuse success pane)
+      const ov = document.getElementById('kyc-overlay');
+      ov.classList.add('open');
+      step = 5;
+      try { updateSteps(); } catch(e){}
+      const active = document.getElementById('kyc-review-active');
+      const success = document.getElementById('kyc-review-success');
+      const rejected = document.getElementById('kyc-review-rejected');
+      if(active) active.style.display = 'none';
+      if(rejected) rejected.style.display = 'none';
+      if(success){
+        success.style.display = '';
+        const c = state.country || {};
+        const _lang = (typeof getCurrentLang==='function' ? getCurrentLang() : 'ar');
+        const cName = (_lang==='en' && c.en) ? c.en : (c.n || '—');
+        const docLbl = ({passport:'جواز السفر', id:'بطاقة الهوية الوطنية', license:'رخصة القيادة'})[state.docType] || '—';
+        const fps = state.docFps || [];
+        const fmtBytes = (n)=>{ if(!n) return '—'; if(n<1024) return n+' B'; if(n<1048576) return (n/1024).toFixed(1)+' KB'; return (n/1048576).toFixed(2)+' MB'; };
+        const filesHtml = fps.length ? ('<div style="margin-top:10px"><div class="row"><span class="k">عدد الملفات المرفوعة</span><span class="v">'+fps.length+'</span></div>' + fps.map((f,i)=>('<div class="row"><span class="k">ملف '+(i+1)+' — '+(f.key==='up2'?'الوجه الخلفي':'الوجه الأمامي')+'</span><span class="v" style="direction:ltr;font-family:monospace;font-size:10px">'+ (f.name||'document') +' · '+ fmtBytes(f.size) +'</span></div>'+'<div class="row"><span class="k">بصمة الوثيقة (SHA-256)</span><span class="v" style="direction:ltr;font-family:monospace;font-size:9.5px;word-break:break-all;text-align:left">'+ (f.fp? (f.fp.slice(0,16)+'…'+f.fp.slice(-12)) :'—') +'</span></div>')).join('') + '</div>') : '';
+        const sum = document.getElementById('kyc-summary');
+        if(sum){
+          sum.innerHTML = '' +
+            '<div class="row"><span class="k">حالة الحساب</span><span class="v" style="color:#34d399;font-weight:800">موثّق ✓</span></div>' +
+            '<div class="row"><span class="k">البلد</span><span class="v">'+ (c.f||'') +' '+ cName +'</span></div>' +
+            '<div class="row"><span class="k">نوع الوثيقة</span><span class="v">'+ docLbl +'</span></div>' +
+            '<div class="row"><span class="k">معرّف المستخدم (UID)</span><span class="v" style="direction:ltr;font-family:monospace">'+ (state.uid || _curUid()) +'</span></div>' +
+            '<div class="row"><span class="k">تاريخ التحقق</span><span class="v">'+ new Date(state.verifiedAt).toLocaleString(_lang==='en'?'en-US':'ar-EG') +'</span></div>' +
+            '<div class="row"><span class="k">رقم مرجعي</span><span class="v" style="direction:ltr;font-family:monospace">KYC-'+ String(state.verifiedAt).slice(-10) +'</span></div>' +
+            filesHtml;
+        }
+      }
+      return;
+    }
+    const ov = document.getElementById('kyc-overlay');
+    ov.classList.add('open');
+    if(state.status === 'review' && state.endsAt && state.endsAt > Date.now()){
+      step = 5; updateSteps();
+      document.getElementById('kyc-review-active').style.display = '';
+      document.getElementById('kyc-review-success').style.display = 'none';
+      selectedCountry = state.country || null; docType = state.docType || null;
+      runCountdown(state.endsAt, state.startedAt || (Date.now()-1));
+      return;
+    }
+    // Fresh start
+    step = 1;
+    selectedCountry = null; docType = null; docNeedsBack = false;
+    files = { up1:null, up2:null };
+    renderCountries('');
+    document.getElementById('kyc-country-search').value = '';
+    ['up1','up2'].forEach(rebuildUploadZone);
+    document.getElementById('kyc-up2-wrap').style.display = 'none';
+    document.querySelectorAll('#kyc-doc-grid .kyc-doc-card').forEach(c=>c.classList.remove('selected'));
+    updateSteps();
+  };
+  window.closeKycModal = function(){
+    document.getElementById('kyc-overlay').classList.remove('open');
+    kycCloseCamera();
+  };
+
+  window.bfRefreshKyc = function(){
+    try { clearInterval(countdownTimer); } catch(e){}
+    state = loadState();
+    selectedCountry = state.country || null;
+    docType = state.docType || null;
+    updateAccountRow();
+    if(state.status === 'review' && state.endsAt){
+      if(state.endsAt <= Date.now()) finishReview();
+      else runCountdown(state.endsAt, state.startedAt || (Date.now()-1));
+    }
+  };
+  // Init on load
+  document.addEventListener('DOMContentLoaded', ()=>{
+    updateAccountRow();
+    // Resume review timer if in progress
+    if(state.status === 'review' && state.endsAt){
+      if(state.endsAt <= Date.now()){
+        finishReview();
+      } else {
+        runCountdown(state.endsAt, state.startedAt || (Date.now()-1));
+      }
+    }
+  });
+})();
+</script>
+
+<script>
+(function(){
+    var KYC_REWARD_AMOUNT = 5;
+    var KYC_REWARD_FLAG = 'kycRewardClaimed';
+
+    function getSession(){
+        try { return (typeof getCurrentSession==='function') ? getCurrentSession() : null; } catch(e){ return null; }
+    }
+    function getUsers(){
+        try { return (typeof getAllUsers==='function') ? getAllUsers() : []; } catch(e){ return []; }
+    }
+    function saveUsers(u){
+        try { if (typeof saveAllUsers==='function') saveAllUsers(u); } catch(e){}
+    }
+    function curLang(){
+        try { return (typeof getCurrentLang==='function') ? getCurrentLang() : 'ar'; } catch(e){ return 'ar'; }
+    }
+    function getKycState(){
+        try {
+            var s = getSession(); if(!s) return {};
+            var raw = localStorage.getItem('bf_kyc_' + s.uid);
+            return raw ? (JSON.parse(raw) || {}) : {};
+        } catch(e){ return {}; }
+    }
+    window.bfGetUserBalance = function(){
+        var s = getSession(); if(!s) return 0;
+        var u = getUsers().find(function(x){ return x.uid === s.uid; });
+        return u ? (Number(u.balance) || 0) : 0;
+    };
+    window.bfSetUserBalance = function(n){
+        var s = getSession(); if(!s) return;
+        var users = getUsers();
+        var i = users.findIndex(function(x){ return x.uid === s.uid; });
+        if(i < 0) return;
+        users[i].balance = Number(n) || 0;
+        saveUsers(users);
+    };
+    window.bfIsKycVerified = function(){
+        return getKycState().status === 'verified';
+    };
+    window.bfIsKycRewardClaimed = function(){
+        var u = (getUsers().find(function(x){ var s=getSession(); return s && x.uid===s.uid; }) || {});
+        return !!u[KYC_REWARD_FLAG];
+    };
+    function markRewardClaimed(){
+        var s = getSession(); if(!s) return;
+        var users = getUsers();
+        var i = users.findIndex(function(x){ return x.uid === s.uid; });
+        if(i < 0) return;
+        users[i][KYC_REWARD_FLAG] = true;
+        users[i].balance = (Number(users[i].balance)||0) + KYC_REWARD_AMOUNT;
+        saveUsers(users);
+    }
+    function fmt2(n){ return (Number(n)||0).toFixed(2); }
+
+    window.bfRefreshAllBalances = function(){
+        var bal = window.bfGetUserBalance();
+        var balStr = fmt2(bal);
+        // الرئيسية
+        var mb = document.getElementById('main-balance');
+        if(mb) mb.textContent = balStr;
+        var mbUsd = document.getElementById('main-balance-usd');
+        if(mbUsd) mbUsd.textContent = '≈ $' + balStr;
+        // أي عنصر يحمل سمة data-balance-display
+        document.querySelectorAll('[data-balance-display]').forEach(function(el){ el.textContent = balStr; });
+        // التحويل: حقن الرصيد في spot USDT
+        try {
+            if (typeof TRANSFER_BALANCES !== 'undefined' && TRANSFER_BALANCES && TRANSFER_BALANCES.spot){
+                TRANSFER_BALANCES.spot.USDT = bal;
+            }
+        } catch(e){}
+        try { if (typeof updateTransferSummary === 'function') updateTransferSummary(); } catch(e){}
+        // إعادة تطبيق القناع (إن كان مخفي)
+        try { if (typeof window.refreshBalanceMask === 'function') window.refreshBalanceMask(); } catch(e){}
+    };
+
+    window.bfRenderKycTaskCard = function(){
+        var card = document.getElementById('task-kyc-card');
+        var btn = document.getElementById('task-kyc-btn');
+        var lbl = document.getElementById('task-kyc-reward-label');
+        if(!card || !btn || !lbl) return;
+        var lang = curLang();
+        var verified = window.bfIsKycVerified();
+        var claimed = window.bfIsKycRewardClaimed();
+        btn.classList.remove('bg-blue-500','hover:bg-blue-600','bg-amber-500','hover:bg-amber-600','bg-green-500/20','text-green-400','bg-white/10','hover:bg-white/20','opacity-60','cursor-not-allowed');
+        btn.disabled = false;
+        if(!verified){
+            btn.textContent = (lang==='en') ? 'Start now' : 'ابدأ الآن';
+            btn.classList.add('bg-blue-500','hover:bg-blue-600','text-white');
+            lbl.textContent = (lang==='en') ? '+5.00 USDT Reward' : '+5.00 USDT مكافأة';
+        } else if(!claimed){
+            btn.textContent = (lang==='en') ? 'Collect' : 'جمع';
+            btn.classList.add('bg-amber-500','hover:bg-amber-600','text-white');
+            lbl.textContent = (lang==='en') ? '+5.00 USDT Ready to collect' : '+5.00 USDT جاهزة للجمع';
+        } else {
+            btn.textContent = (lang==='en') ? 'Collected ✓' : 'تم الجمع ✓';
+            btn.classList.add('bg-green-500/20','text-green-400','cursor-not-allowed');
+            btn.disabled = true;
+            lbl.textContent = (lang==='en') ? '+5.00 USDT Collected' : '+5.00 USDT تم استلامها';
+        }
+    };
+
+    window.bfHandleKycTaskClick = function(){
+        var verified = window.bfIsKycVerified();
+        var claimed = window.bfIsKycRewardClaimed();
+        if(!verified){
+            try { if(typeof openKycModal==='function') openKycModal(); } catch(e){}
+            return;
+        }
+        if(claimed){ return; }
+        markRewardClaimed();
+        window.bfRenderKycTaskCard();
+        window.bfRefreshAllBalances();
+        var lang = curLang();
+        if(typeof window.bfAddNotif === 'function'){
+            window.bfAddNotif({
+                type:'system',
+                icon:'fa-coins',
+                bg:'rgba(245,158,11,.15)',
+                color:'#fbbf24',
+                title: (lang==='en') ? 'KYC Reward Collected' : 'تم استلام مكافأة التحقق',
+                desc: (lang==='en') ? '5.00 USDT has been added to your balance.' : 'تمت إضافة 5.00 USDT إلى رصيدك.'
+            });
+        }
+        if(typeof window.bfToast === 'function'){
+            window.bfToast((lang==='en') ? '+5.00 USDT added to your balance' : 'تمت إضافة 5.00 USDT إلى رصيدك');
+        } else if (typeof showToast === 'function'){
+            showToast((lang==='en') ? '+5.00 USDT added to your balance' : '✅ تمت إضافة 5.00 USDT إلى رصيدك', 'success', 3000);
+        }
+    };
+
+    // Hook after enterPlatform / KYC verify / language change / DOMContentLoaded
+    function refreshAll(){
+        try { window.bfRefreshAllBalances(); } catch(e){}
+        try { window.bfRenderKycTaskCard(); } catch(e){}
+    }
+    document.addEventListener('DOMContentLoaded', function(){ setTimeout(refreshAll, 100); });
+    // Patch enterPlatform
+    try {
+        var _ep = window.enterPlatform;
+        if (typeof _ep === 'function'){
+            window.enterPlatform = function(u){ var r = _ep.apply(this, arguments); setTimeout(refreshAll, 50); return r; };
+        }
+    } catch(e){}
+    // Periodic + on tab switch
+    document.addEventListener('click', function(e){
+        var t = e.target.closest && e.target.closest('[data-tab],[onclick*="switchTab"]');
+        if(t) setTimeout(refreshAll, 30);
+    }, true);
+    // Watch for language changes (custom event or just poll lightly)
+    var _lastLang = curLang();
+    setInterval(function(){
+        var l = curLang();
+        if(l !== _lastLang){ _lastLang = l; refreshAll(); }
+    }, 800);
+    window.bfTaskRefresh = refreshAll;
+})();
+</script>
+
+<script>
+/* ==================== App Loader (show on load & reload) ==================== */
+(function(){
+    var loader = document.getElementById('app-loader');
+    if(!loader) return;
+    function hideLoader(){
+        loader.classList.add('hidden');
+        setTimeout(function(){ if(loader && loader.parentNode) loader.setAttribute('aria-hidden','true'); }, 500);
+    }
+    if(document.readyState === 'complete'){
+        setTimeout(hideLoader, 400);
+    } else {
+        window.addEventListener('load', function(){ setTimeout(hideLoader, 400); });
+    }
+    // Show loader again on reload / navigation away
+    window.addEventListener('beforeunload', function(){
+        loader.classList.remove('hidden');
+    });
+    // Optional: expose for manual triggers
+    window.bfShowLoader = function(){ loader.classList.remove('hidden'); };
+    window.bfHideLoader = hideLoader;
+})();
+
+/* ==================== Double-press Back to Exit ==================== */
+(function(){
+    var toast = document.getElementById('exit-toast');
+    var lastBack = 0;
+    var EXIT_WINDOW = 2000; // ms
+
+    function showToast(){
+        if(!toast) return;
+        toast.classList.add('show');
+        clearTimeout(toast._t);
+        toast._t = setTimeout(function(){ toast.classList.remove('show'); }, EXIT_WINDOW);
+    }
+
+    // Seed a history entry so the first back press triggers popstate instead of leaving
+    try { history.pushState({ bfGuard: 1 }, '', location.href); } catch(e){}
+
+    window.addEventListener('popstate', function(){
+        var now = Date.now();
+        if(now - lastBack < EXIT_WINDOW){
+            // Second press: allow exit (go back beyond our guard)
+            try { history.back(); } catch(e){}
+            // As fallback for PWA / standalone
+            setTimeout(function(){ try { window.close(); } catch(e){} }, 50);
+            return;
+        }
+        lastBack = now;
+        showToast();
+        // Re-push the guard so we stay on the page
+        try { history.pushState({ bfGuard: 1 }, '', location.href); } catch(e){}
+    });
 })();
 </script>
 
